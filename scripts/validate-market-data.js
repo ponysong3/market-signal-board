@@ -94,6 +94,8 @@ if (data.publicDisclosure) {
   requireValue(Array.isArray(data.publicDisclosure.tradeUse) && data.publicDisclosure.tradeUse.length >= 2, 'publicDisclosure tradeUse missing');
   for (const item of data.publicDisclosure.china?.items || []) {
     requireValue(item.title && item.url && item.source, `publicDisclosure china item ${item.id || item.code} incomplete`);
+    requireValue(item.freshness && item.freshnessLabel, `publicDisclosure china item ${item.id || item.code} freshness missing`);
+    requireValue(item.tradeUse, `publicDisclosure china item ${item.id || item.code} tradeUse missing`);
   }
 }
 

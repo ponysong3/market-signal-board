@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>预判市场实战看板使用指导</title>
+    <style>
+      :root {
+        --bg: #f5f7f8;
+        --ink: #172026;
+        --muted: #62717d;
+        --line: #d9e1e6;
+        --panel: #ffffff;
+        --blue: #0f6b8d;
+        --green: #16845b;
+        --red: #b94a48;
+        --amber: #a96f11;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.72;
+      }
+
+      main {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 34px 22px 56px;
+      }
+
+      header {
+        padding: 22px 0 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 5vw, 46px);
+        line-height: 1.08;
+      }
+
+      .intro {
+        max-width: 840px;
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0 8px;
+      }
+
+      nav a, .back {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--blue);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      section {
+        margin-top: 18px;
+        padding: 20px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 23px;
+      }
+
+      h3 {
+        margin: 16px 0 6px;
+        font-size: 17px;
+      }
+
+      p, li {
+        color: var(--muted);
+      }
+
+      strong {
+        color: var(--ink);
+      }
+
+      ul, ol {
+        padding-left: 22px;
+      }
+
+      .rule {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .rule div, .note {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfcfd;
+      }
+
+      .tag {
+        display: inline-block;
+        margin-right: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .green { background: #e5f6ee; color: var(--green); }
+      .amber { background: #fff3d9; color: var(--amber); }
+      .red { background: #fbe9e8; color: var(--red); }
+      .blue { background: #e9f2f6; color: var(--blue); }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      th, td {
+        padding: 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 14px;
+      }
+
+      th {
+        background: #eef4f6;
+        color: var(--ink);
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      code {
+        padding: 2px 5px;
+        border-radius: 5px;
+        background: #eef0f2;
+      }
+
+      @media (max-width: 760px) {
+        main { padding: 22px 14px 42px; }
+        .rule { grid-template-columns: 1fr; }
+        section { padding: 16px; }
+        table { display: block; overflow-x: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="/">返回看板</a>
+      <header>
+        <p class="eyebrow">Market Signal Board Guide</p>
+        <h1>预判市场实战看板使用指导</h1>
+        <p class="intro">
+          这个看板不是为了告诉你“今天一定买什么”，而是把市场中最重要的价格、宏观、流动性、风险偏好和公开披露线索放到同一张图里，帮助你判断：市场正在交易什么预期，这个预期有没有过度，自己的仓位是否应该进攻、防守或等待。
+        </p>
+        <nav>
+          <a href="#method">核心方法</a>
+          <a href="#summary">顶部总览</a>
+          <a href="#recommendations">交易建议</a>
+          <a href="#pulse">预期差系统</a>
+          <a href="#nowcast">高频 Nowcast</a>
+          <a href="#pricing">隐含定价</a>
+          <a href="#traces">市场痕迹</a>
+          <a href="#disclosure">公示持仓</a>
+          <a href="#chain">领先链条</a>
+          <a href="#playbook">操作手册</a>
+          <a href="#quotes">行情表</a>
+          <a href="#routine">每日流程</a>
+        </nav>
+      </header>
+
+      <section id="method">
+        <h2>一、第一性原理：市场价格是“预期的贴现”</h2>
+        <p>
+          股票、债券、汇率、商品和比特币每天都在表达同一件事：资金认为未来增长、通胀、利率、风险和政策会怎样变化。真正有交易价值的不是“数据好不好”，而是“市场原来以为会怎样，现在是否发现错了”。
+        </p>
+        <div class="rule">
+          <div>
+            <span class="tag blue">1</span>
+            <strong>先看市场交易的预期</strong>
+            <p>比如美债利率上行，说明市场在重新定价利率、通胀或财政压力；这会压制长久期资产，如高估值科技股和部分成长股。</p>
+          </div>
+          <div>
+            <span class="tag amber">2</span>
+            <strong>再找预期差</strong>
+            <p>如果数据差但市场不跌，可能是坏消息已被充分定价；如果数据好但市场不涨，可能是利好兑现或估值太贵。</p>
+          </div>
+          <div>
+            <span class="tag green">3</span>
+            <strong>最后落到仓位和失效条件</strong>
+            <p>任何观点都必须能回答：买多少、错了看哪里、什么情况下退出。否则只是观点，不是交易系统。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="summary">
+        <h2>二、顶部总览：先判断今天是进攻、防守还是等待</h2>
+        <h3>市场状态</h3>
+        <p>这是看板对当前跨资产环境的总判断。它综合 A 股、美股、BTC、VIX、美元人民币、商品等数据，给出“风险偏好扩张、结构性震荡、外部压力期、风险偏好收缩、数据降级运行”等状态。</p>
+        <h3>风险偏好</h3>
+        <p>风险偏好可以理解为“资金愿不愿意买波动更大的资产”。分数越高，说明股票、BTC、成长股等风险资产的趋势越顺；分数越低，说明市场在避险。</p>
+        <h3>美元/利率压力</h3>
+        <p>这个分数越高，代表美元、利率、VIX 或商品通胀压力越大。它对 A 股、港股、成长股、BTC 通常偏不利，因为资金会更重视现金流和确定性。</p>
+      </section>
+
+      <section id="recommendations">
+        <h2>三、A 股、美股、BTC 交易建议：只当“仓位方向”，不当神谕</h2>
+        <table>
+          <thead>
+            <tr><th>字段</th><th>含义</th><th>使用方式</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>加仓</td><td>趋势、风险偏好、外部压力相对配合。</td><td>只能在自己设定的仓位上限内分批，不代表满仓。</td></tr>
+            <tr><td>持有</td><td>当前环境没有明显恶化，但追高性价比一般。</td><td>适合保留核心仓，减少频繁换手。</td></tr>
+            <tr><td>观望</td><td>信号不够一致，市场可能在等待关键数据或政策。</td><td>少做方向性押注，多等确认。</td></tr>
+            <tr><td>减仓</td><td>趋势或风险偏好明显转弱。</td><td>优先降高 beta、高估值、无现金流资产。</td></tr>
+            <tr><td>暂停判断</td><td>关键数据源失败、过期或质量不够。</td><td>不要用残缺数据硬做结论。</td></tr>
+          </tbody>
+        </table>
+        <p>置信度不是胜率，它表示当前多项证据是否一致。高置信度也会错，所以必须同时看“失效条件”。</p>
+      </section>
+
+      <section id="pulse">
+        <h2>四、预期差感知系统：看市场的“体温”</h2>
+        <p>这一块把几个核心维度压缩成分数，帮助你快速判断今天市场的主要矛盾。</p>
+        <ul>
+          <li><strong>风险偏好：</strong>股票、BTC、波动率共同反映资金是否愿意承担风险。</li>
+          <li><strong>人民币稳定：</strong>美元人民币上行通常代表人民币走弱，对中国资产估值和外资风险偏好有压力。</li>
+          <li><strong>商品压力：</strong>油、黄金等商品异动会影响通胀、避险和周期股定价。</li>
+          <li><strong>数据质量：</strong>告诉你今天看板是否可靠。数据异常时，方向信号应降级。</li>
+        </ul>
+      </section>
+
+      <section id="nowcast">
+        <h2>五、高频 Nowcast：在官方数据公布前观察市场线索</h2>
+        <p>Nowcast 的意思是“现在预测”。官方 GDP、CPI、PMI 通常滞后，但资产价格每天都在提前反映预期。</p>
+        <h3>中国增长即时感知</h3>
+        <p>用 A 股指数、创业板、人民币汇率等观察中国增长和政策预期。如果指数走强且人民币稳定，说明市场愿意给中国资产更高风险溢价。</p>
+        <h3>通胀压力 Nowcast</h3>
+        <p>用原油、黄金、通胀盈亏平衡等观察通胀预期。油价快速上涨可能抬升 CPI/PPI 预期，从而压制估值较高的资产。</p>
+        <h3>流动性/信用脉冲</h3>
+        <p>信用利差收窄、金融条件宽松，通常支持股票和 BTC；信用利差扩大，说明市场开始担心违约和融资压力。</p>
+        <h3>避险微观痕迹</h3>
+        <p>黄金强、白银弱、VIX 升，可能说明资金在避险。没有新闻但避险资产异动时，要警惕市场先于新闻行动。</p>
+      </section>
+
+      <section id="pricing">
+        <h2>六、市场隐含定价：看债券、通胀、信用、波动率在说什么</h2>
+        <table>
+          <thead>
+            <tr><th>指标</th><th>通俗解释</th><th>对投资的意义</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>美国 10 年期利率</td><td>全球资产定价的核心折现率之一。</td><td>上行通常压制高估值成长股、黄金和 BTC；下行通常支持估值修复。</td></tr>
+            <tr><td>10 年通胀盈亏平衡</td><td>市场隐含的长期通胀预期。</td><td>上行说明通胀预期升温，利率敏感资产要谨慎。</td></tr>
+            <tr><td>高收益债利差</td><td>垃圾债相对国债多给的风险补偿。</td><td>利差扩大代表信用风险上升，股票和高 beta 资产承压。</td></tr>
+            <tr><td>VIX 和拥挤度</td><td>市场对未来波动的定价。</td><td>低 VIX 加高涨幅代表乐观拥挤，容易出现“稍不及预期就下跌”。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="traces">
+        <h2>七、聪明钱/微观痕迹：看价格之间是否出现背离</h2>
+        <p>这一块关注“不同资产之间是否说同一句话”。如果股票上涨、信用利差收窄、VIX 低位，说明风险偏好一致；如果股票涨但信用利差扩大，就要警惕表面繁荣。</p>
+        <ul>
+          <li><strong>黄金/白银异动：</strong>黄金更偏避险，白银兼具工业属性。黄金强而白银不跟，可能是避险而不是通胀繁荣。</li>
+          <li><strong>原油对 CPI 的压力：</strong>油价影响交通、化工和通胀预期，是 CPI/PPI 的前置线索。</li>
+          <li><strong>BTC/ETH 风险弹性：</strong>BTC 强于 ETH 往往更偏“核心吸金”；ETH 强于 BTC 往往说明风险偏好更外扩。</li>
+          <li><strong>信用利差 + VIX：</strong>两者一起恶化时，通常比单一价格下跌更值得重视。</li>
+        </ul>
+      </section>
+
+      <section id="disclosure">
+        <h2>八、合法公示持仓/交易变动：只能作为线索，不是内幕判断</h2>
+        <p>这个模块只展示合法公开披露的数据或官方入口。中国侧来自 CNINFO 公告筛选，主要是上市公司董监高、实控人及近亲属交易相关公告；美国侧提供 House 和 Senate 的官方财务披露入口。</p>
+        <h3>为什么有意义</h3>
+        <p>公开披露的持仓或交易变动可能提示治理风险、政策敏感行业关注度、事件催化或市场情绪。但它不能单独决定买卖，因为披露有滞后，且很多交易可能是个人资金安排、误操作或合规披露。</p>
+        <h3>如何使用</h3>
+        <ul>
+          <li>看到“短线交易、窗口期、违规买卖”时，先降低治理评分，再看公司基本面是否受影响。</li>
+          <li>看到增持或减持时，不要直接跟随，要结合估值、业绩、行业景气和成交量。</li>
+          <li>美国官员披露要回到官方页面核验，不使用来源不清的数据做交易依据。</li>
+        </ul>
+        <p class="note"><strong>隐私边界：</strong>看板不推断未公开亲属身份，不展示地址、联系方式、私人账户等信息，只处理合法公示范围内的信息。</p>
+      </section>
+
+      <section id="chain">
+        <h2>九、领先指标时间链：理解经济周期的传导顺序</h2>
+        <p>经济和市场通常不是同时变化，而是按链条传导：信用和流动性最先变，风险资产随后反应，企业利润和 PMI 再确认，最后才体现在就业和通胀等滞后指标上。</p>
+        <ol>
+          <li><strong>信用/流动性：</strong>最领先。融资环境变好，风险资产通常先涨。</li>
+          <li><strong>估值/风险偏好：</strong>股票市场开始给未来修复提前定价。</li>
+          <li><strong>PMI/企业利润：</strong>实体经济数据确认市场预期是否正确。</li>
+          <li><strong>就业/通胀：</strong>通常滞后。等它们完全确认时，市场可能已走完一段。</li>
+        </ol>
+      </section>
+
+      <section id="playbook">
+        <h2>十、今日操作手册：把观点变成可执行动作</h2>
+        <p>这一块是看板最接近交易执行的部分，但仍然不是自动下单信号。</p>
+        <ul>
+          <li><strong>设定：</strong>说明当前市场要满足什么背景，交易才有意义。</li>
+          <li><strong>操作：</strong>给出加仓、持有、减仓或等待的具体行为。</li>
+          <li><strong>确认：</strong>告诉你需要哪些信号继续支持原判断。</li>
+          <li><strong>失效：</strong>告诉你什么情况说明判断错了，应该停止或撤退。</li>
+        </ul>
+        <p>最重要的是“失效”。如果你只看操作，不看失效条件，系统就会从风险管理工具变成情绪放大器。</p>
+      </section>
+
+      <section id="quotes">
+        <h2>十一、行情表和数据质量：先看数据能不能信</h2>
+        <p>行情表展示 A 股、美股、加密资产和全球定价因子的价格、日涨跌、5 日/20 日表现、趋势和数据质量。</p>
+        <ul>
+          <li><strong>5 日：</strong>反映短线情绪和事件冲击。</li>
+          <li><strong>20 日：</strong>接近一个交易月，适合观察中短期趋势。</li>
+          <li><strong>趋势：</strong>由价格与均线关系估算，帮助判断顺势还是逆势。</li>
+          <li><strong>质量：</strong>如果显示过期、降级或失败，相关建议要打折甚至暂停。</li>
+        </ul>
+      </section>
+
+      <section id="routine">
+        <h2>十二、建议的每日使用流程</h2>
+        <ol>
+          <li><strong>先看数据质量：</strong>如果关键数据失败，不做方向性决策。</li>
+          <li><strong>看顶部市场状态：</strong>判断今天偏进攻、防守还是等待。</li>
+          <li><strong>看三类交易建议：</strong>确认 A 股、美股、BTC 的仓位方向是否一致。</li>
+          <li><strong>看隐含定价：</strong>检查利率、通胀、信用、VIX 是否支持你的方向。</li>
+          <li><strong>看微观痕迹和公示持仓：</strong>寻找额外风险、催化或反常背离。</li>
+          <li><strong>最后看操作手册：</strong>只执行有确认条件和失效条件的交易。</li>
+        </ol>
+        <p class="note">
+          简单原则：当价格趋势、流动性、信用、波动率和人民币环境同向时，仓位可以更积极；当它们互相矛盾时，降低仓位，等待更好的预期差。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

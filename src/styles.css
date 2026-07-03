@@ -58,6 +58,26 @@ h1 {
   line-height: 1.7;
 }
 
+.help-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 16px;
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.help-link:hover {
+  border-color: var(--blue);
+}
+
 .status {
   display: grid;
   gap: 10px;

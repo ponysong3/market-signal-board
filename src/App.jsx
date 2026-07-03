@@ -1,63 +1,64 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bitcoin, Clock, Database, ExternalLink, LineChart, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bitcoin, CircleHelp, Clock, Database, ExternalLink, LineChart, RefreshCw, ShieldCheck } from 'lucide-react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
 const ACTION = {
-  add: '\u52a0\u4ed3',
-  hold: '\u6301\u6709',
-  reduce: '\u51cf\u4ed3',
-  watch: '\u89c2\u671b',
-  pause: '\u6682\u505c\u5224\u65ad'
+  add: '加仓',
+  hold: '持有',
+  reduce: '减仓',
+  watch: '观望',
+  pause: '暂停判断'
 };
 
 const GROUP = {
-  china: '\u0041\u80a1',
-  us: '\u7f8e\u80a1',
-  crypto: '\u52a0\u5bc6',
-  macro: '\u5168\u7403\u56e0\u5b50'
+  china: 'A股',
+  us: '美股',
+  crypto: '加密',
+  macro: '全球因子'
 };
 
 const TEXT = {
-  confidence: '\u7f6e\u4fe1\u5ea6',
-  advice: '\u4ea4\u6613\u5efa\u8bae',
-  reasons: '\u4f9d\u636e',
-  invalidations: '\u5931\u6548\u6761\u4ef6',
-  asset: '\u8d44\u4ea7',
-  price: '\u4ef7\u683c',
-  dayChange: '\u65e5\u6da8\u8dcc',
-  day5: '5\u65e5',
-  day20: '20\u65e5',
-  trend: '\u8d8b\u52bf',
-  quality: '\u8d28\u91cf',
-  quoteTime: '\u884c\u60c5\u65f6\u95f4',
-  pulseTitle: '\u9884\u671f\u5dee\u611f\u77e5\u7cfb\u7edf',
-  pulseSub: '\u57fa\u4e8e\u300a\u9884\u5224\u5e02\u573a\u300b\u4e94\u6b65\u6cd5',
-  title: '\u9884\u5224\u5e02\u573a\u5b9e\u6218\u770b\u677f',
-  intro: '\u4ece\u201c\u770b\u6570\u636e\u597d\u574f\u201d\u5347\u7ea7\u4e3a\u201c\u8bc6\u522b\u9884\u671f\u5dee\u201d\uff1a\u7528\u9ad8\u9891 Nowcast\u3001\u9690\u542b\u5b9a\u4ef7\u3001\u806a\u660e\u94b1\u75d5\u8ff9\u548c\u9886\u5148\u6307\u6807\u94fe\uff0c\u751f\u6210 A \u80a1\u3001\u7f8e\u80a1\u3001BTC \u7684\u53ef\u6267\u884c\u52a8\u4f5c\u3002',
-  updated: '\u66f4\u65b0\u65f6\u95f4',
-  source: '\u6570\u636e\u6e90',
-  schedule: '\u8ba1\u5212\uff1a\u6bcf\u65e5 07:00 / 19:00 \u5317\u4eac\u65f6\u95f4',
-  freshness: '\u6570\u636e\u8d28\u91cf',
-  regime: '\u5e02\u573a\u72b6\u6001',
-  risk: '\u98ce\u9669\u504f\u597d',
-  pressure: '\u7f8e\u5143/\u5229\u7387\u538b\u529b',
-  chinaTitle: 'A \u80a1',
-  usTitle: '\u7f8e\u80a1',
-  chinaAssets: 'A \u80a1\u4e0e\u4e2d\u56fd\u8d44\u4ea7',
-  usAssets: '\u7f8e\u80a1\u4e0e\u5168\u7403\u98ce\u9669\u8d44\u4ea7',
-  cryptoAssets: '\u52a0\u5bc6\u8d44\u4ea7',
-  macroFactors: '\u5168\u7403\u5b9a\u4ef7\u56e0\u5b50',
-  nowcast: '\u9ad8\u9891 Nowcast',
-  impliedPricing: '\u5e02\u573a\u9690\u542b\u5b9a\u4ef7',
-  marketTraces: '\u806a\u660e\u94b1/\u5fae\u89c2\u75d5\u8ff9',
-  publicDisclosure: '\u5408\u6cd5\u516c\u793a\u6301\u4ed3/\u4ea4\u6613\u53d8\u52a8',
-  leadLag: '\u9886\u5148\u6307\u6807\u65f6\u95f4\u94fe',
-  playbook: '\u4eca\u65e5\u64cd\u4f5c\u624b\u518c',
-  boundary: '\u4f7f\u7528\u8fb9\u754c',
-  boundaryText: '\u672c\u770b\u677f\u662f\u7814\u7a76\u548c\u51b3\u7b56\u8f85\u52a9\uff0c\u4e0d\u6784\u6210\u6295\u8d44\u5efa\u8bae\u3002\u4fe1\u53f7\u4f9d\u8d56\u516c\u5f00\u5e02\u573a\u6570\u636e\uff0c\u9047\u5230\u5b8f\u89c2\u6570\u636e\u53d1\u5e03\u3001\u5730\u7f18\u51b2\u7a81\u3001\u6d41\u52a8\u6027\u51b2\u51fb\u548c\u6570\u636e\u6e90\u5f02\u5e38\u65f6\uff0c\u9700\u8981\u4eba\u5de5\u590d\u6838\u3002\u4efb\u4f55\u4ea4\u6613\u90fd\u5e94\u5148\u5b9a\u4e49\u4ed3\u4f4d\u4e0a\u9650\u548c\u5931\u6548\u6761\u4ef6\u3002',
-  loading: '\u6b63\u5728\u52a0\u8f7d\u5e02\u573a\u5feb\u7167...',
-  loadFailed: '\u6570\u636e\u52a0\u8f7d\u5931\u8d25'
+  confidence: '置信度',
+  advice: '交易建议',
+  reasons: '依据',
+  invalidations: '失效条件',
+  asset: '资产',
+  price: '价格',
+  dayChange: '日涨跌',
+  day5: '5日',
+  day20: '20日',
+  trend: '趋势',
+  quality: '质量',
+  quoteTime: '行情时间',
+  pulseTitle: '预期差感知系统',
+  pulseSub: '基于《预判市场》五步法',
+  title: '预判市场实战看板',
+  intro: '从“看数据好坏”升级为“识别预期差”：用高频 Nowcast、隐含定价、聪明钱痕迹和领先指标链，生成 A 股、美股、BTC 的可执行动作。',
+  updated: '更新时间',
+  source: '数据源',
+  schedule: '计划：每日 07:00 / 19:00 北京时间',
+  freshness: '数据质量',
+  regime: '市场状态',
+  risk: '风险偏好',
+  pressure: '美元/利率压力',
+  chinaTitle: 'A 股',
+  usTitle: '美股',
+  chinaAssets: 'A 股与中国资产',
+  usAssets: '美股与全球风险资产',
+  cryptoAssets: '加密资产',
+  macroFactors: '全球定价因子',
+  nowcast: '高频 Nowcast',
+  impliedPricing: '市场隐含定价',
+  marketTraces: '聪明钱/微观痕迹',
+  publicDisclosure: '合法公示持仓/交易变动',
+  leadLag: '领先指标时间链',
+  playbook: '今日操作手册',
+  boundary: '使用边界',
+  boundaryText: '本看板是研究和决策辅助，不构成投资建议。信号依赖公开市场数据，遇到宏观数据发布、地缘冲突、流动性冲击和数据源异常时，需要人工复核。任何交易都应先定义仓位上限和失效条件。',
+  loading: '正在加载市场快照...',
+  loadFailed: '数据加载失败',
+  help: '使用指导'
 };
 
 const actionClass = {
@@ -86,10 +87,10 @@ function TrendIcon({ value }) {
 }
 
 function qualityText(q) {
-  if (!q.ok) return '\u5931\u8d25';
-  if (q.stale) return '\u8fc7\u671f';
-  if (q.dataQuality === 'degraded') return '\u964d\u7ea7';
-  return '\u6b63\u5e38';
+  if (!q.ok) return '失败';
+  if (q.stale) return '过期';
+  if (q.dataQuality === 'degraded') return '降级';
+  return '正常';
 }
 
 function RecommendationCard({ title, icon, item }) {
@@ -190,7 +191,7 @@ function NowcastPanel({ items }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.nowcast}</h2>
-        <span>{'GDP / CPI / \u6d41\u52a8\u6027\u7684\u524d\u7f6e\u611f\u77e5'}</span>
+        <span>GDP / CPI / 流动性的前置感知</span>
       </div>
       <div className="signal-grid">
         {items.map((item) => (
@@ -216,7 +217,7 @@ function ImpliedPricingPanel({ items }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.impliedPricing}</h2>
-        <span>{'\u5229\u7387 / \u901a\u80c0 / \u4fe1\u7528 / \u62e5\u6324\u5ea6'}</span>
+        <span>利率 / 通胀 / 信用 / 拥挤度</span>
       </div>
       <div className="pricing-list">
         {items.map((item) => (
@@ -238,7 +239,7 @@ function TracePanel({ traces }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.marketTraces}</h2>
-        <span>{'\u6570\u636e\u516c\u5e03\u524d\u7684\u8de8\u8d44\u4ea7\u75d5\u8ff9'}</span>
+        <span>数据公布前的跨资产痕迹</span>
       </div>
       <div className="trace-grid">
         {traces.map((item) => (
@@ -262,7 +263,7 @@ function DisclosurePanel({ disclosure }) {
     <section className="panel disclosure">
       <div className="panel-head">
         <h2>{TEXT.publicDisclosure}</h2>
-        <span>{'\u5b98\u65b9\u516c\u544a / STOCK Act / \u4ec5\u9650\u5408\u6cd5\u516c\u793a'}</span>
+        <span>官方公告 / STOCK Act / 仅限合法公示</span>
       </div>
       <p className="disclosure-boundary">{disclosure.legalBoundary}</p>
       <div className="disclosure-grid">
@@ -275,9 +276,10 @@ function DisclosurePanel({ disclosure }) {
             <article className="disclosure-item" key={item.id}>
               <div>
                 <strong>{item.issuer} {item.code}</strong>
-                <small>{item.date || '--'} / {item.signal}</small>
+                <small>{item.date || '--'} / {item.signal} / {item.freshnessLabel || '--'}</small>
               </div>
               <p>{item.title}</p>
+              <small>{item.tradeUse}</small>
               <small>{item.relationScope}</small>
               <a href={item.url} target="_blank" rel="noreferrer">
                 <ExternalLink size={14} />
@@ -285,7 +287,7 @@ function DisclosurePanel({ disclosure }) {
               </a>
             </article>
           )) : (
-            <p className="empty-note">{disclosure.china?.error || '\u5f53\u524d\u672a\u7b5b\u5230\u7b26\u5408\u6761\u4ef6\u7684\u8fd1\u671f\u516c\u544a\u3002'}</p>
+            <p className="empty-note">{disclosure.china?.error || '当前未筛到符合条件的近期公告。'}</p>
           )}
         </div>
         <div className="disclosure-column">
@@ -308,7 +310,7 @@ function DisclosurePanel({ disclosure }) {
         </div>
       </div>
       <div className="trade-use">
-        <h3>{'\u4ea4\u6613\u4f7f\u7528\u65b9\u5f0f'}</h3>
+        <h3>交易使用方式</h3>
         <ul>
           {(disclosure.tradeUse || []).map((item) => <li key={item}>{item}</li>)}
         </ul>
@@ -322,7 +324,7 @@ function LeadLagPanel({ chain }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.leadLag}</h2>
-        <span>{'\u4fe1\u7528 \u2192 \u4f30\u503c \u2192 PMI/\u5229\u6da6 \u2192 \u5c31\u4e1a/\u901a\u80c0'}</span>
+        <span>信用/流动性 → 估值/风险偏好 → PMI/利润 → 就业/通胀</span>
       </div>
       <div className="chain">
         {chain.map((item) => (
@@ -343,7 +345,7 @@ function PlaybookPanel({ items }) {
     <section className="panel playbook">
       <div className="panel-head">
         <h2>{TEXT.playbook}</h2>
-        <span>{'\u4fe1\u53f7 \u2192 \u64cd\u4f5c \u2192 \u786e\u8ba4 \u2192 \u5931\u6548'}</span>
+        <span>信号 → 操作 → 确认 → 失效</span>
       </div>
       <div className="playbook-grid">
         {items.map((item) => (
@@ -352,10 +354,10 @@ function PlaybookPanel({ items }) {
               <h3>{item.market}</h3>
               <span className={actionClass[item.action] || 'action watch'}>{item.action}</span>
             </div>
-            <p><b>{'\u8bbe\u5b9a\uff1a'}</b>{item.setup}</p>
-            <p><b>{'\u64cd\u4f5c\uff1a'}</b>{item.operation}</p>
-            <p><b>{'\u786e\u8ba4\uff1a'}</b>{item.confirm.join(' / ')}</p>
-            <p><b>{'\u5931\u6548\uff1a'}</b>{item.stop.slice(0, 2).join(' / ')}</p>
+            <p><b>设定：</b>{item.setup}</p>
+            <p><b>操作：</b>{item.operation}</p>
+            <p><b>确认：</b>{item.confirm.join(' / ')}</p>
+            <p><b>失效：</b>{item.stop.slice(0, 2).join(' / ')}</p>
           </div>
         ))}
       </div>
@@ -402,6 +404,10 @@ function App() {
           <p className="eyebrow">Market Signal Board</p>
           <h1>{TEXT.title}</h1>
           <p className="intro">{TEXT.intro}</p>
+          <a className="help-link" href="/help/market-board-guide.html" target="_blank" rel="noreferrer">
+            <CircleHelp size={17} />
+            {TEXT.help}
+          </a>
         </div>
         <div className="status">
           <span><Clock size={16} />{TEXT.updated}: {data.generatedAtCN}</span>

@@ -31,6 +31,9 @@ jobs:
       - name: Validate market snapshot
         run: npm run validate:data
 
+      - name: Validate UI text
+        run: npm run validate:ui-text
+
       - name: Build site
         run: npm run build
 
