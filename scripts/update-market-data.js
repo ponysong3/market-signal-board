@@ -73,6 +73,7 @@ const CNINFO_DISCLOSURE_QUERIES = [
   '\u77ed\u7ebf\u4ea4\u6613 \u4eb2\u5c5e',
   '\u8463\u76d1\u9ad8 \u8fd1\u4eb2\u5c5e'
 ];
+const DISCLOSURE_RECENT_DAYS = 180;
 
 const US_OFFICIAL_DISCLOSURE_SOURCES = [
   {
@@ -774,6 +775,13 @@ function cnDisclosureSignal(title) {
   return '\u5173\u8054\u4eba\u4ea4\u6613\u7ebf\u7d22';
 }
 
+function disclosureFreshness(date) {
+  const ageDays = dateAgeDays(date);
+  if (!Number.isFinite(ageDays)) return { ageDays: null, freshness: 'unknown', freshnessLabel: '\u65f6\u95f4\u672a\u77e5' };
+  if (ageDays <= DISCLOSURE_RECENT_DAYS) return { ageDays, freshness: 'recent', freshnessLabel: '\u8fd1\u671f' };
+  return { ageDays, freshness: 'historical', freshnessLabel: '\u5386\u53f2\u516c\u544a' };
+}
+
 async function fetchCninfoRelatedAnnouncements() {
   const seen = new Set();
   const items = [];
@@ -802,15 +810,19 @@ async function fetchCninfoRelatedAnnouncements() {
       const title = cleanDisclosureTitle(ann.announcementTitle);
       if (seen.has(id) || !isCnHoldingChangeDisclosure(title)) continue;
       seen.add(id);
+      const date = ann.announcementTime ? new Date(Number(ann.announcementTime)).toISOString().slice(0, 10) : null;
+      const freshness = disclosureFreshness(date);
       items.push({
         id,
         market: 'CN',
-        date: ann.announcementTime ? new Date(Number(ann.announcementTime)).toISOString().slice(0, 10) : null,
+        date,
+        ...freshness,
         issuer: ann.secName || ann.orgName || '--',
         code: ann.secCode || '--',
         title,
         signal: cnDisclosureSignal(title),
         relationScope: '\u4e0a\u5e02\u516c\u53f8\u8463\u76d1\u9ad8/\u5b9e\u63a7\u4eba\u53ca\u8fd1\u4eb2\u5c5e\u516c\u5f00\u516c\u544a',
+        tradeUse: freshness.freshness === 'recent' ? '\u53ef\u4f5c\u4e3a\u4e8b\u4ef6\u548c\u6cbb\u7406\u98ce\u9669\u7ebf\u7d22' : '\u4ec5\u4f5c\u5386\u53f2\u6cbb\u7406\u8bb0\u5f55\u53c2\u8003\uff0c\u4e0d\u5e94\u5f53\u4f5c\u5f53\u524d\u50ac\u5316',
         source: 'CNINFO',
         url: cninfoPdfUrl(ann.adjunctUrl),
         query
@@ -832,6 +844,7 @@ async function fetchPublicDisclosureSignals() {
   try {
     chinaItems = await fetchCninfoRelatedAnnouncements();
     if (!chinaItems.length) chinaStatus = 'no_recent_filtered_items';
+    else if (!chinaItems.some((item) => item.freshness === 'recent')) chinaStatus = 'historical_items_only';
   } catch (err) {
     chinaStatus = 'source_unavailable';
     chinaError = err.message;

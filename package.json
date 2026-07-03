@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "update:data": "node scripts/update-market-data.js",
-    "validate:data": "node scripts/validate-market-data.js"
+    "validate:data": "node scripts/validate-market-data.js",
+    "validate:ui-text": "node scripts/validate-ui-text.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.6.0",
