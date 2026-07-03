@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-03T11:33:37.145Z",
-  "generatedAtCN": "2026/07/03 19:33:37",
+  "generatedAt": "2026-07-03T12:54:26.125Z",
+  "generatedAtCN": "2026/07/03 20:54:26",
   "source": "Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter + FRED + CNINFO/public disclosure portals",
   "quality": {
     "aShare": {
@@ -76,7 +76,7 @@
       "confidence": 40,
       "advice": "BTC 面临风险偏好或美元压力，降低高波动仓位，避免杠杆和追涨。",
       "reasons": [
-        "BTC 20 日表现 -3.80%，趋势状态：弱势，数据源：Binance Vision daily kline",
+        "BTC 20 日表现 -3.83%，趋势状态：弱势，数据源：Binance Vision daily kline",
         "VIX 当前 16.15，用于审查风险偏好",
         "加密动量评分 40/100"
       ],
@@ -100,8 +100,8 @@
     },
     {
       "name": "商品压力",
-      "score": 48,
-      "comment": "原油日涨跌 -0.45%，黄金日涨跌 +0.04%。"
+      "score": 46,
+      "comment": "原油日涨跌 -0.98%，黄金日涨跌 +0.04%。"
     },
     {
       "name": "数据质量",
@@ -125,10 +125,10 @@
     {
       "key": "inflation_nowcast",
       "name": "通胀压力 Nowcast",
-      "score": 49,
+      "score": 47,
       "direction": "中性",
       "evidence": [
-        "原油日变动 -0.45%",
+        "原油日变动 -0.98%",
         "10Y通胀盈亏平衡5日 +0.02%",
         "黄金日变动 +0.04%"
       ],
@@ -152,7 +152,7 @@
       "direction": "避险升温",
       "evidence": [
         "黄金 +0.04%",
-        "白银 +4.86%"
+        "白银 +4.80%"
       ],
       "tradeUse": "无明确新闻时的贵金属异动，可作为地缘/通胀预期痕迹。"
     }
@@ -188,7 +188,7 @@
     {
       "key": "risk_crowding",
       "name": "风险拥挤/脆弱度",
-      "value": "VIX 16.15 / QQQ20 -4.14% / BTC20 -3.80%",
+      "value": "VIX 16.15 / QQQ20 -4.14% / BTC20 -3.83%",
       "change": "10Y-2Y 0.31%",
       "read": "风险定价未达极端",
       "source": "Cboe/Tencent/Binance/FRED",
@@ -202,7 +202,7 @@
       "signal": "未见明显避险背离",
       "evidence": [
         "黄金 +0.04%",
-        "白银 +4.86%"
+        "白银 +4.80%"
       ],
       "action": "若无新闻解释却持续拉升，检查通胀预期和地缘事件。"
     },
@@ -211,7 +211,7 @@
       "name": "原油对 CPI 的前置压力",
       "signal": "原油对当日通胀信号中性",
       "evidence": [
-        "WTI -0.45%"
+        "WTI -0.98%"
       ],
       "action": "在 CPI/PPI 前，用原油+通胀盈亏平衡判断市场是否已抢跑。"
     },
@@ -220,8 +220,8 @@
       "name": "BTC/ETH 风险弹性",
       "signal": "ETH 或山寨风险偏好更强",
       "evidence": [
-        "BTC20 -3.80%",
-        "ETH20 +3.74%"
+        "BTC20 -3.83%",
+        "ETH20 +3.27%"
       ],
       "action": "若美股与加密同向走弱，避免杠杆；若背离，查找 ETF/监管/流动性催化。"
     },
@@ -237,7 +237,7 @@
     }
   ],
   "publicDisclosure": {
-    "updatedAt": "2026-07-03T11:33:34.122Z",
+    "updatedAt": "2026-07-03T12:54:20.199Z",
     "legalBoundary": "仅纳入合法公开披露；不抓取或推断未公开个人身份、住址、联系方式或家庭隐私。",
     "privacyGuardrail": "配偶/子女/亲属只按公告原文的关系范围呈现，不做人肉识别或额外身份拼接。",
     "china": {
@@ -853,16 +853,16 @@
       "gate": "BTC_USDT",
       "coinLoreId": 90,
       "coinId": "bitcoin",
-      "price": 62010,
+      "price": 61991.99,
       "previousClose": 61560,
-      "changePct": 0.7309941520467822,
-      "return5d": 4.083773254146195,
-      "return20d": -3.7978367622581,
-      "return60d": -22.3525973438102,
-      "ma20": 62309.014500000005,
-      "ma60": 69652.57500000001,
-      "volume": 7190.15825,
-      "avgVolume20": 17498.518417499996,
+      "changePct": 0.7017381416504209,
+      "return5d": 4.053543472557619,
+      "return20d": -3.8257774324711558,
+      "return60d": -22.3751490245365,
+      "ma20": 62308.114,
+      "ma60": 69652.27483333334,
+      "volume": 7967.68454,
+      "avgVolume20": 17537.394731999993,
       "trend": "弱势",
       "ok": true,
       "source": "Binance Vision daily kline",
@@ -883,16 +883,16 @@
       "gate": "ETH_USDT",
       "coinLoreId": 80,
       "coinId": "ethereum",
-      "price": 1744.07,
+      "price": 1736.09,
       "previousClose": 1700.57,
-      "changePct": 2.5579658585062726,
-      "return5d": 10.948751876638084,
-      "return20d": 3.740824896798678,
-      "return60d": -25.69445627907769,
-      "ma20": 1674.2459999999999,
-      "ma60": 1908.4376666666676,
-      "volume": 116544.2352,
-      "avgVolume20": 271133.89917,
+      "changePct": 2.0887114320492506,
+      "return5d": 10.441105371637939,
+      "return20d": 3.266158293579502,
+      "return60d": -26.03444162306787,
+      "ma20": 1673.8469999999998,
+      "ma60": 1908.3046666666673,
+      "volume": 127498.6767,
+      "avgVolume20": 271681.621245,
       "trend": "短强",
       "ok": true,
       "source": "Binance Vision daily kline",
@@ -934,9 +934,9 @@
       "group": "全球因子",
       "name": "WTI 原油",
       "symbol": "hf_CL",
-      "price": 68.48,
+      "price": 68.23,
       "previousClose": 68.69,
-      "changePct": -0.45130295530644926,
+      "changePct": -0.9753967098558743,
       "return5d": null,
       "return20d": null,
       "return60d": null,
@@ -948,7 +948,7 @@
       "ok": true,
       "source": "Tencent Finance futures quote",
       "quoteDate": "2026-07-03",
-      "quoteTime": "2026-07-03 19:33:01",
+      "quoteTime": "2026-07-03 20:54:03",
       "ageDays": 0,
       "stale": false,
       "historyOk": false,
@@ -959,9 +959,9 @@
       "group": "全球因子",
       "name": "黄金",
       "symbol": "hf_GC",
-      "price": 4198.42,
+      "price": 4188.92,
       "previousClose": 4125.7,
-      "changePct": 0.04265942749109242,
+      "changePct": 0.03708461594396103,
       "return5d": null,
       "return20d": null,
       "return60d": null,
@@ -973,7 +973,7 @@
       "ok": true,
       "source": "Tencent Finance futures quote",
       "quoteDate": "2026-07-03",
-      "quoteTime": "2026-07-03 19:33:01",
+      "quoteTime": "2026-07-03 20:54:05",
       "ageDays": 0,
       "stale": false,
       "historyOk": false,
@@ -984,9 +984,9 @@
       "group": "全球因子",
       "name": "白银",
       "symbol": "hf_SI",
-      "price": 62.88,
+      "price": 62.85,
       "previousClose": 61.06,
-      "changePct": 4.864068129708484,
+      "changePct": 4.798558794628235,
       "return5d": null,
       "return20d": null,
       "return60d": null,
@@ -998,7 +998,7 @@
       "ok": true,
       "source": "Tencent Finance futures quote",
       "quoteDate": "2026-07-03",
-      "quoteTime": "2026-07-03 19:32:53",
+      "quoteTime": "2026-07-03 20:53:45",
       "ageDays": 0,
       "stale": false,
       "historyOk": false,
