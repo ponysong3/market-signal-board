@@ -33,8 +33,8 @@ const TEXT = {
   quoteTime: '\u884c\u60c5\u65f6\u95f4',
   pulseTitle: '\u9884\u671f\u5dee\u611f\u77e5\u7cfb\u7edf',
   pulseSub: '\u57fa\u4e8e\u300a\u9884\u5224\u5e02\u573a\u300b\u4e94\u6b65\u6cd5',
-  title: '\u5e02\u573a\u9884\u5224\u770b\u677f',
-  intro: '\u7528\u9ad8\u9891\u5e02\u573a\u53d8\u91cf\u3001\u9884\u671f\u5dee\u548c\u8de8\u8d44\u4ea7\u8054\u52a8\uff0c\u751f\u6210 A \u80a1\u3001\u7f8e\u80a1\u3001BTC \u7684\u65e9\u665a\u4ea4\u6613\u5efa\u8bae\u3002',
+  title: '\u9884\u5224\u5e02\u573a\u5b9e\u6218\u770b\u677f',
+  intro: '\u4ece\u201c\u770b\u6570\u636e\u597d\u574f\u201d\u5347\u7ea7\u4e3a\u201c\u8bc6\u522b\u9884\u671f\u5dee\u201d\uff1a\u7528\u9ad8\u9891 Nowcast\u3001\u9690\u542b\u5b9a\u4ef7\u3001\u806a\u660e\u94b1\u75d5\u8ff9\u548c\u9886\u5148\u6307\u6807\u94fe\uff0c\u751f\u6210 A \u80a1\u3001\u7f8e\u80a1\u3001BTC \u7684\u53ef\u6267\u884c\u52a8\u4f5c\u3002',
   updated: '\u66f4\u65b0\u65f6\u95f4',
   source: '\u6570\u636e\u6e90',
   schedule: '\u8ba1\u5212\uff1a\u6bcf\u65e5 07:00 / 19:00 \u5317\u4eac\u65f6\u95f4',
@@ -48,6 +48,11 @@ const TEXT = {
   usAssets: '\u7f8e\u80a1\u4e0e\u5168\u7403\u98ce\u9669\u8d44\u4ea7',
   cryptoAssets: '\u52a0\u5bc6\u8d44\u4ea7',
   macroFactors: '\u5168\u7403\u5b9a\u4ef7\u56e0\u5b50',
+  nowcast: '\u9ad8\u9891 Nowcast',
+  impliedPricing: '\u5e02\u573a\u9690\u542b\u5b9a\u4ef7',
+  marketTraces: '\u806a\u660e\u94b1/\u5fae\u89c2\u75d5\u8ff9',
+  leadLag: '\u9886\u5148\u6307\u6807\u65f6\u95f4\u94fe',
+  playbook: '\u4eca\u65e5\u64cd\u4f5c\u624b\u518c',
   boundary: '\u4f7f\u7528\u8fb9\u754c',
   boundaryText: '\u672c\u770b\u677f\u662f\u7814\u7a76\u548c\u51b3\u7b56\u8f85\u52a9\uff0c\u4e0d\u6784\u6210\u6295\u8d44\u5efa\u8bae\u3002\u4fe1\u53f7\u4f9d\u8d56\u516c\u5f00\u5e02\u573a\u6570\u636e\uff0c\u9047\u5230\u5b8f\u89c2\u6570\u636e\u53d1\u5e03\u3001\u5730\u7f18\u51b2\u7a81\u3001\u6d41\u52a8\u6027\u51b2\u51fb\u548c\u6570\u636e\u6e90\u5f02\u5e38\u65f6\uff0c\u9700\u8981\u4eba\u5de5\u590d\u6838\u3002\u4efb\u4f55\u4ea4\u6613\u90fd\u5e94\u5148\u5b9a\u4e49\u4ed3\u4f4d\u4e0a\u9650\u548c\u5931\u6548\u6761\u4ef6\u3002',
   loading: '\u6b63\u5728\u52a0\u8f7d\u5e02\u573a\u5feb\u7167...',
@@ -179,6 +184,121 @@ function PulseCard({ pulse }) {
   );
 }
 
+function NowcastPanel({ items }) {
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>{TEXT.nowcast}</h2>
+        <span>GDP / CPI / \u6d41\u52a8\u6027\u7684\u524d\u7f6e\u611f\u77e5</span>
+      </div>
+      <div className="signal-grid">
+        {items.map((item) => (
+          <div className="signal-card" key={item.key}>
+            <div className="signal-top">
+              <span>{item.name}</span>
+              <strong className={item.score >= 55 ? 'pos' : item.score <= 45 ? 'neg' : ''}>{item.score}</strong>
+            </div>
+            <b>{item.direction}</b>
+            <p>{item.tradeUse}</p>
+            <ul>
+              {item.evidence.map((x) => <li key={x}>{x}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ImpliedPricingPanel({ items }) {
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>{TEXT.impliedPricing}</h2>
+        <span>\u5229\u7387 / \u901a\u80c0 / \u4fe1\u7528 / \u62e5\u6324\u5ea6</span>
+      </div>
+      <div className="pricing-list">
+        {items.map((item) => (
+          <div className="pricing-item" key={item.key}>
+            <span>{item.name}</span>
+            <strong>{item.value}</strong>
+            <small>{item.change}</small>
+            <p>{item.read}</p>
+            <em>{item.source} · {item.quoteDate || '--'}</em>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TracePanel({ traces }) {
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>{TEXT.marketTraces}</h2>
+        <span>\u6570\u636e\u516c\u5e03\u524d\u7684\u8de8\u8d44\u4ea7\u75d5\u8ff9</span>
+      </div>
+      <div className="trace-grid">
+        {traces.map((item) => (
+          <div className="trace-card" key={item.key}>
+            <span>{item.name}</span>
+            <strong>{item.signal}</strong>
+            <p>{item.action}</p>
+            <small>{item.evidence.join(' / ')}</small>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LeadLagPanel({ chain }) {
+  return (
+    <section className="panel">
+      <div className="panel-head">
+        <h2>{TEXT.leadLag}</h2>
+        <span>\u4fe1\u7528 \u2192 \u4f30\u503c \u2192 PMI/\u5229\u6da6 \u2192 \u5c31\u4e1a/\u901a\u80c0</span>
+      </div>
+      <div className="chain">
+        {chain.map((item) => (
+          <div className="chain-step" key={item.stage}>
+            <span>{item.horizon}</span>
+            <strong>{item.stage}</strong>
+            <b>{item.state}</b>
+            <small>{item.evidence.join(' / ')}</small>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PlaybookPanel({ items }) {
+  return (
+    <section className="panel playbook">
+      <div className="panel-head">
+        <h2>{TEXT.playbook}</h2>
+        <span>\u4fe1\u53f7 \u2192 \u64cd\u4f5c \u2192 \u786e\u8ba4 \u2192 \u5931\u6548</span>
+      </div>
+      <div className="playbook-grid">
+        {items.map((item) => (
+          <div className="playbook-card" key={item.market}>
+            <div className="rec-top">
+              <h3>{item.market}</h3>
+              <span className={actionClass[item.action] || 'action watch'}>{item.action}</span>
+            </div>
+            <p><b>\u8bbe\u5b9a\uff1a</b>{item.setup}</p>
+            <p><b>\u64cd\u4f5c\uff1a</b>{item.operation}</p>
+            <p><b>\u786e\u8ba4\uff1a</b>{item.confirm.join(' / ')}</p>
+            <p><b>\u5931\u6548\uff1a</b>{item.stop.slice(0, 2).join(' / ')}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -252,6 +372,14 @@ function App() {
       </div>
 
       <PulseCard pulse={data.expectationPulse} />
+
+      <NowcastPanel items={data.nowcast || []} />
+      <div className="grid-two">
+        <ImpliedPricingPanel items={data.impliedPricing || []} />
+        <TracePanel traces={data.marketTraces || []} />
+      </div>
+      <LeadLagPanel chain={data.leadLagChain || []} />
+      <PlaybookPanel items={data.playbook || []} />
 
       <div className="grid-two">
         <QuoteTable title={TEXT.chinaAssets} quotes={grouped.china} />

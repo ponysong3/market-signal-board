@@ -237,6 +237,108 @@ ul {
 .panel {
   padding: 16px;
   min-width: 0;
+  margin-bottom: 18px;
+}
+
+.signal-grid, .trace-grid, .playbook-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.signal-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.trace-grid, .playbook-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.signal-card, .trace-card, .playbook-card, .pricing-item, .chain-step {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 14px;
+}
+
+.signal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.signal-top span, .trace-card span, .pricing-item span, .chain-step span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.signal-top strong {
+  font-size: 25px;
+}
+
+.signal-card b, .trace-card strong, .pricing-item strong, .chain-step strong {
+  display: block;
+  margin-top: 5px;
+}
+
+.signal-card p, .signal-card li, .trace-card p, .pricing-item p, .playbook-card p {
+  color: var(--muted);
+  line-height: 1.48;
+  font-size: 13px;
+}
+
+.pricing-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.pricing-item {
+  display: grid;
+  grid-template-columns: 1.1fr .8fr .8fr 1.7fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.pricing-item p {
+  margin: 0;
+}
+
+.pricing-item em {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 12px;
+}
+
+.chain {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.chain-step b {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--blue);
+}
+
+.chain-step small, .trace-card small {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.playbook-card p {
+  margin: 10px 0 0;
+}
+
+.playbook-card p b {
+  color: var(--ink);
+  margin-right: 4px;
 }
 
 .table {
@@ -324,6 +426,12 @@ ul {
   h1 { font-size: 34px; }
   .shell { padding: 18px; }
   .pulse-grid { grid-template-columns: repeat(2, 1fr); }
+  .signal-grid, .trace-grid, .playbook-grid, .chain {
+    grid-template-columns: 1fr;
+  }
+  .pricing-item {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {

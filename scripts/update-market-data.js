@@ -20,6 +20,7 @@ const ZH = {
   usdcny: '\u7f8e\u5143/\u4eba\u6c11\u5e01',
   oil: 'WTI \u539f\u6cb9',
   gold: '\u9ec4\u91d1',
+  silver: '\u767d\u94f6',
   strong: '\u5f3a\u52bf',
   weak: '\u5f31\u52bf',
   shortStrong: '\u77ed\u5f3a',
@@ -37,6 +38,14 @@ const ZH = {
   watch: '\u89c2\u671b',
   pause: '\u6682\u505c\u5224\u65ad'
 };
+
+const FRED_SERIES = [
+  { key: 'us10y', name: 'US 10Y Treasury', id: 'DGS10', staleMaxDays: 7 },
+  { key: 'us2y', name: 'US 2Y Treasury', id: 'DGS2', staleMaxDays: 7 },
+  { key: 'breakeven10y', name: '10Y Breakeven Inflation', id: 'T10YIE', staleMaxDays: 7 },
+  { key: 'hySpread', name: 'US High Yield OAS', id: 'BAMLH0A0HYM2', staleMaxDays: 7 },
+  { key: 'nfci', name: 'Chicago Fed NFCI', id: 'NFCI', staleMaxDays: 14 }
+];
 
 const TENCENT_A = [
   { key: 'sse', group: ZH.aShare, name: ZH.sse, symbol: 'sh000001' },
@@ -410,9 +419,9 @@ async function fetchFxAndFutures() {
   }
 
   try {
-    const text = await httpText('https://qt.gtimg.cn/q=hf_GC,hf_CL');
+    const text = await httpText('https://qt.gtimg.cn/q=hf_GC,hf_SI,hf_CL');
     const lines = text.split(';').map((x) => x.trim()).filter(Boolean);
-    for (const [key, symbol, name] of [['oil', 'hf_CL', ZH.oil], ['gold', 'hf_GC', ZH.gold]]) {
+    for (const [key, symbol, name] of [['oil', 'hf_CL', ZH.oil], ['gold', 'hf_GC', ZH.gold], ['silver', 'hf_SI', ZH.silver]]) {
       const line = lines.find((x) => x.includes(`_${symbol}=`));
       const match = line?.match(/="([^"]*)"/);
       if (!match) {
@@ -454,9 +463,93 @@ async function fetchFxAndFutures() {
   } catch (err) {
     results.push(failedQuote({ key: 'oil', group: ZH.factor, name: ZH.oil, symbol: 'hf_CL' }, err.message));
     results.push(failedQuote({ key: 'gold', group: ZH.factor, name: ZH.gold, symbol: 'hf_GC' }, err.message));
+    results.push(failedQuote({ key: 'silver', group: ZH.factor, name: ZH.silver, symbol: 'hf_SI' }, err.message));
   }
 
   return results;
+}
+
+function parseFredCsv(text, series) {
+  const rows = text.trim().split(/\r?\n/).slice(1)
+    .map((line) => {
+      const [date, raw] = line.split(',');
+      const value = Number(raw);
+      return Number.isFinite(value) ? { date, value } : null;
+    })
+    .filter(Boolean);
+  if (rows.length < 2) throw new Error(`${series.id} no usable values`);
+  const latest = rows.at(-1);
+  const values = rows.map((x) => x.value);
+  const quality = qualityFields({
+    source: `FRED ${series.id}`,
+    quoteDate: latest.date,
+    staleMaxDays: series.staleMaxDays,
+    historyOk: rows.length >= 21
+  });
+  return {
+    ...series,
+    value: latest.value,
+    change5d: values.length > 6 ? latest.value - values.at(-6) : null,
+    change20d: values.length > 21 ? latest.value - values.at(-21) : null,
+    ...quality,
+    ok: Number.isFinite(latest.value) && !quality.stale
+  };
+}
+
+async function fetchFredSeries(series) {
+  const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${series.id}`;
+  return parseFredCsv(await httpText(url, { accept: 'text/csv,*/*', timeoutMs: 15000 }), series);
+}
+
+async function fetchMacroPricing() {
+  const series = await Promise.all(FRED_SERIES.map((item) => safeFred(item)));
+  const us10y = series.find((x) => x.key === 'us10y');
+  const us2y = series.find((x) => x.key === 'us2y');
+  const curve = us10y?.ok && us2y?.ok ? {
+    key: 'yieldCurve',
+    name: '10Y-2Y Treasury Curve',
+    value: us10y.value - us2y.value,
+    unit: 'pct_point',
+    ok: true,
+    source: 'FRED DGS10-DGS2',
+    quoteDate: us10y.quoteDate,
+    quoteTime: us10y.quoteDate,
+    stale: false,
+    dataQuality: 'ok',
+    interpretation: us10y.value - us2y.value < 0 ? 'inverted' : 'normal'
+  } : {
+    key: 'yieldCurve',
+    name: '10Y-2Y Treasury Curve',
+    value: null,
+    ok: false,
+    source: null,
+    quoteDate: null,
+    stale: true,
+    dataQuality: 'failed',
+    interpretation: 'unavailable'
+  };
+  return { series, curve };
+}
+
+async function safeFred(series) {
+  try {
+    return await fetchFredSeries(series);
+  } catch (err) {
+    return {
+      ...series,
+      value: null,
+      change5d: null,
+      change20d: null,
+      source: null,
+      quoteDate: null,
+      quoteTime: null,
+      stale: true,
+      dataQuality: 'failed',
+      historyOk: false,
+      ok: false,
+      error: err.message
+    };
+  }
 }
 
 function failedQuote(item, error) {
@@ -740,6 +833,203 @@ function buildPulse(quotes, scores, quality) {
   ];
 }
 
+function scoreFromChange(change, direction = 'up_good', scale = 8) {
+  if (!Number.isFinite(change)) return null;
+  const raw = direction === 'up_good' ? 50 + change * scale : 50 - change * scale;
+  return clamp(raw);
+}
+
+function latestMacro(macroPricing, key) {
+  return macroPricing.series.find((x) => x.key === key) || {};
+}
+
+function buildNowcast(quotes, macroPricing) {
+  const sse = byKey(quotes, 'sse');
+  const chinext = byKey(quotes, 'chinext');
+  const oil = byKey(quotes, 'oil');
+  const gold = byKey(quotes, 'gold');
+  const silver = byKey(quotes, 'silver');
+  const usdcny = byKey(quotes, 'usdcny');
+  const breakeven = latestMacro(macroPricing, 'breakeven10y');
+  const hySpread = latestMacro(macroPricing, 'hySpread');
+  const nfci = latestMacro(macroPricing, 'nfci');
+
+  const chinaGrowth = clamp(50 + safeNum(sse.return20d) * 1.4 + safeNum(chinext.return20d) * 0.8 - Math.max(0, safeNum(usdcny.price, 7) - 7) * 10);
+  const inflationPressure = clamp(50 + safeNum(oil.changePct) * 4 + safeNum(breakeven.change5d) * 35 + safeNum(gold.changePct) * 1.5);
+  const globalLiquidity = clamp(50 - safeNum(hySpread.change20d) * 8 - safeNum(nfci.change20d) * 40);
+  const preciousSignal = clamp(50 + safeNum(gold.changePct) * 3 + safeNum(silver.changePct) * 2);
+
+  return [
+    {
+      key: 'china_growth',
+      name: '\u4e2d\u56fd\u589e\u957f\u5373\u65f6\u611f\u77e5',
+      score: Math.round(chinaGrowth ?? 0),
+      direction: chinaGrowth >= 55 ? '\u6539\u5584' : chinaGrowth <= 45 ? '\u8d70\u5f31' : '\u4e2d\u6027',
+      evidence: [`\u4e0a\u8bc1 20\u65e5 ${fmtSigned(sse.return20d)}`, `\u521b\u4e1a\u677f 20\u65e5 ${fmtSigned(chinext.return20d)}`, `USD/CNY ${fmtPlain(usdcny.price)}`],
+      tradeUse: '\u7528\u4e8e\u5224\u65ad A \u80a1\u653f\u7b56\u9884\u671f\u662f\u5426\u88ab\u8fc7\u5ea6\u5b9a\u4ef7\u3002'
+    },
+    {
+      key: 'inflation_nowcast',
+      name: '\u901a\u80c0\u538b\u529b Nowcast',
+      score: Math.round(inflationPressure ?? 0),
+      direction: inflationPressure >= 55 ? '\u5347\u6e29' : inflationPressure <= 45 ? '\u964d\u6e29' : '\u4e2d\u6027',
+      evidence: [`\u539f\u6cb9\u65e5\u53d8\u52a8 ${fmtSigned(oil.changePct)}`, `10Y\u901a\u80c0\u76c8\u4e8f\u5e73\u88615\u65e5 ${fmtSigned(breakeven.change5d)}`, `\u9ec4\u91d1\u65e5\u53d8\u52a8 ${fmtSigned(gold.changePct)}`],
+      tradeUse: '\u7528\u4e8e\u5224\u65ad CPI \u524d\u7684\u9ec4\u91d1\u3001\u7f8e\u503a\u548c\u957f\u4e45\u671f\u80a1\u7968\u98ce\u9669\u3002'
+    },
+    {
+      key: 'liquidity_nowcast',
+      name: '\u6d41\u52a8\u6027/\u4fe1\u7528\u8109\u51b2',
+      score: Math.round(globalLiquidity ?? 0),
+      direction: globalLiquidity >= 55 ? '\u5bbd\u677e' : globalLiquidity <= 45 ? '\u6536\u7d27' : '\u4e2d\u6027',
+      evidence: [`\u9ad8\u6536\u76ca\u5229\u5dee20\u65e5 ${fmtSigned(hySpread.change20d)}`, `NFCI 20\u65e5 ${fmtSigned(nfci.change20d)}`],
+      tradeUse: '\u7528\u4e8e\u5224\u65ad\u98ce\u9669\u8d44\u4ea7\u662f\u5426\u5904\u4e8e\u201c\u6d41\u52a8\u6027\u987a\u98ce\u201d\u3002'
+    },
+    {
+      key: 'safe_haven',
+      name: '\u907f\u9669\u5fae\u89c2\u75d5\u8ff9',
+      score: Math.round(preciousSignal ?? 0),
+      direction: preciousSignal >= 55 ? '\u907f\u9669\u5347\u6e29' : preciousSignal <= 45 ? '\u907f\u9669\u964d\u6e29' : '\u4e2d\u6027',
+      evidence: [`\u9ec4\u91d1 ${fmtSigned(gold.changePct)}`, `\u767d\u94f6 ${fmtSigned(silver.changePct)}`],
+      tradeUse: '\u65e0\u660e\u786e\u65b0\u95fb\u65f6\u7684\u8d35\u91d1\u5c5e\u5f02\u52a8\uff0c\u53ef\u4f5c\u4e3a\u5730\u7f18/\u901a\u80c0\u9884\u671f\u75d5\u8ff9\u3002'
+    }
+  ];
+}
+
+function buildImpliedPricing(quotes, macroPricing) {
+  const vix = byKey(quotes, 'vix');
+  const qqq = byKey(quotes, 'qqq');
+  const btc = byKey(quotes, 'btc');
+  const us10y = latestMacro(macroPricing, 'us10y');
+  const breakeven = latestMacro(macroPricing, 'breakeven10y');
+  const hySpread = latestMacro(macroPricing, 'hySpread');
+  const curve = macroPricing.curve;
+
+  return [
+    {
+      key: 'rates',
+      name: '\u5229\u7387\u9690\u542b\u5b9a\u4ef7',
+      value: `${fmtPlain(us10y.value)}%`,
+      change: `5\u65e5 ${fmtSigned(us10y.change5d)}`,
+      read: safeNum(us10y.change5d) > 0.08 ? '\u5229\u7387\u4e0a\u884c\u538b\u5236\u957f\u4e45\u671f\u8d44\u4ea7' : safeNum(us10y.change5d) < -0.08 ? '\u5229\u7387\u4e0b\u884c\u652f\u6491\u4f30\u503c' : '\u5229\u7387\u9884\u671f\u6682\u65f6\u7a33\u5b9a',
+      source: us10y.source,
+      quoteDate: us10y.quoteDate
+    },
+    {
+      key: 'inflation_expectation',
+      name: '\u901a\u80c0\u76c8\u4e8f\u5e73\u8861',
+      value: `${fmtPlain(breakeven.value)}%`,
+      change: `5\u65e5 ${fmtSigned(breakeven.change5d)}`,
+      read: safeNum(breakeven.change5d) > 0.05 ? '\u5e02\u573a\u63d0\u524d\u4ea4\u6613\u901a\u80c0\u8d85\u9884\u671f' : safeNum(breakeven.change5d) < -0.05 ? '\u901a\u80c0\u9884\u671f\u964d\u6e29' : '\u901a\u80c0\u9884\u671f\u7a33\u5b9a',
+      source: breakeven.source,
+      quoteDate: breakeven.quoteDate
+    },
+    {
+      key: 'credit',
+      name: '\u4fe1\u7528\u98ce\u9669\u5b9a\u4ef7',
+      value: `${fmtPlain(hySpread.value)}%`,
+      change: `20\u65e5 ${fmtSigned(hySpread.change20d)}`,
+      read: safeNum(hySpread.change20d) > 0.15 ? '\u4fe1\u7528\u5229\u5dee\u6269\u5927\uff0c\u98ce\u9669\u8d44\u4ea7\u627f\u538b' : safeNum(hySpread.change20d) < -0.15 ? '\u4fe1\u7528\u4fee\u590d\uff0c\u98ce\u9669\u504f\u597d\u6709\u652f\u6491' : '\u4fe1\u7528\u5b9a\u4ef7\u6682\u65f6\u7a33\u5b9a',
+      source: hySpread.source,
+      quoteDate: hySpread.quoteDate
+    },
+    {
+      key: 'risk_crowding',
+      name: '\u98ce\u9669\u62e5\u6324/\u8106\u5f31\u5ea6',
+      value: `VIX ${fmtPlain(vix.price)} / QQQ20 ${fmtSigned(qqq.return20d)} / BTC20 ${fmtSigned(btc.return20d)}`,
+      change: `10Y-2Y ${fmtPlain(curve.value)}%`,
+      read: safeNum(vix.price) < 17 && safeNum(qqq.return20d) > 5 ? '\u4f4e\u6ce2\u52a8+\u9ad8\u6da8\u5e45\uff0c\u8b66\u60d5\u201c\u53ea\u8981\u4e0d\u6781\u597d\u5c31\u662f\u574f\u201d' : safeNum(vix.price) > 25 ? '\u6050\u614c\u5b9a\u4ef7\u5df2\u7ecf\u663e\u6027\u5316\uff0c\u53cd\u800c\u8981\u627e\u9884\u671f\u5dee' : '\u98ce\u9669\u5b9a\u4ef7\u672a\u8fbe\u6781\u7aef',
+      source: 'Cboe/Tencent/Binance/FRED',
+      quoteDate: vix.quoteDate
+    }
+  ];
+}
+
+function buildMarketTraces(quotes, macroPricing) {
+  const gold = byKey(quotes, 'gold');
+  const silver = byKey(quotes, 'silver');
+  const oil = byKey(quotes, 'oil');
+  const btc = byKey(quotes, 'btc');
+  const eth = byKey(quotes, 'eth');
+  const vix = byKey(quotes, 'vix');
+  const hySpread = latestMacro(macroPricing, 'hySpread');
+  return [
+    {
+      key: 'gold_silver',
+      name: '\u9ec4\u91d1/\u767d\u94f6\u5f02\u52a8',
+      signal: safeNum(gold.changePct) > 0.5 && safeNum(silver.changePct) < safeNum(gold.changePct) ? '\u907f\u9669\u504f\u5f3a' : '\u672a\u89c1\u660e\u663e\u907f\u9669\u80cc\u79bb',
+      evidence: [`\u9ec4\u91d1 ${fmtSigned(gold.changePct)}`, `\u767d\u94f6 ${fmtSigned(silver.changePct)}`],
+      action: '\u82e5\u65e0\u65b0\u95fb\u89e3\u91ca\u5374\u6301\u7eed\u62c9\u5347\uff0c\u68c0\u67e5\u901a\u80c0\u9884\u671f\u548c\u5730\u7f18\u4e8b\u4ef6\u3002'
+    },
+    {
+      key: 'oil_inflation',
+      name: '\u539f\u6cb9\u5bf9 CPI \u7684\u524d\u7f6e\u538b\u529b',
+      signal: safeNum(oil.changePct) > 1 ? '\u901a\u80c0\u518d\u5b9a\u4ef7\u98ce\u9669' : safeNum(oil.changePct) < -1 ? '\u901a\u80c0\u964d\u6e29\u7ebf\u7d22' : '\u539f\u6cb9\u5bf9\u5f53\u65e5\u901a\u80c0\u4fe1\u53f7\u4e2d\u6027',
+      evidence: [`WTI ${fmtSigned(oil.changePct)}`],
+      action: '\u5728 CPI/PPI \u524d\uff0c\u7528\u539f\u6cb9+\u901a\u80c0\u76c8\u4e8f\u5e73\u8861\u5224\u65ad\u5e02\u573a\u662f\u5426\u5df2\u62a2\u8dd1\u3002'
+    },
+    {
+      key: 'crypto_beta',
+      name: 'BTC/ETH \u98ce\u9669\u5f39\u6027',
+      signal: safeNum(btc.return20d) > safeNum(eth.return20d) ? 'BTC \u76f8\u5bf9\u6297\u8dcc/\u5438\u91d1' : 'ETH \u6216\u5c71\u5be8\u98ce\u9669\u504f\u597d\u66f4\u5f3a',
+      evidence: [`BTC20 ${fmtSigned(btc.return20d)}`, `ETH20 ${fmtSigned(eth.return20d)}`],
+      action: '\u82e5\u7f8e\u80a1\u4e0e\u52a0\u5bc6\u540c\u5411\u8d70\u5f31\uff0c\u907f\u514d\u6760\u6746\uff1b\u82e5\u80cc\u79bb\uff0c\u67e5\u627e ETF/\u76d1\u7ba1/\u6d41\u52a8\u6027\u50ac\u5316\u3002'
+    },
+    {
+      key: 'credit_vol',
+      name: '\u4fe1\u7528\u5229\u5dee + VIX',
+      signal: safeNum(hySpread.change20d) > 0.15 && safeNum(vix.price) > 20 ? '\u98ce\u9669\u6536\u7f29\u5171\u632f' : '\u672a\u5f62\u6210\u4fe1\u7528-\u6ce2\u52a8\u5171\u632f\u538b\u529b',
+      evidence: [`HY OAS 20\u65e5 ${fmtSigned(hySpread.change20d)}`, `VIX ${fmtPlain(vix.price)}`],
+      action: '\u4fe1\u7528\u548c\u6ce2\u52a8\u540c\u65f6\u8d70\u5f31\u65f6\uff0c\u964d\u4f4e\u9ad8 beta \u548c\u957f\u4e45\u671f\u8d44\u4ea7\u3002'
+    }
+  ];
+}
+
+function buildLeadLagChain(quotes, macroPricing) {
+  const sse = byKey(quotes, 'sse');
+  const usdcny = byKey(quotes, 'usdcny');
+  const hySpread = latestMacro(macroPricing, 'hySpread');
+  const nfci = latestMacro(macroPricing, 'nfci');
+  const breakeven = latestMacro(macroPricing, 'breakeven10y');
+  return [
+    { stage: '\u4fe1\u7528/\u6d41\u52a8\u6027', horizon: '\u9886\u5148 6-9 \u4e2a\u6708', state: safeNum(hySpread.change20d) < 0 && safeNum(nfci.change20d) < 0 ? '\u6539\u5584' : '\u9700\u8b66\u60d5', evidence: [`HY OAS20 ${fmtSigned(hySpread.change20d)}`, `NFCI20 ${fmtSigned(nfci.change20d)}`] },
+    { stage: '\u80a1\u5e02\u4f30\u503c/\u98ce\u9669\u504f\u597d', horizon: '\u9886\u5148 3-6 \u4e2a\u6708', state: safeNum(sse.return20d) > 0 ? '\u4fee\u590d' : '\u504f\u5f31', evidence: [`\u4e0a\u8bc120 ${fmtSigned(sse.return20d)}`, `USD/CNY ${fmtPlain(usdcny.price)}`] },
+    { stage: 'PMI/\u4f01\u4e1a\u5229\u6da6', horizon: '\u9886\u5148 1-3 \u4e2a\u6708', state: '\u9700\u63a5\u5165 PMI/\u9ad8\u9891\u5efa\u6750\u6570\u636e', evidence: ['\u5f85\u63a5\u5165\uff1aPMI\u9884\u671f\u3001\u87ba\u7eb9\u94a2\u8868\u9700\u3001\u6c34\u6ce5\u5e93\u5bb9\u6bd4'] },
+    { stage: '\u5c31\u4e1a/\u901a\u80c0', horizon: '\u6ede\u540e\u6307\u6807', state: safeNum(breakeven.change5d) > 0.05 ? '\u901a\u80c0\u9884\u671f\u5347\u6e29' : '\u901a\u80c0\u9884\u671f\u5e73\u7a33', evidence: [`10Y BEI5 ${fmtSigned(breakeven.change5d)}`] }
+  ];
+}
+
+function buildPlaybook(recommendations, nowcast, impliedPricing, marketTraces) {
+  const inflation = nowcast.find((x) => x.key === 'inflation_nowcast');
+  const liquidity = nowcast.find((x) => x.key === 'liquidity_nowcast');
+  const rates = impliedPricing.find((x) => x.key === 'rates');
+  return [
+    {
+      market: 'A \u80a1',
+      setup: '\u653f\u7b56\u9884\u671f\u5dee + \u4eba\u6c11\u5e01\u7a33\u5b9a + \u6307\u6570\u4e0d\u518d\u7834\u4f4d',
+      action: recommendations.aShare.action,
+      operation: recommendations.aShare.action === ZH.reduce ? '\u964d\u4f4e\u9ad8\u5f39\u6027\u9898\u6750\uff0c\u53ea\u7559\u5f3a\u57fa\u672c\u9762/\u7ea2\u5229/\u653f\u7b56\u4e3b\u7ebf\u3002' : '\u7b49\u5f85\u9884\u671f\u5dee\u4e0e\u653e\u91cf\u7a81\u7834\u5171\u632f\u518d\u52a0\u4ed3\u3002',
+      confirm: ['\u4e0a\u8bc1\u7ad9\u56de 20/60 \u65e5\u5747\u7ebf', '\u4eba\u6c11\u5e01\u4e0d\u518d\u8d70\u5f31', '\u4fe1\u7528/\u6d41\u52a8\u6027\u6307\u6807\u6539\u5584'],
+      stop: recommendations.aShare.invalidations
+    },
+    {
+      market: '\u7f8e\u80a1',
+      setup: '\u5229\u7387\u9690\u542b\u5b9a\u4ef7 + VIX + \u4fe1\u7528\u5229\u5dee',
+      action: recommendations.usStock.action,
+      operation: rates?.read.includes('\u4e0a\u884c') || recommendations.usStock.action === ZH.reduce ? '\u964d\u4f4e\u9ad8\u4f30\u503c\u957f\u4e45\u671f\u4ed3\u4f4d\uff0c\u7b49\u5f85\u5229\u7387\u6216\u8d22\u62a5\u9884\u671f\u5dee\u4fee\u590d\u3002' : '\u6301\u6709\u6307\u6570\u6838\u5fc3\u4ed3\uff0c\u4e0d\u8ffd\u9ad8\u4f4e\u8d54\u7387\u4f4d\u7f6e\u3002',
+      confirm: ['VIX \u4f4e\u4f4d\u4e0d\u4e0a\u7834', '\u9ad8\u6536\u76ca\u5229\u5dee\u4e0d\u6269\u5927', '\u7f8e\u503a\u5229\u7387\u4e0d\u518d\u51b2\u51fb\u4f30\u503c'],
+      stop: recommendations.usStock.invalidations
+    },
+    {
+      market: 'BTC',
+      setup: '\u52a0\u5bc6\u52a8\u91cf + \u7f8e\u80a1\u98ce\u9669\u504f\u597d + \u6d41\u52a8\u6027',
+      action: recommendations.btc.action,
+      operation: recommendations.btc.action === ZH.reduce ? '\u964d\u4f4e\u73b0\u8d27\u5f39\u6027\u4ed3\uff0c\u907f\u514d\u5408\u7ea6\u6760\u6746\uff0c\u7b49\u5f85 20 \u65e5\u52a8\u91cf\u4fee\u590d\u3002' : '\u53ea\u5728 BTC \u91cd\u56de\u5747\u7ebf\u4e14 VIX/\u4fe1\u7528\u4e0d\u6076\u5316\u65f6\u52a0\u4ed3\u3002',
+      confirm: [inflation?.direction || '\u901a\u80c0\u4fe1\u53f7\u4e2d\u6027', liquidity?.direction || '\u6d41\u52a8\u6027\u4e2d\u6027', '\u7f8e\u80a1\u4e0d\u540c\u6b65\u7834\u4f4d'],
+      stop: recommendations.btc.invalidations
+    }
+  ];
+}
+
 function buildRegime(scores, quality) {
   if (!Number.isFinite(scores.riskAppetite)) {
     return { label: '\u6570\u636e\u8d28\u91cf\u4e0d\u8db3', description: '\u6838\u5fc3\u5e02\u573a\u6570\u636e\u672a\u901a\u8fc7\u65b0\u9c9c\u5ea6\u6216\u5b8c\u6574\u6027\u68c0\u67e5\uff0c\u5e94\u6682\u505c\u65b9\u5411\u5224\u65ad\u3002' };
@@ -767,9 +1057,14 @@ function scoreComment(score, highText, lowText, midText) {
 }
 
 async function main() {
-  const quotes = await fetchAll();
+  const [quotes, macroPricing] = await Promise.all([fetchAll(), fetchMacroPricing()]);
   const quality = buildQuality(quotes);
   const scores = scoreMarket(quotes, quality);
+  const recommendations = buildRecommendations(quotes, scores, quality);
+  const nowcast = buildNowcast(quotes, macroPricing);
+  const impliedPricing = buildImpliedPricing(quotes, macroPricing);
+  const marketTraces = buildMarketTraces(quotes, macroPricing);
+  const leadLagChain = buildLeadLagChain(quotes, macroPricing);
   const generatedAt = new Date().toISOString();
   const generatedAtCN = new Intl.DateTimeFormat('zh-CN', {
     timeZone: 'Asia/Shanghai',
@@ -793,8 +1088,14 @@ async function main() {
       dollarComment: scoreComment(scores.dollarRatePressure, '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u504f\u9ad8\u3002', '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u8f83\u4f4e\u3002', '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u4e2d\u6027\u3002')
     },
     regime: buildRegime(scores, quality),
-    recommendations: buildRecommendations(quotes, scores, quality),
+    recommendations,
     expectationPulse: buildPulse(quotes, scores, quality),
+    nowcast,
+    impliedPricing,
+    marketTraces,
+    leadLagChain,
+    playbook: buildPlaybook(recommendations, nowcast, impliedPricing, marketTraces),
+    macroPricing,
     quotes
   };
 

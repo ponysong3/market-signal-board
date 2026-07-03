@@ -27,6 +27,12 @@ requireValue(data.recommendations?.aShare, 'aShare recommendation missing');
 requireValue(data.recommendations?.usStock, 'usStock recommendation missing');
 requireValue(data.recommendations?.btc, 'btc recommendation missing');
 requireValue(data.quality, 'quality block missing');
+requireValue(Array.isArray(data.nowcast) && data.nowcast.length >= 4, 'nowcast module missing');
+requireValue(Array.isArray(data.impliedPricing) && data.impliedPricing.length >= 4, 'impliedPricing module missing');
+requireValue(Array.isArray(data.marketTraces) && data.marketTraces.length >= 4, 'marketTraces module missing');
+requireValue(Array.isArray(data.leadLagChain) && data.leadLagChain.length >= 4, 'leadLagChain module missing');
+requireValue(Array.isArray(data.playbook) && data.playbook.length >= 3, 'playbook module missing');
+requireValue(data.macroPricing?.series?.length >= 5, 'macroPricing series missing');
 
 for (const q of data.quotes || []) {
   requireValue(typeof q.key === 'string' && q.key.length > 0, 'quote key missing');
@@ -63,6 +69,19 @@ for (const [name, rec] of Object.entries(data.recommendations || {})) {
   requireValue(rec.confidence >= 0 && rec.confidence <= 100, `${name} confidence out of range`);
   requireValue(Array.isArray(rec.reasons) && rec.reasons.length >= 2, `${name} reasons too short`);
   requireValue(Array.isArray(rec.invalidations) && rec.invalidations.length >= 2, `${name} invalidations too short`);
+}
+
+for (const item of data.nowcast || []) {
+  requireValue(Number.isFinite(item.score), `nowcast ${item.key} score invalid`);
+  requireValue(Array.isArray(item.evidence) && item.evidence.length > 0, `nowcast ${item.key} evidence missing`);
+}
+
+for (const item of data.impliedPricing || []) {
+  requireValue(item.name && item.read, `impliedPricing ${item.key} incomplete`);
+}
+
+for (const item of data.marketTraces || []) {
+  requireValue(item.name && item.signal && item.action, `marketTrace ${item.key} incomplete`);
 }
 
 if (errors.length) {
