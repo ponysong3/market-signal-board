@@ -1,0 +1,321 @@
+{
+  "generatedAt": "2026-07-03T10:08:54.354Z",
+  "generatedAtCN": "2026/07/03 18:08:54",
+  "source": "Tencent Finance + CoinGecko + Frankfurter public APIs",
+  "scores": {
+    "riskAppetite": 40,
+    "dollarRatePressure": 50,
+    "aMomentum": 40,
+    "usMomentum": 35,
+    "cryptoMomentum": 45,
+    "riskComment": "风险偏好偏弱。",
+    "dollarComment": "人民币/外部压力中性。"
+  },
+  "regime": {
+    "label": "风险偏好收缩",
+    "description": "跨资产风险偏好偏弱，仓位应更重视防守和失效条件。"
+  },
+  "recommendations": {
+    "aShare": {
+      "action": "减仓",
+      "confidence": 40,
+      "advice": "A 股风险偏好偏弱，优先降低高弹性题材和亏损股，保留红利、现金流和强基本面仓位。",
+      "reasons": [
+        "上证 20 日表现 -0.35%，趋势状态：弱势",
+        "USD/CNY 当前 6.79，用于审查人民币压力",
+        "A 股动量评分 40/100"
+      ],
+      "invalidations": [
+        "人民币快速贬值且港股/中国资产同步走弱",
+        "A 股指数跌破 20/60 日均线且成交额放大下跌",
+        "政策预期兑现后题材高位放量滞涨"
+      ]
+    },
+    "usStock": {
+      "action": "减仓",
+      "confidence": 35,
+      "advice": "美股承压，优先降低高估值长久期资产，等待波动率压力缓和。",
+      "reasons": [
+        "纳斯达克日涨跌 -0.80%，趋势状态：日内偏弱",
+        "VIX 当前 21.67，恐慌/波动率影响风险偏好",
+        "美股动量评分 35/100"
+      ],
+      "invalidations": [
+        "VIX 升破 25 且标普跌破关键均线",
+        "AI 资本开支或龙头财报低于预期",
+        "美元/利率压力重新抬升并压制估值"
+      ]
+    },
+    "btc": {
+      "action": "观望",
+      "confidence": 42,
+      "advice": "BTC 实时数据源未打通，暂不用错误数据生成方向信号；先以美股风险偏好和 VIX 作为风险代理。",
+      "reasons": [
+        "BTC 20 日表现 数据不足，趋势状态：数据异常",
+        "VIX 当前 21.67，用于审查风险偏好",
+        "加密动量评分 45/100"
+      ],
+      "invalidations": [
+        "BTC 跌破 20/60 日均线且放量下行",
+        "VIX 快速上行导致风险资产同步回撤",
+        "ETF 资金持续流出或合约杠杆清算风险升温"
+      ]
+    }
+  },
+  "expectationPulse": [
+    {
+      "name": "风险偏好",
+      "score": 40,
+      "comment": "由美股、BTC 和 VIX 合成。VIX 当前 21.67。"
+    },
+    {
+      "name": "人民币稳定",
+      "score": 70,
+      "comment": "USD/CNY 当前 6.79，上行代表人民币兑美元走弱。"
+    },
+    {
+      "name": "商品压力",
+      "score": 49,
+      "comment": "原油日涨跌 -0.29%，黄金日涨跌 +0.04%。"
+    },
+    {
+      "name": "预期差敏感度",
+      "score": 55,
+      "comment": "波动率越高，数据公布前后的预期差交易越敏感。"
+    }
+  ],
+  "quotes": [
+    {
+      "key": "sse",
+      "group": "A股",
+      "name": "上证指数",
+      "symbol": "sh000001",
+      "price": 4043.64,
+      "previousClose": 4028.9,
+      "changePct": 0.36585668544764083,
+      "return5d": 0.4067281476735962,
+      "return20d": -0.3484664028113982,
+      "return60d": 4.214839823715888,
+      "ma20": 4063.8384999999994,
+      "ma60": 4084.9578333333343,
+      "volume": 602009738,
+      "avgVolume20": 649295476.7,
+      "trend": "弱势",
+      "ok": true
+    },
+    {
+      "key": "szse",
+      "group": "A股",
+      "name": "深证成指",
+      "symbol": "sz399001",
+      "price": 15597.51,
+      "previousClose": 15498.81,
+      "changePct": 0.6368230851271806,
+      "return5d": -1.1703676669061691,
+      "return20d": -0.4090266812331045,
+      "return60d": 16.809906462266632,
+      "ma20": 15646.517000000002,
+      "ma60": 15359.611999999992,
+      "volume": 785895029,
+      "avgVolume20": 786739777.7,
+      "trend": "震荡",
+      "ok": true
+    },
+    {
+      "key": "chinext",
+      "group": "A股",
+      "name": "创业板指",
+      "symbol": "sz399006",
+      "price": 4019.93,
+      "previousClose": 4017.27,
+      "changePct": 0.06621412053458009,
+      "return5d": -4.155252121376851,
+      "return20d": -1.6862808397409612,
+      "return60d": 27.633032766065526,
+      "ma20": 4100.5154999999995,
+      "ma60": 3890.9546666666674,
+      "volume": 228453195,
+      "avgVolume20": 232144915.45,
+      "trend": "震荡",
+      "ok": true
+    },
+    {
+      "key": "dow",
+      "group": "美股",
+      "name": "道琼斯",
+      "symbol": "usDJI",
+      "price": 52900.07,
+      "previousClose": 52305.24,
+      "changePct": 1.14,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": 548821105,
+      "avgVolume20": null,
+      "high": 52903.85,
+      "low": 52395.22,
+      "trend": "日内偏强",
+      "ok": true
+    },
+    {
+      "key": "nasdaq",
+      "group": "美股",
+      "name": "纳斯达克",
+      "symbol": "usIXIC",
+      "price": 25832.67,
+      "previousClose": 26040.03,
+      "changePct": -0.8,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": 8342344853,
+      "avgVolume20": null,
+      "high": 26261.09,
+      "low": 25630.51,
+      "trend": "日内偏弱",
+      "ok": true
+    },
+    {
+      "key": "spx",
+      "group": "美股",
+      "name": "标普500",
+      "symbol": "usINX",
+      "price": 7483.24,
+      "previousClose": 7483.23,
+      "changePct": 0,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": 3414978865,
+      "avgVolume20": null,
+      "high": 7540.75,
+      "low": 7427.55,
+      "trend": "日内偏强",
+      "ok": true
+    },
+    {
+      "key": "qqq",
+      "group": "美股",
+      "name": "纳指100 ETF",
+      "symbol": "usQQQ",
+      "price": 712.6,
+      "previousClose": 725.17,
+      "changePct": -1.73,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": 51086080,
+      "avgVolume20": null,
+      "high": 730.83,
+      "low": 707.56,
+      "trend": "日内偏弱",
+      "ok": true
+    },
+    {
+      "key": "vix",
+      "group": "全球因子",
+      "name": "VIX 恐慌指数",
+      "symbol": "usVIX",
+      "price": 21.67,
+      "previousClose": 21.67,
+      "changePct": 0,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": null,
+      "avgVolume20": null,
+      "high": 0,
+      "low": 0,
+      "trend": "日内偏强",
+      "ok": true
+    },
+    {
+      "key": "btc",
+      "group": "加密",
+      "name": "Bitcoin",
+      "symbol": "BTC-USD",
+      "coinId": "bitcoin",
+      "ok": false,
+      "price": null,
+      "changePct": null,
+      "trend": "数据异常",
+      "error": "fetch failed"
+    },
+    {
+      "key": "eth",
+      "group": "加密",
+      "name": "Ethereum",
+      "symbol": "ETH-USD",
+      "coinId": "ethereum",
+      "ok": false,
+      "price": null,
+      "changePct": null,
+      "trend": "数据异常",
+      "error": "fetch failed"
+    },
+    {
+      "key": "usdcny",
+      "group": "全球因子",
+      "name": "美元/人民币",
+      "symbol": "USD/CNY",
+      "price": 6.789,
+      "previousClose": null,
+      "changePct": null,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": null,
+      "avgVolume20": null,
+      "trend": "日频汇率",
+      "ok": true
+    },
+    {
+      "key": "oil",
+      "group": "全球因子",
+      "name": "WTI 原油",
+      "symbol": "hf_CL",
+      "price": 68.55,
+      "previousClose": 68.69,
+      "changePct": -0.2911631969719028,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": null,
+      "avgVolume20": null,
+      "trend": "日内偏弱",
+      "ok": true
+    },
+    {
+      "key": "gold",
+      "group": "全球因子",
+      "name": "黄金",
+      "symbol": "hf_GC",
+      "price": 4191.37,
+      "previousClose": 4125.7,
+      "changePct": 0.03853891460843009,
+      "return5d": null,
+      "return20d": null,
+      "return60d": null,
+      "ma20": null,
+      "ma60": null,
+      "volume": null,
+      "avgVolume20": null,
+      "trend": "日内偏强",
+      "ok": true
+    }
+  ]
+}
