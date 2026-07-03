@@ -18,6 +18,7 @@ Core idea: trade the expectation gap, not the absolute data print. The board com
   - 高频 Nowcast: growth, inflation, liquidity, and safe-haven pressure.
   - Market-implied pricing: rates, breakeven inflation, credit spreads, and risk crowding.
   - Smart-money traces: gold/silver, oil/inflation, crypto beta, and credit/VIX interaction.
+  - Public disclosure watch: legally disclosed China listed-company insider/relative trading announcements and US official financial disclosure portal links.
   - Lead-lag chain: liquidity -> valuation/risk appetite -> PMI/profits -> employment/inflation.
   - Daily playbook: setup, action, confirmation, and invalidation for A-shares, US stocks, and BTC.
 
@@ -30,8 +31,12 @@ Core idea: trade the expectation gap, not the absolute data print. The board com
 - USD/CNY: Frankfurter public FX API
 - Oil, gold, and silver: Tencent Finance futures quote API
 - US rates, inflation breakeven, high-yield credit spread, and financial conditions: FRED CSV endpoints
+- China public disclosure watch: CNINFO official announcement search, filtered for listed-company directors/supervisors/senior managers/controllers and close-relative transaction disclosures
+- US public disclosure watch: official House Clerk Financial Disclosure and Senate eFD search portals
 
 If a source is blocked, the dashboard marks that asset as a data gap and avoids fabricating signals from missing prices.
+
+The public disclosure module only uses legally public records. It does not infer private family identities, addresses, contact details, or non-public holdings. When an official portal does not expose a stable unauthenticated structured feed, the board links the official source and does not substitute unverifiable records.
 
 ## Local Development
 

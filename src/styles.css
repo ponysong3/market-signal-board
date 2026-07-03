@@ -332,6 +332,103 @@ ul {
   line-height: 1.35;
 }
 
+.disclosure-boundary {
+  margin: 12px 0 0;
+  padding: 12px;
+  background: #f4f8fa;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.disclosure-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.disclosure-column {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.disclosure-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.disclosure-title h3 {
+  margin-top: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef4f6;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.disclosure-item, .source-list a {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 12px;
+}
+
+.disclosure-item {
+  display: grid;
+  gap: 8px;
+}
+
+.disclosure-item strong, .source-list strong {
+  display: block;
+}
+
+.disclosure-item small, .source-list small, .empty-note, .trade-use li {
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+.disclosure-item p, .empty-note {
+  margin: 0;
+}
+
+.disclosure-item a, .source-list a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.source-list {
+  display: grid;
+  gap: 10px;
+}
+
+.source-list a {
+  justify-content: space-between;
+}
+
+.trade-use {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
 .playbook-card p {
   margin: 10px 0 0;
 }
@@ -426,7 +523,7 @@ ul {
   h1 { font-size: 34px; }
   .shell { padding: 18px; }
   .pulse-grid { grid-template-columns: repeat(2, 1fr); }
-  .signal-grid, .trace-grid, .playbook-grid, .chain {
+  .signal-grid, .trace-grid, .playbook-grid, .chain, .disclosure-grid {
     grid-template-columns: 1fr;
   }
   .pricing-item {

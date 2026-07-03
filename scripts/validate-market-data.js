@@ -30,6 +30,7 @@ requireValue(data.quality, 'quality block missing');
 requireValue(Array.isArray(data.nowcast) && data.nowcast.length >= 4, 'nowcast module missing');
 requireValue(Array.isArray(data.impliedPricing) && data.impliedPricing.length >= 4, 'impliedPricing module missing');
 requireValue(Array.isArray(data.marketTraces) && data.marketTraces.length >= 4, 'marketTraces module missing');
+requireValue(data.publicDisclosure, 'publicDisclosure module missing');
 requireValue(Array.isArray(data.leadLagChain) && data.leadLagChain.length >= 4, 'leadLagChain module missing');
 requireValue(Array.isArray(data.playbook) && data.playbook.length >= 3, 'playbook module missing');
 requireValue(data.macroPricing?.series?.length >= 5, 'macroPricing series missing');
@@ -82,6 +83,18 @@ for (const item of data.impliedPricing || []) {
 
 for (const item of data.marketTraces || []) {
   requireValue(item.name && item.signal && item.action, `marketTrace ${item.key} incomplete`);
+}
+
+if (data.publicDisclosure) {
+  requireValue(typeof data.publicDisclosure.legalBoundary === 'string' && data.publicDisclosure.legalBoundary.length > 0, 'publicDisclosure legalBoundary missing');
+  requireValue(data.publicDisclosure.china?.status, 'publicDisclosure china status missing');
+  requireValue(Array.isArray(data.publicDisclosure.china?.items), 'publicDisclosure china items missing');
+  requireValue(data.publicDisclosure.us?.status, 'publicDisclosure us status missing');
+  requireValue(Array.isArray(data.publicDisclosure.us?.sources) && data.publicDisclosure.us.sources.length >= 2, 'publicDisclosure us sources missing');
+  requireValue(Array.isArray(data.publicDisclosure.tradeUse) && data.publicDisclosure.tradeUse.length >= 2, 'publicDisclosure tradeUse missing');
+  for (const item of data.publicDisclosure.china?.items || []) {
+    requireValue(item.title && item.url && item.source, `publicDisclosure china item ${item.id || item.code} incomplete`);
+  }
 }
 
 if (errors.length) {

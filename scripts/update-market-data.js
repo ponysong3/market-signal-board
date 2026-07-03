@@ -66,6 +66,29 @@ const CRYPTO = [
   { key: 'eth', group: ZH.crypto, name: 'Ethereum', symbol: 'ETH-USD', binance: 'ETHUSDT', gate: 'ETH_USDT', coinLoreId: 80, coinId: 'ethereum' }
 ];
 
+const CNINFO_DISCLOSURE_QUERIES = [
+  '\u4eb2\u5c5e \u4e70\u5356 \u80a1\u7968',
+  '\u914d\u5076 \u4e70\u5356 \u80a1\u7968',
+  '\u5b50\u5973 \u4e70\u5356 \u80a1\u7968',
+  '\u77ed\u7ebf\u4ea4\u6613 \u4eb2\u5c5e',
+  '\u8463\u76d1\u9ad8 \u8fd1\u4eb2\u5c5e'
+];
+
+const US_OFFICIAL_DISCLOSURE_SOURCES = [
+  {
+    name: 'US House Clerk Financial Disclosure',
+    scope: 'Representatives, candidates, senior House staff, spouse/dependent child when reported by statutory forms',
+    url: 'https://disclosures-clerk.house.gov/FinancialDisclosure',
+    format: 'official search portal'
+  },
+  {
+    name: 'US Senate eFD Search',
+    scope: 'Senators, candidates, senior Senate staff, spouse/dependent child when reported by statutory forms',
+    url: 'https://efdsearch.senate.gov/search/',
+    format: 'official search portal'
+  }
+];
+
 function avg(values) {
   const xs = values.filter(Number.isFinite);
   return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
@@ -145,6 +168,34 @@ async function httpText(url, options = {}) {
 
 async function httpJson(url, options = {}) {
   return JSON.parse(await httpText(url, { ...options, accept: 'application/json,*/*' }));
+}
+
+async function httpPostFormJson(url, form, options = {}) {
+  const attempts = options.attempts ?? 3;
+  const timeoutMs = options.timeoutMs ?? 12000;
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'user-agent': 'Mozilla/5.0 market-signal-board/0.2',
+          accept: 'application/json,*/*',
+          'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          referer: options.referer || url
+        },
+        body: form,
+        signal: AbortSignal.timeout(timeoutMs)
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return JSON.parse(text);
+    } catch (err) {
+      lastError = err;
+      if (attempt < attempts) await sleep(500 * attempt);
+    }
+  }
+  throw lastError;
 }
 
 function qualityFields({ source, quoteDate, quoteTime, staleMaxDays = 5, historyOk = true, degraded = false }) {
@@ -691,6 +742,129 @@ function fmtPlain(value) {
   return value.toFixed(value > 100 ? 0 : 2);
 }
 
+function cleanDisclosureTitle(value) {
+  return String(value || '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function cninfoPdfUrl(adjunctUrl) {
+  if (!adjunctUrl) return 'http://www.cninfo.com.cn/new/disclosure';
+  if (/^https?:\/\//i.test(adjunctUrl)) return adjunctUrl;
+  return `http://static.cninfo.com.cn/${String(adjunctUrl).replace(/^\/+/, '')}`;
+}
+
+function isCnHoldingChangeDisclosure(title) {
+  const t = cleanDisclosureTitle(title);
+  const relation = /[\u4eb2\u5c5e\u914d\u5076\u5b50\u5973\u7236\u6bcd\u5144\u5f1f\u59d0\u59b9]|\u8fd1\u4eb2\u5c5e/.test(t);
+  const transaction = /\u77ed\u7ebf\u4ea4\u6613|\u7a97\u53e3\u671f|\u654f\u611f\u671f|\u8fdd\u89c4|\u8bef\u64cd\u4f5c|\u4e70\u5356|\u589e\u6301|\u51cf\u6301|\u6301\u80a1\u53d8\u52a8/.test(t);
+  const governance = /\u8463\u4e8b|\u76d1\u4e8b|\u9ad8\u7ea7\u7ba1\u7406\u4eba\u5458|\u9ad8\u7ba1|\u8463\u76d1\u9ad8|\u5b9e\u9645\u63a7\u5236\u4eba|\u63a7\u80a1\u80a1\u4e1c/.test(t);
+  const notPolicy = !/\u5236\u5ea6|\u529e\u6cd5|\u89c4\u5219|\u4fee\u8ba2|\u7ec6\u5219|\u4e8b\u524d\u62a5\u5907/.test(t);
+  return relation && transaction && governance && notPolicy;
+}
+
+function cnDisclosureSignal(title) {
+  if (/\u77ed\u7ebf\u4ea4\u6613|\u8fdd\u89c4|\u7a97\u53e3\u671f|\u654f\u611f\u671f|\u8bef\u64cd\u4f5c/.test(title)) {
+    return '\u5408\u89c4\u98ce\u9669/\u6cbb\u7406\u7455\u75b5';
+  }
+  if (/\u589e\u6301/.test(title)) return '\u5185\u90e8\u4eba\u589e\u6301\u7ebf\u7d22';
+  if (/\u51cf\u6301/.test(title)) return '\u5185\u90e8\u4eba\u51cf\u6301\u7ebf\u7d22';
+  return '\u5173\u8054\u4eba\u4ea4\u6613\u7ebf\u7d22';
+}
+
+async function fetchCninfoRelatedAnnouncements() {
+  const seen = new Set();
+  const items = [];
+  for (const query of CNINFO_DISCLOSURE_QUERIES) {
+    const form = new URLSearchParams({
+      pageNum: '1',
+      pageSize: '20',
+      column: 'szse',
+      tabName: 'fulltext',
+      plate: '',
+      stock: '',
+      searchkey: query,
+      secid: '',
+      category: '',
+      trade: '',
+      seDate: '',
+      sortName: '',
+      sortType: '',
+      isHLtitle: 'true'
+    });
+    const body = await httpPostFormJson('http://www.cninfo.com.cn/new/hisAnnouncement/query', form, {
+      referer: 'http://www.cninfo.com.cn/new/index'
+    });
+    for (const ann of body.announcements || []) {
+      const id = ann.announcementId || `${ann.secCode}-${ann.announcementTime}-${ann.announcementTitle}`;
+      const title = cleanDisclosureTitle(ann.announcementTitle);
+      if (seen.has(id) || !isCnHoldingChangeDisclosure(title)) continue;
+      seen.add(id);
+      items.push({
+        id,
+        market: 'CN',
+        date: ann.announcementTime ? new Date(Number(ann.announcementTime)).toISOString().slice(0, 10) : null,
+        issuer: ann.secName || ann.orgName || '--',
+        code: ann.secCode || '--',
+        title,
+        signal: cnDisclosureSignal(title),
+        relationScope: '\u4e0a\u5e02\u516c\u53f8\u8463\u76d1\u9ad8/\u5b9e\u63a7\u4eba\u53ca\u8fd1\u4eb2\u5c5e\u516c\u5f00\u516c\u544a',
+        source: 'CNINFO',
+        url: cninfoPdfUrl(ann.adjunctUrl),
+        query
+      });
+    }
+    await sleep(150);
+  }
+  return items
+    .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')))
+    .slice(0, 10);
+}
+
+async function fetchPublicDisclosureSignals() {
+  const updatedAt = new Date().toISOString();
+  const legalBoundary = '\u4ec5\u7eb3\u5165\u5408\u6cd5\u516c\u5f00\u62ab\u9732\uff1b\u4e0d\u6293\u53d6\u6216\u63a8\u65ad\u672a\u516c\u5f00\u4e2a\u4eba\u8eab\u4efd\u3001\u4f4f\u5740\u3001\u8054\u7cfb\u65b9\u5f0f\u6216\u5bb6\u5ead\u9690\u79c1\u3002';
+  let chinaItems = [];
+  let chinaStatus = 'ok';
+  let chinaError = null;
+  try {
+    chinaItems = await fetchCninfoRelatedAnnouncements();
+    if (!chinaItems.length) chinaStatus = 'no_recent_filtered_items';
+  } catch (err) {
+    chinaStatus = 'source_unavailable';
+    chinaError = err.message;
+  }
+  return {
+    updatedAt,
+    legalBoundary,
+    privacyGuardrail: '\u914d\u5076/\u5b50\u5973/\u4eb2\u5c5e\u53ea\u6309\u516c\u544a\u539f\u6587\u7684\u5173\u7cfb\u8303\u56f4\u5448\u73b0\uff0c\u4e0d\u505a\u4eba\u8089\u8bc6\u522b\u6216\u989d\u5916\u8eab\u4efd\u62fc\u63a5\u3002',
+    china: {
+      status: chinaStatus,
+      title: '\u4e2d\u56fd\uff1a\u4e0a\u5e02\u516c\u53f8\u516c\u544a\u62ab\u9732\u7684\u5173\u8054\u4eba\u6301\u80a1/\u4ea4\u6613\u53d8\u52a8',
+      source: 'CNINFO official announcement search',
+      sourceUrl: 'http://www.cninfo.com.cn/new/disclosure',
+      legalBasis: '\u4e0a\u5e02\u516c\u53f8\u4fe1\u606f\u62ab\u9732\u3001\u8463\u76d1\u9ad8\u53ca\u8fd1\u4eb2\u5c5e\u4ea4\u6613\u76f8\u5173\u516c\u544a',
+      items: chinaItems,
+      error: chinaError
+    },
+    us: {
+      status: 'official_portal_links_only',
+      title: 'US: STOCK Act / financial disclosure portals',
+      legalBasis: 'Public financial disclosure and periodic transaction reports where published by official portals',
+      note: 'Official House and Senate portals expose legally disclosed reports, but they are not a stable unauthenticated JSON feed. The board links official sources and avoids copying unofficial or blocked datasets.',
+      sources: US_OFFICIAL_DISCLOSURE_SOURCES,
+      items: []
+    },
+    tradeUse: [
+      '\u628a\u5b98\u5458/\u5173\u8054\u4eba\u516c\u5f00\u6301\u4ed3\u53d8\u52a8\u5f53\u4f5c\u653f\u7b56\u654f\u611f\u884c\u4e1a\u3001\u5408\u89c4\u98ce\u9669\u548c\u4e8b\u4ef6\u50ac\u5316\u7ebf\u7d22\uff0c\u4e0d\u5355\u72ec\u4f5c\u4e3a\u4e70\u5356\u6307\u4ee4\u3002',
+      '\u4e0e\u884c\u4e1a\u653f\u7b56\u3001\u8ba2\u5355/\u8d22\u62a5\u3001\u4f30\u503c\u5206\u4f4d\u3001\u6210\u4ea4\u91cf\u7a81\u7834\u4ea4\u53c9\u9a8c\u8bc1\u3002',
+      '\u51fa\u73b0\u7a97\u53e3\u671f/\u77ed\u7ebf\u4ea4\u6613\u7c7b\u516c\u544a\u65f6\uff0c\u5148\u964d\u4f4e\u6cbb\u7406\u8d28\u91cf\u8bc4\u5206\uff0c\u518d\u68c0\u67e5\u662f\u4e2a\u4f8b\u8fd8\u662f\u6301\u7eed\u98ce\u9669\u3002'
+    ]
+  };
+}
+
 function actionFromScore(score) {
   if (!Number.isFinite(score)) return ZH.pause;
   if (score >= 66) return ZH.add;
@@ -1057,7 +1231,11 @@ function scoreComment(score, highText, lowText, midText) {
 }
 
 async function main() {
-  const [quotes, macroPricing] = await Promise.all([fetchAll(), fetchMacroPricing()]);
+  const [quotes, macroPricing, publicDisclosure] = await Promise.all([
+    fetchAll(),
+    fetchMacroPricing(),
+    fetchPublicDisclosureSignals()
+  ]);
   const quality = buildQuality(quotes);
   const scores = scoreMarket(quotes, quality);
   const recommendations = buildRecommendations(quotes, scores, quality);
@@ -1080,7 +1258,7 @@ async function main() {
   const data = {
     generatedAt,
     generatedAtCN,
-    source: 'Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter public APIs',
+    source: 'Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter + FRED + CNINFO/public disclosure portals',
     quality,
     scores: {
       ...Object.fromEntries(Object.entries(scores).map(([k, v]) => [k, Number.isFinite(v) ? Math.round(v) : null])),
@@ -1093,6 +1271,7 @@ async function main() {
     nowcast,
     impliedPricing,
     marketTraces,
+    publicDisclosure,
     leadLagChain,
     playbook: buildPlaybook(recommendations, nowcast, impliedPricing, marketTraces),
     macroPricing,

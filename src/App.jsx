@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bitcoin, Clock, Database, LineChart, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, Bitcoin, Clock, Database, ExternalLink, LineChart, RefreshCw, ShieldCheck } from 'lucide-react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
@@ -51,6 +51,7 @@ const TEXT = {
   nowcast: '\u9ad8\u9891 Nowcast',
   impliedPricing: '\u5e02\u573a\u9690\u542b\u5b9a\u4ef7',
   marketTraces: '\u806a\u660e\u94b1/\u5fae\u89c2\u75d5\u8ff9',
+  publicDisclosure: '\u5408\u6cd5\u516c\u793a\u6301\u4ed3/\u4ea4\u6613\u53d8\u52a8',
   leadLag: '\u9886\u5148\u6307\u6807\u65f6\u95f4\u94fe',
   playbook: '\u4eca\u65e5\u64cd\u4f5c\u624b\u518c',
   boundary: '\u4f7f\u7528\u8fb9\u754c',
@@ -189,7 +190,7 @@ function NowcastPanel({ items }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.nowcast}</h2>
-        <span>GDP / CPI / \u6d41\u52a8\u6027\u7684\u524d\u7f6e\u611f\u77e5</span>
+        <span>{'GDP / CPI / \u6d41\u52a8\u6027\u7684\u524d\u7f6e\u611f\u77e5'}</span>
       </div>
       <div className="signal-grid">
         {items.map((item) => (
@@ -215,7 +216,7 @@ function ImpliedPricingPanel({ items }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.impliedPricing}</h2>
-        <span>\u5229\u7387 / \u901a\u80c0 / \u4fe1\u7528 / \u62e5\u6324\u5ea6</span>
+        <span>{'\u5229\u7387 / \u901a\u80c0 / \u4fe1\u7528 / \u62e5\u6324\u5ea6'}</span>
       </div>
       <div className="pricing-list">
         {items.map((item) => (
@@ -237,7 +238,7 @@ function TracePanel({ traces }) {
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.marketTraces}</h2>
-        <span>\u6570\u636e\u516c\u5e03\u524d\u7684\u8de8\u8d44\u4ea7\u75d5\u8ff9</span>
+        <span>{'\u6570\u636e\u516c\u5e03\u524d\u7684\u8de8\u8d44\u4ea7\u75d5\u8ff9'}</span>
       </div>
       <div className="trace-grid">
         {traces.map((item) => (
@@ -253,12 +254,75 @@ function TracePanel({ traces }) {
   );
 }
 
+function DisclosurePanel({ disclosure }) {
+  if (!disclosure) return null;
+  const chinaItems = disclosure.china?.items || [];
+  const usSources = disclosure.us?.sources || [];
+  return (
+    <section className="panel disclosure">
+      <div className="panel-head">
+        <h2>{TEXT.publicDisclosure}</h2>
+        <span>{'\u5b98\u65b9\u516c\u544a / STOCK Act / \u4ec5\u9650\u5408\u6cd5\u516c\u793a'}</span>
+      </div>
+      <p className="disclosure-boundary">{disclosure.legalBoundary}</p>
+      <div className="disclosure-grid">
+        <div className="disclosure-column">
+          <div className="disclosure-title">
+            <h3>{disclosure.china?.title}</h3>
+            <span className="status-pill">{disclosure.china?.status || '--'}</span>
+          </div>
+          {chinaItems.length ? chinaItems.map((item) => (
+            <article className="disclosure-item" key={item.id}>
+              <div>
+                <strong>{item.issuer} {item.code}</strong>
+                <small>{item.date || '--'} / {item.signal}</small>
+              </div>
+              <p>{item.title}</p>
+              <small>{item.relationScope}</small>
+              <a href={item.url} target="_blank" rel="noreferrer">
+                <ExternalLink size={14} />
+                CNINFO
+              </a>
+            </article>
+          )) : (
+            <p className="empty-note">{disclosure.china?.error || '\u5f53\u524d\u672a\u7b5b\u5230\u7b26\u5408\u6761\u4ef6\u7684\u8fd1\u671f\u516c\u544a\u3002'}</p>
+          )}
+        </div>
+        <div className="disclosure-column">
+          <div className="disclosure-title">
+            <h3>{disclosure.us?.title}</h3>
+            <span className="status-pill">{disclosure.us?.status || '--'}</span>
+          </div>
+          <p className="empty-note">{disclosure.us?.note}</p>
+          <div className="source-list">
+            {usSources.map((source) => (
+              <a href={source.url} target="_blank" rel="noreferrer" key={source.url}>
+                <span>
+                  <strong>{source.name}</strong>
+                  <small>{source.scope}</small>
+                </span>
+                <ExternalLink size={15} />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="trade-use">
+        <h3>{'\u4ea4\u6613\u4f7f\u7528\u65b9\u5f0f'}</h3>
+        <ul>
+          {(disclosure.tradeUse || []).map((item) => <li key={item}>{item}</li>)}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function LeadLagPanel({ chain }) {
   return (
     <section className="panel">
       <div className="panel-head">
         <h2>{TEXT.leadLag}</h2>
-        <span>\u4fe1\u7528 \u2192 \u4f30\u503c \u2192 PMI/\u5229\u6da6 \u2192 \u5c31\u4e1a/\u901a\u80c0</span>
+        <span>{'\u4fe1\u7528 \u2192 \u4f30\u503c \u2192 PMI/\u5229\u6da6 \u2192 \u5c31\u4e1a/\u901a\u80c0'}</span>
       </div>
       <div className="chain">
         {chain.map((item) => (
@@ -279,7 +343,7 @@ function PlaybookPanel({ items }) {
     <section className="panel playbook">
       <div className="panel-head">
         <h2>{TEXT.playbook}</h2>
-        <span>\u4fe1\u53f7 \u2192 \u64cd\u4f5c \u2192 \u786e\u8ba4 \u2192 \u5931\u6548</span>
+        <span>{'\u4fe1\u53f7 \u2192 \u64cd\u4f5c \u2192 \u786e\u8ba4 \u2192 \u5931\u6548'}</span>
       </div>
       <div className="playbook-grid">
         {items.map((item) => (
@@ -288,10 +352,10 @@ function PlaybookPanel({ items }) {
               <h3>{item.market}</h3>
               <span className={actionClass[item.action] || 'action watch'}>{item.action}</span>
             </div>
-            <p><b>\u8bbe\u5b9a\uff1a</b>{item.setup}</p>
-            <p><b>\u64cd\u4f5c\uff1a</b>{item.operation}</p>
-            <p><b>\u786e\u8ba4\uff1a</b>{item.confirm.join(' / ')}</p>
-            <p><b>\u5931\u6548\uff1a</b>{item.stop.slice(0, 2).join(' / ')}</p>
+            <p><b>{'\u8bbe\u5b9a\uff1a'}</b>{item.setup}</p>
+            <p><b>{'\u64cd\u4f5c\uff1a'}</b>{item.operation}</p>
+            <p><b>{'\u786e\u8ba4\uff1a'}</b>{item.confirm.join(' / ')}</p>
+            <p><b>{'\u5931\u6548\uff1a'}</b>{item.stop.slice(0, 2).join(' / ')}</p>
           </div>
         ))}
       </div>
@@ -378,6 +442,7 @@ function App() {
         <ImpliedPricingPanel items={data.impliedPricing || []} />
         <TracePanel traces={data.marketTraces || []} />
       </div>
+      <DisclosurePanel disclosure={data.publicDisclosure} />
       <LeadLagPanel chain={data.leadLagChain || []} />
       <PlaybookPanel items={data.playbook || []} />
 
