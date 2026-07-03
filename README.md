@@ -13,13 +13,15 @@ Core idea: trade the expectation gap, not the absolute data print. The board com
 - Trading suggestions for A-shares, US stocks, and BTC.
 - Each suggestion includes confidence, evidence, and invalidation conditions.
 - Public JSON data snapshot at `public/data/market.json`.
+- Data freshness and quality gates. If critical data is stale, missing, or incomplete, the affected market switches to paused judgment instead of emitting a directional signal.
 
 ## Data Sources
 
 - A-share index data: Tencent Finance kline API
 - US index and ETF quotes: Tencent Finance quote API
+- VIX: Tencent quote API with Cboe VIX daily history fallback
+- BTC/ETH: Binance Vision daily kline, Gate.io daily kline, CoinGecko fallback, Coinlore degraded fallback
 - USD/CNY: Frankfurter public FX API
-- BTC/ETH: CoinGecko public API
 - Oil and gold: Tencent Finance futures quote API
 
 If a source is blocked, the dashboard marks that asset as a data gap and avoids fabricating signals from missing prices.
@@ -29,6 +31,7 @@ If a source is blocked, the dashboard marks that asset as a data gap and avoids 
 ```bash
 npm install
 npm run update:data
+npm run validate:data
 npm run dev
 ```
 

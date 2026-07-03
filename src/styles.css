@@ -154,6 +154,7 @@ h3 { margin-top: 16px; font-size: 14px; }
 .hold { background: #e9f2f6; color: var(--blue); }
 .reduce { background: #fbe9e8; color: var(--red); }
 .watch { background: #fff3d9; color: var(--amber); }
+.pause { background: #eef0f2; color: var(--muted); }
 
 .confidence {
   display: flex;
@@ -245,10 +246,10 @@ ul {
 
 .thead, .row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr .8fr .8fr 1fr;
+  grid-template-columns: 1.5fr .9fr .9fr .7fr .7fr .8fr 1.5fr;
   gap: 10px;
   align-items: center;
-  min-width: 680px;
+  min-width: 900px;
 }
 
 .thead {
@@ -272,6 +273,26 @@ ul {
 .asset small {
   color: var(--muted);
 }
+
+.quality {
+  display: grid;
+  gap: 2px;
+  color: var(--muted);
+}
+
+.quality b {
+  font-size: 13px;
+}
+
+.quality small {
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.quality.ok b { color: var(--green); }
+.quality.degraded b { color: var(--amber); }
+.quality.failed b,
+.quality.stale b { color: var(--red); }
 
 .pos { color: var(--green); }
 .neg { color: var(--red); }

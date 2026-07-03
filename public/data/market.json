@@ -1,13 +1,38 @@
 {
-  "generatedAt": "2026-07-03T10:08:54.354Z",
-  "generatedAtCN": "2026/07/03 18:08:54",
-  "source": "Tencent Finance + CoinGecko + Frankfurter public APIs",
+  "generatedAt": "2026-07-03T10:38:26.851Z",
+  "generatedAtCN": "2026/07/03 18:38:26",
+  "source": "Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter public APIs",
+  "quality": {
+    "aShare": {
+      "ok": true,
+      "passed": 3,
+      "required": 2
+    },
+    "usStock": {
+      "ok": true,
+      "passed": 4,
+      "required": 4
+    },
+    "crypto": {
+      "ok": true,
+      "passed": 1,
+      "required": 1
+    },
+    "macro": {
+      "ok": true,
+      "passed": 2,
+      "required": 2
+    },
+    "stale": [],
+    "failed": [],
+    "freshnessSummary": "OK 13/13, stale 0, failed 0"
+  },
   "scores": {
-    "riskAppetite": 40,
-    "dollarRatePressure": 50,
+    "riskAppetite": 39,
+    "dollarRatePressure": 45,
     "aMomentum": 40,
-    "usMomentum": 35,
-    "cryptoMomentum": 45,
+    "usMomentum": 37,
+    "cryptoMomentum": 39,
     "riskComment": "风险偏好偏弱。",
     "dollarComment": "人民币/外部压力中性。"
   },
@@ -21,7 +46,7 @@
       "confidence": 40,
       "advice": "A 股风险偏好偏弱，优先降低高弹性题材和亏损股，保留红利、现金流和强基本面仓位。",
       "reasons": [
-        "上证 20 日表现 -0.35%，趋势状态：弱势",
+        "上证 20 日表现 -0.35%，趋势状态：弱势，行情日期：2026-07-03",
         "USD/CNY 当前 6.79，用于审查人民币压力",
         "A 股动量评分 40/100"
       ],
@@ -33,12 +58,12 @@
     },
     "usStock": {
       "action": "减仓",
-      "confidence": 35,
+      "confidence": 37,
       "advice": "美股承压，优先降低高估值长久期资产，等待波动率压力缓和。",
       "reasons": [
-        "纳斯达克日涨跌 -0.80%，趋势状态：日内偏弱",
-        "VIX 当前 21.67，恐慌/波动率影响风险偏好",
-        "美股动量评分 35/100"
+        "纳斯达克 20 日表现 -3.80%，QQQ 20 日表现 -4.14%",
+        "VIX 当前 16.15，行情时间：2026-07-02",
+        "美股动量评分 37/100"
       ],
       "invalidations": [
         "VIX 升破 25 且标普跌破关键均线",
@@ -47,13 +72,13 @@
       ]
     },
     "btc": {
-      "action": "观望",
-      "confidence": 42,
-      "advice": "BTC 实时数据源未打通，暂不用错误数据生成方向信号；先以美股风险偏好和 VIX 作为风险代理。",
+      "action": "减仓",
+      "confidence": 39,
+      "advice": "BTC 面临风险偏好或美元压力，降低高波动仓位，避免杠杆和追涨。",
       "reasons": [
-        "BTC 20 日表现 数据不足，趋势状态：数据异常",
-        "VIX 当前 21.67，用于审查风险偏好",
-        "加密动量评分 45/100"
+        "BTC 20 日表现 -4.07%，趋势状态：弱势，数据源：Binance Vision daily kline",
+        "VIX 当前 16.15，用于审查风险偏好",
+        "加密动量评分 39/100"
       ],
       "invalidations": [
         "BTC 跌破 20/60 日均线且放量下行",
@@ -65,8 +90,8 @@
   "expectationPulse": [
     {
       "name": "风险偏好",
-      "score": 40,
-      "comment": "由美股、BTC 和 VIX 合成。VIX 当前 21.67。"
+      "score": 39,
+      "comment": "由 A 股 / 美股 / BTC 合成。VIX 当前 16.15。"
     },
     {
       "name": "人民币稳定",
@@ -75,13 +100,13 @@
     },
     {
       "name": "商品压力",
-      "score": 49,
-      "comment": "原油日涨跌 -0.29%，黄金日涨跌 +0.04%。"
+      "score": 48,
+      "comment": "原油日涨跌 -0.58%，黄金日涨跌 +0.04%。"
     },
     {
-      "name": "预期差敏感度",
-      "score": 55,
-      "comment": "波动率越高，数据公布前后的预期差交易越敏感。"
+      "name": "数据质量",
+      "score": 100,
+      "comment": "OK 13/13, stale 0, failed 0"
     }
   ],
   "quotes": [
@@ -101,7 +126,14 @@
       "volume": 602009738,
       "avgVolume20": 649295476.7,
       "trend": "弱势",
-      "ok": true
+      "ok": true,
+      "source": "Tencent Finance A-share kline",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "szse",
@@ -119,7 +151,14 @@
       "volume": 785895029,
       "avgVolume20": 786739777.7,
       "trend": "震荡",
-      "ok": true
+      "ok": true,
+      "source": "Tencent Finance A-share kline",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "chinext",
@@ -137,7 +176,14 @@
       "volume": 228453195,
       "avgVolume20": 232144915.45,
       "trend": "震荡",
-      "ok": true
+      "ok": true,
+      "source": "Tencent Finance A-share kline",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "dow",
@@ -147,17 +193,24 @@
       "price": 52900.07,
       "previousClose": 52305.24,
       "changePct": 1.14,
-      "return5d": null,
-      "return20d": null,
-      "return60d": null,
+      "return5d": 2.73,
+      "return20d": 4.37,
+      "return60d": 13.56,
       "ma20": null,
       "ma60": null,
       "volume": 548821105,
       "avgVolume20": null,
       "high": 52903.85,
       "low": 52395.22,
-      "trend": "日内偏强",
-      "ok": true
+      "trend": "强势",
+      "ok": true,
+      "source": "Tencent Finance US quote",
+      "quoteDate": "2026-07-02",
+      "quoteTime": "2026-07-02 16:42:50",
+      "ageDays": 1,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "nasdaq",
@@ -167,17 +220,24 @@
       "price": 25832.67,
       "previousClose": 26040.03,
       "changePct": -0.8,
-      "return5d": null,
-      "return20d": null,
-      "return60d": null,
+      "return5d": -0.73,
+      "return20d": -3.8,
+      "return60d": 17.33,
       "ma20": null,
       "ma60": null,
       "volume": 8342344853,
       "avgVolume20": null,
       "high": 26261.09,
       "low": 25630.51,
-      "trend": "日内偏弱",
-      "ok": true
+      "trend": "弱势",
+      "ok": true,
+      "source": "Tencent Finance US quote",
+      "quoteDate": "2026-07-02",
+      "quoteTime": "2026-07-02 17:15:59",
+      "ageDays": 1,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "spx",
@@ -187,9 +247,9 @@
       "price": 7483.24,
       "previousClose": 7483.23,
       "changePct": 0,
-      "return5d": null,
-      "return20d": null,
-      "return60d": null,
+      "return5d": 0.85,
+      "return20d": -0.93,
+      "return60d": 13.09,
       "ma20": null,
       "ma60": null,
       "volume": 3414978865,
@@ -197,7 +257,14 @@
       "high": 7540.75,
       "low": 7427.55,
       "trend": "日内偏强",
-      "ok": true
+      "ok": true,
+      "source": "Tencent Finance US quote",
+      "quoteDate": "2026-07-02",
+      "quoteTime": "2026-07-02 16:42:15",
+      "ageDays": 1,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "qqq",
@@ -207,61 +274,109 @@
       "price": 712.6,
       "previousClose": 725.17,
       "changePct": -1.73,
-      "return5d": null,
-      "return20d": null,
-      "return60d": null,
+      "return5d": -1.26,
+      "return20d": -4.14,
+      "return60d": 21.2,
       "ma20": null,
       "ma60": null,
       "volume": 51086080,
       "avgVolume20": null,
       "high": 730.83,
       "low": 707.56,
-      "trend": "日内偏弱",
-      "ok": true
+      "trend": "弱势",
+      "ok": true,
+      "source": "Tencent Finance US quote",
+      "quoteDate": "2026-07-02",
+      "quoteTime": "2026-07-02 16:00:01",
+      "ageDays": 1,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "vix",
       "group": "全球因子",
       "name": "VIX 恐慌指数",
       "symbol": "usVIX",
-      "price": 21.67,
-      "previousClose": 21.67,
-      "changePct": 0,
-      "return5d": null,
-      "return20d": null,
-      "return60d": null,
-      "ma20": null,
-      "ma60": null,
+      "price": 16.15,
+      "previousClose": 16.59,
+      "changePct": -2.65220012055456,
+      "return5d": -14.505029115934365,
+      "return20d": 4.870129870129869,
+      "return60d": -17.136993329912777,
+      "ma20": 18.170499999999997,
+      "ma60": 17.76383333333333,
       "volume": null,
-      "avgVolume20": null,
-      "high": 0,
-      "low": 0,
-      "trend": "日内偏强",
-      "ok": true
+      "avgVolume20": 0,
+      "trend": "震荡",
+      "ok": true,
+      "source": "Cboe VIX daily history",
+      "quoteDate": "2026-07-02",
+      "quoteTime": "2026-07-02",
+      "ageDays": 1,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok"
     },
     {
       "key": "btc",
       "group": "加密",
       "name": "Bitcoin",
       "symbol": "BTC-USD",
+      "binance": "BTCUSDT",
+      "gate": "BTC_USDT",
+      "coinLoreId": 90,
       "coinId": "bitcoin",
-      "ok": false,
-      "price": null,
-      "changePct": null,
-      "trend": "数据异常",
-      "error": "fetch failed"
+      "price": 61836.95,
+      "previousClose": 61560,
+      "changePct": 0.44988628979856227,
+      "return5d": 3.793308861925082,
+      "return20d": -4.06630611152905,
+      "return60d": -22.569286313809457,
+      "ma20": 62300.362,
+      "ma60": 69649.69083333334,
+      "volume": 6490.75842,
+      "avgVolume20": 17463.548425999998,
+      "trend": "弱势",
+      "ok": true,
+      "source": "Binance Vision daily kline",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok",
+      "fallbackErrors": []
     },
     {
       "key": "eth",
       "group": "加密",
       "name": "Ethereum",
       "symbol": "ETH-USD",
+      "binance": "ETHUSDT",
+      "gate": "ETH_USDT",
+      "coinLoreId": 80,
       "coinId": "ethereum",
-      "ok": false,
-      "price": null,
-      "changePct": null,
-      "trend": "数据异常",
-      "error": "fetch failed"
+      "price": 1739.29,
+      "previousClose": 1700.57,
+      "changePct": 2.276883633134763,
+      "return5d": 10.64467289244,
+      "return20d": 3.4565007911109946,
+      "return60d": -25.898106648034215,
+      "ma20": 1674.007,
+      "ma60": 1908.3580000000006,
+      "volume": 101375.0246,
+      "avgVolume20": 270375.43864,
+      "trend": "短强",
+      "ok": true,
+      "source": "Binance Vision daily kline",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": true,
+      "dataQuality": "ok",
+      "fallbackErrors": []
     },
     {
       "key": "usdcny",
@@ -279,16 +394,23 @@
       "volume": null,
       "avgVolume20": null,
       "trend": "日频汇率",
-      "ok": true
+      "ok": true,
+      "source": "Frankfurter FX daily",
+      "quoteDate": "2026-07-02",
+      "quoteTime": "2026-07-02",
+      "ageDays": 1,
+      "stale": false,
+      "historyOk": false,
+      "dataQuality": "degraded"
     },
     {
       "key": "oil",
       "group": "全球因子",
       "name": "WTI 原油",
       "symbol": "hf_CL",
-      "price": 68.55,
+      "price": 68.42,
       "previousClose": 68.69,
-      "changePct": -0.2911631969719028,
+      "changePct": -0.5823263939438056,
       "return5d": null,
       "return20d": null,
       "return60d": null,
@@ -297,16 +419,23 @@
       "volume": null,
       "avgVolume20": null,
       "trend": "日内偏弱",
-      "ok": true
+      "ok": true,
+      "source": "Tencent Finance futures quote",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03 18:38:01",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": false,
+      "dataQuality": "degraded"
     },
     {
       "key": "gold",
       "group": "全球因子",
       "name": "黄金",
       "symbol": "hf_GC",
-      "price": 4191.37,
+      "price": 4191,
       "previousClose": 4125.7,
-      "changePct": 0.03853891460843009,
+      "changePct": 0.03829653149768525,
       "return5d": null,
       "return20d": null,
       "return60d": null,
@@ -315,7 +444,14 @@
       "volume": null,
       "avgVolume20": null,
       "trend": "日内偏强",
-      "ok": true
+      "ok": true,
+      "source": "Tencent Finance futures quote",
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03 18:38:01",
+      "ageDays": 0,
+      "stale": false,
+      "historyOk": false,
+      "dataQuality": "degraded"
     }
   ]
 }

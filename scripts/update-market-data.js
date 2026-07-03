@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const ROOT = process.cwd();
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const ZH = {
   aShare: '\u0041\u80a1',
@@ -27,11 +28,14 @@ const ZH = {
   intradayWeak: '\u65e5\u5185\u504f\u5f31',
   insufficient: '\u6570\u636e\u4e0d\u8db3',
   abnormal: '\u6570\u636e\u5f02\u5e38',
+  stale: '\u6570\u636e\u8fc7\u671f',
+  degraded: '\u964d\u7ea7\u6570\u636e',
   dailyFx: '\u65e5\u9891\u6c47\u7387',
   add: '\u52a0\u4ed3',
   hold: '\u6301\u6709',
   reduce: '\u51cf\u4ed3',
-  watch: '\u89c2\u671b'
+  watch: '\u89c2\u671b',
+  pause: '\u6682\u505c\u5224\u65ad'
 };
 
 const TENCENT_A = [
@@ -49,8 +53,8 @@ const TENCENT_US = [
 ];
 
 const CRYPTO = [
-  { key: 'btc', group: ZH.crypto, name: 'Bitcoin', symbol: 'BTC-USD', coinId: 'bitcoin' },
-  { key: 'eth', group: ZH.crypto, name: 'Ethereum', symbol: 'ETH-USD', coinId: 'ethereum' }
+  { key: 'btc', group: ZH.crypto, name: 'Bitcoin', symbol: 'BTC-USD', binance: 'BTCUSDT', gate: 'BTC_USDT', coinLoreId: 90, coinId: 'bitcoin' },
+  { key: 'eth', group: ZH.crypto, name: 'Ethereum', symbol: 'ETH-USD', binance: 'ETHUSDT', gate: 'ETH_USDT', coinLoreId: 80, coinId: 'ethereum' }
 ];
 
 function avg(values) {
@@ -64,7 +68,28 @@ function pct(a, b) {
 }
 
 function clamp(n, min = 0, max = 100) {
+  if (!Number.isFinite(n)) return null;
   return Math.max(min, Math.min(max, n));
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseDateOnly(value) {
+  const match = String(value || '').match(/\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : null;
+}
+
+function dateAgeDays(date) {
+  if (!date) return Infinity;
+  const t = Date.parse(`${date}T00:00:00Z`);
+  if (!Number.isFinite(t)) return Infinity;
+  return Math.floor((Date.now() - t) / DAY_MS);
+}
+
+function isStale(date, maxAgeDays = 5) {
+  return dateAgeDays(date) > maxAgeDays;
 }
 
 function trendLabel(price, ma20, ma60) {
@@ -75,19 +100,56 @@ function trendLabel(price, ma20, ma60) {
   return ZH.choppy;
 }
 
-async function httpText(url) {
-  const res = await fetch(url, {
-    headers: {
-      'user-agent': 'Mozilla/5.0 market-signal-board/0.1',
-      accept: '*/*'
-    }
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.text();
+function trendFromReturns(day, r20) {
+  if (!Number.isFinite(day) && !Number.isFinite(r20)) return ZH.insufficient;
+  if (Number.isFinite(r20) && r20 >= 2) return ZH.strong;
+  if (Number.isFinite(r20) && r20 <= -2) return ZH.weak;
+  if (Number.isFinite(day) && day >= 0) return ZH.intradayStrong;
+  if (Number.isFinite(day) && day < 0) return ZH.intradayWeak;
+  return ZH.choppy;
 }
 
-async function httpJson(url) {
-  return JSON.parse(await httpText(url));
+async function httpText(url, options = {}) {
+  const attempts = options.attempts ?? 3;
+  const timeoutMs = options.timeoutMs ?? 12000;
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'user-agent': 'Mozilla/5.0 market-signal-board/0.2',
+          accept: options.accept || '*/*'
+        },
+        signal: AbortSignal.timeout(timeoutMs)
+      });
+      const text = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (/requires JavaScript to verify/i.test(text)) throw new Error('blocked by JS challenge');
+      return text;
+    } catch (err) {
+      lastError = err;
+      if (attempt < attempts) await sleep(500 * attempt);
+    }
+  }
+  throw lastError;
+}
+
+async function httpJson(url, options = {}) {
+  return JSON.parse(await httpText(url, { ...options, accept: 'application/json,*/*' }));
+}
+
+function qualityFields({ source, quoteDate, quoteTime, staleMaxDays = 5, historyOk = true, degraded = false }) {
+  const normalizedDate = parseDateOnly(quoteDate || quoteTime);
+  const stale = isStale(normalizedDate, staleMaxDays);
+  return {
+    source,
+    quoteDate: normalizedDate,
+    quoteTime: quoteTime || normalizedDate,
+    ageDays: dateAgeDays(normalizedDate),
+    stale,
+    historyOk,
+    dataQuality: stale ? 'stale' : degraded ? 'degraded' : 'ok'
+  };
 }
 
 function buildQuoteFromCloses(item, rows, latestMeta = {}) {
@@ -97,6 +159,8 @@ function buildQuoteFromCloses(item, rows, latestMeta = {}) {
   const previousClose = Number.isFinite(latestMeta.previousClose) ? latestMeta.previousClose : closes.at(-2);
   const ma20 = avg(closes.slice(-20));
   const ma60 = avg(closes.slice(-60));
+  const quoteDate = latestMeta.quoteDate || rows.at(-1)?.date;
+  const quality = qualityFields({ ...latestMeta, quoteDate, historyOk: closes.length >= 61 });
   return {
     ...item,
     price,
@@ -110,7 +174,8 @@ function buildQuoteFromCloses(item, rows, latestMeta = {}) {
     volume: volumes.at(-1) || latestMeta.volume || null,
     avgVolume20: avg(volumes.slice(-20)),
     trend: trendLabel(price, ma20, ma60),
-    ok: Number.isFinite(price)
+    ok: Number.isFinite(price) && !quality.stale,
+    ...quality
   };
 }
 
@@ -128,7 +193,7 @@ async function fetchTencentA(item) {
     low: Number(x[4]),
     volume: Number(x[5])
   }));
-  return buildQuoteFromCloses(item, rows);
+  return buildQuoteFromCloses(item, rows, { source: 'Tencent Finance A-share kline', staleMaxDays: 5 });
 }
 
 function parseTencentQuoteLine(line, item) {
@@ -138,26 +203,34 @@ function parseTencentQuoteLine(line, item) {
   const price = Number(fields[3]);
   const previousClose = Number(fields[4]);
   const changePct = Number(fields[32]);
-  const high = Number(fields[33]);
-  const low = Number(fields[34]);
+  const return5d = Number(fields[59]);
+  const return20d = Number(fields[60]);
+  const return60d = Number(fields[61]);
+  const quoteTime = fields[30] || null;
+  const quality = qualityFields({
+    source: 'Tencent Finance US quote',
+    quoteTime,
+    staleMaxDays: 5,
+    historyOk: Number.isFinite(return20d),
+    degraded: !Number.isFinite(return20d)
+  });
   return {
     ...item,
     price,
     previousClose,
     changePct: Number.isFinite(changePct) ? changePct : pct(price, previousClose),
-    return5d: null,
-    return20d: null,
-    return60d: null,
+    return5d: Number.isFinite(return5d) ? return5d : null,
+    return20d: Number.isFinite(return20d) ? return20d : null,
+    return60d: Number.isFinite(return60d) ? return60d : null,
     ma20: null,
     ma60: null,
     volume: Number(fields[6]) || null,
     avgVolume20: null,
-    high,
-    low,
-    trend: Number.isFinite(price) && Number.isFinite(previousClose)
-      ? price >= previousClose ? ZH.intradayStrong : ZH.intradayWeak
-      : ZH.insufficient,
-    ok: Number.isFinite(price)
+    high: Number(fields[33]),
+    low: Number(fields[34]),
+    trend: trendFromReturns(Number.isFinite(changePct) ? changePct : pct(price, previousClose), Number.isFinite(return20d) ? return20d : null),
+    ok: Number.isFinite(price) && !quality.stale,
+    ...quality
   };
 }
 
@@ -167,16 +240,83 @@ async function fetchTencentQuotes(items) {
   const lines = text.split(';').map((x) => x.trim()).filter(Boolean);
   return items.map((item) => {
     const line = lines.find((x) => x.includes(`_${item.symbol}=`));
-    if (!line) return { ...item, ok: false, price: null, changePct: null, trend: ZH.abnormal, error: 'quote missing' };
+    if (!line) return failedQuote(item, 'quote missing');
     try {
       return parseTencentQuoteLine(line, item);
     } catch (err) {
-      return { ...item, ok: false, price: null, changePct: null, trend: ZH.abnormal, error: err.message };
+      return failedQuote(item, err.message);
     }
   });
 }
 
-async function fetchCrypto(item) {
+async function fetchCboeVix(item) {
+  const text = await httpText('https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv', {
+    accept: 'text/csv,*/*',
+    timeoutMs: 15000
+  });
+  const lines = text.trim().split(/\r?\n/).slice(1).filter(Boolean);
+  const rows = lines.map((line) => {
+    const [date, open, high, low, close] = line.split(',');
+    const [mm, dd, yyyy] = date.split('/');
+    return {
+      date: `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`,
+      open: Number(open),
+      high: Number(high),
+      low: Number(low),
+      close: Number(close),
+      volume: null
+    };
+  });
+  if (rows.length < 2) throw new Error('Cboe VIX no history');
+  return buildQuoteFromCloses(item, rows, { source: 'Cboe VIX daily history', staleMaxDays: 5 });
+}
+
+async function fetchUsAndVix() {
+  const usQuotes = await fetchTencentQuotes(TENCENT_US);
+  const vixIndex = usQuotes.findIndex((q) => q.key === 'vix');
+  if (vixIndex >= 0 && !usable(usQuotes[vixIndex])) {
+    try {
+      usQuotes[vixIndex] = await fetchCboeVix(TENCENT_US.find((q) => q.key === 'vix'));
+    } catch (err) {
+      usQuotes[vixIndex].fallbackErrors = [...(usQuotes[vixIndex].fallbackErrors || []), err.message];
+    }
+  }
+  return usQuotes;
+}
+
+async function fetchBinanceCrypto(item) {
+  const url = `https://data-api.binance.vision/api/v3/klines?symbol=${item.binance}&interval=1d&limit=120`;
+  const body = await httpJson(url);
+  if (!Array.isArray(body) || body.length < 2) throw new Error('Binance no kline');
+  const rows = body.map((x) => ({
+    date: new Date(Number(x[0])).toISOString().slice(0, 10),
+    open: Number(x[1]),
+    high: Number(x[2]),
+    low: Number(x[3]),
+    close: Number(x[4]),
+    volume: Number(x[5])
+  }));
+  return buildQuoteFromCloses(item, rows, { source: 'Binance Vision daily kline', staleMaxDays: 3 });
+}
+
+async function fetchGateCrypto(item) {
+  const url = `https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=${item.gate}&interval=1d&limit=120`;
+  const body = await httpJson(url);
+  if (!Array.isArray(body) || body.length < 2) throw new Error('Gate.io no kline');
+  const rows = body
+    .map((x) => ({
+      date: new Date(Number(x[0]) * 1000).toISOString().slice(0, 10),
+      close: Number(x[2]),
+      high: Number(x[3]),
+      low: Number(x[4]),
+      open: Number(x[5]),
+      volume: Number(x[6])
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  return buildQuoteFromCloses(item, rows, { source: 'Gate.io daily kline', staleMaxDays: 3 });
+}
+
+async function fetchCoinGeckoCrypto(item) {
   const url = `https://api.coingecko.com/api/v3/coins/${item.coinId}/market_chart?vs_currency=usd&days=120&interval=daily`;
   const body = await httpJson(url);
   const rows = (body.prices || []).map(([ts, price]) => ({
@@ -184,16 +324,68 @@ async function fetchCrypto(item) {
     close: Number(price),
     volume: null
   }));
-  if (rows.length < 2) throw new Error(`${item.coinId} no price history`);
-  return buildQuoteFromCloses(item, rows);
+  if (rows.length < 2) throw new Error('CoinGecko no history');
+  return buildQuoteFromCloses(item, rows, { source: 'CoinGecko market chart', staleMaxDays: 3 });
+}
+
+async function fetchCoinLoreCrypto(item) {
+  const url = `https://api.coinlore.net/api/ticker/?id=${item.coinLoreId}`;
+  const body = await httpJson(url);
+  const node = Array.isArray(body) ? body[0] : null;
+  if (!node) throw new Error('Coinlore no ticker');
+  const price = Number(node.price_usd);
+  const changePct = Number(node.percent_change_24h);
+  const return5d = Number(node.percent_change_7d);
+  const quality = qualityFields({
+    source: 'Coinlore ticker fallback',
+    quoteDate: new Date().toISOString().slice(0, 10),
+    staleMaxDays: 1,
+    historyOk: false,
+    degraded: true
+  });
+  return {
+    ...item,
+    price,
+    previousClose: Number.isFinite(changePct) ? price / (1 + changePct / 100) : null,
+    changePct: Number.isFinite(changePct) ? changePct : null,
+    return5d: Number.isFinite(return5d) ? return5d : null,
+    return20d: null,
+    return60d: null,
+    ma20: null,
+    ma60: null,
+    volume: null,
+    avgVolume20: null,
+    trend: trendFromReturns(changePct, return5d),
+    ok: Number.isFinite(price) && !quality.stale,
+    ...quality
+  };
+}
+
+async function fetchCrypto(item) {
+  const errors = [];
+  for (const fn of [fetchBinanceCrypto, fetchGateCrypto, fetchCoinGeckoCrypto, fetchCoinLoreCrypto]) {
+    try {
+      const quote = await fn(item);
+      return { ...quote, fallbackErrors: errors };
+    } catch (err) {
+      errors.push(err.message);
+    }
+  }
+  return failedQuote(item, errors.join('; ') || 'all crypto sources failed');
 }
 
 async function fetchFxAndFutures() {
   const results = [];
-
   try {
     const fx = await httpJson('https://api.frankfurter.app/latest?from=USD&to=CNY');
     const price = Number(fx.rates?.CNY);
+    const quality = qualityFields({
+      source: 'Frankfurter FX daily',
+      quoteDate: fx.date,
+      staleMaxDays: 5,
+      historyOk: false,
+      degraded: true
+    });
     results.push({
       key: 'usdcny',
       group: ZH.factor,
@@ -210,10 +402,11 @@ async function fetchFxAndFutures() {
       volume: null,
       avgVolume20: null,
       trend: ZH.dailyFx,
-      ok: Number.isFinite(price)
+      ok: Number.isFinite(price) && !quality.stale,
+      ...quality
     });
   } catch (err) {
-    results.push({ key: 'usdcny', group: ZH.factor, name: ZH.usdcny, symbol: 'USD/CNY', ok: false, price: null, changePct: null, trend: ZH.abnormal, error: err.message });
+    results.push(failedQuote({ key: 'usdcny', group: ZH.factor, name: ZH.usdcny, symbol: 'USD/CNY' }, err.message));
   }
 
   try {
@@ -223,13 +416,21 @@ async function fetchFxAndFutures() {
       const line = lines.find((x) => x.includes(`_${symbol}=`));
       const match = line?.match(/="([^"]*)"/);
       if (!match) {
-        results.push({ key, group: ZH.factor, name, symbol, ok: false, price: null, changePct: null, trend: ZH.abnormal, error: 'quote missing' });
+        results.push(failedQuote({ key, group: ZH.factor, name, symbol }, 'quote missing'));
         continue;
       }
       const fields = match[1].split(',');
       const price = Number(fields[0]);
       const change = Number(fields[1]);
       const previousClose = Number(fields[7]) || null;
+      const quoteTime = `${fields[12] || ''} ${fields[6] || ''}`.trim();
+      const quality = qualityFields({
+        source: 'Tencent Finance futures quote',
+        quoteTime,
+        staleMaxDays: 3,
+        historyOk: false,
+        degraded: true
+      });
       results.push({
         key,
         group: ZH.factor,
@@ -246,30 +447,58 @@ async function fetchFxAndFutures() {
         volume: null,
         avgVolume20: null,
         trend: Number.isFinite(change) ? change >= 0 ? ZH.intradayStrong : ZH.intradayWeak : ZH.insufficient,
-        ok: Number.isFinite(price)
+        ok: Number.isFinite(price) && !quality.stale,
+        ...quality
       });
     }
   } catch (err) {
-    results.push({ key: 'oil', group: ZH.factor, name: ZH.oil, symbol: 'hf_CL', ok: false, price: null, changePct: null, trend: ZH.abnormal, error: err.message });
-    results.push({ key: 'gold', group: ZH.factor, name: ZH.gold, symbol: 'hf_GC', ok: false, price: null, changePct: null, trend: ZH.abnormal, error: err.message });
+    results.push(failedQuote({ key: 'oil', group: ZH.factor, name: ZH.oil, symbol: 'hf_CL' }, err.message));
+    results.push(failedQuote({ key: 'gold', group: ZH.factor, name: ZH.gold, symbol: 'hf_GC' }, err.message));
   }
 
   return results;
+}
+
+function failedQuote(item, error) {
+  return {
+    ...item,
+    ok: false,
+    price: null,
+    previousClose: null,
+    changePct: null,
+    return5d: null,
+    return20d: null,
+    return60d: null,
+    ma20: null,
+    ma60: null,
+    volume: null,
+    avgVolume20: null,
+    trend: ZH.abnormal,
+    stale: true,
+    historyOk: false,
+    dataQuality: 'failed',
+    quoteDate: null,
+    quoteTime: null,
+    source: null,
+    error
+  };
 }
 
 async function safe(label, fn) {
   try {
     return await fn();
   } catch (err) {
-    return { ...label, ok: false, price: null, changePct: null, trend: ZH.abnormal, error: err.message };
+    return failedQuote(label, err.message);
   }
 }
 
 async function fetchAll() {
-  const aQuotes = await Promise.all(TENCENT_A.map((item) => safe(item, () => fetchTencentA(item))));
-  const usQuotes = await fetchTencentQuotes(TENCENT_US);
-  const cryptoQuotes = await Promise.all(CRYPTO.map((item) => safe(item, () => fetchCrypto(item))));
-  const factors = await fetchFxAndFutures();
+  const [aQuotes, usQuotes, cryptoQuotes, factors] = await Promise.all([
+    Promise.all(TENCENT_A.map((item) => safe(item, () => fetchTencentA(item)))),
+    fetchUsAndVix(),
+    Promise.all(CRYPTO.map((item) => safe(item, () => fetchCrypto(item)))),
+    fetchFxAndFutures()
+  ]);
   return [...aQuotes, ...usQuotes, ...cryptoQuotes, ...factors];
 }
 
@@ -281,7 +510,31 @@ function safeNum(value, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function scoreMarket(quotes) {
+function usable(q, { history = false } = {}) {
+  return Boolean(q?.ok && !q.stale && Number.isFinite(q.price) && (!history || q.historyOk));
+}
+
+function buildQuality(quotes) {
+  const aKeys = ['sse', 'szse', 'chinext'];
+  const usKeys = ['nasdaq', 'qqq', 'spx'];
+  const macroKeys = ['vix', 'usdcny'];
+  const aOk = aKeys.filter((key) => usable(byKey(quotes, key), { history: true })).length;
+  const usOk = usKeys.filter((key) => usable(byKey(quotes, key))).length;
+  const macroOk = macroKeys.filter((key) => usable(byKey(quotes, key))).length;
+  const stale = quotes.filter((q) => q.stale).map((q) => q.key);
+  const failed = quotes.filter((q) => !q.ok).map((q) => q.key);
+  return {
+    aShare: { ok: aOk >= 2 && usable(byKey(quotes, 'sse'), { history: true }), passed: aOk, required: 2 },
+    usStock: { ok: usOk >= 2 && usable(byKey(quotes, 'vix')), passed: usOk + (usable(byKey(quotes, 'vix')) ? 1 : 0), required: 4 },
+    crypto: { ok: usable(byKey(quotes, 'btc'), { history: true }), passed: usable(byKey(quotes, 'btc'), { history: true }) ? 1 : 0, required: 1 },
+    macro: { ok: macroOk >= 2, passed: macroOk, required: 2 },
+    stale,
+    failed,
+    freshnessSummary: `OK ${quotes.filter((q) => q.ok && !q.stale).length}/${quotes.length}, stale ${stale.length}, failed ${failed.length}`
+  };
+}
+
+function scoreMarket(quotes, quality) {
   const sse = byKey(quotes, 'sse');
   const szse = byKey(quotes, 'szse');
   const chinext = byKey(quotes, 'chinext');
@@ -293,34 +546,38 @@ function scoreMarket(quotes) {
   const usdcny = byKey(quotes, 'usdcny');
   const gold = byKey(quotes, 'gold');
   const oil = byKey(quotes, 'oil');
+  const vixForRisk = usable(vix) ? vix.price : 18;
 
-  const aMomentum = clamp(50
+  const aMomentum = quality.aShare.ok ? clamp(50
     + safeNum(sse.return20d) * 1.3
     + safeNum(szse.return20d) * 0.9
     + safeNum(chinext.return20d) * 0.7
     + (sse.price > sse.ma20 ? 6 : -4)
-    + (sse.price > sse.ma60 ? 6 : -4));
+    + (sse.price > sse.ma60 ? 6 : -4)) : null;
 
-  const usMomentum = clamp(50
-    + safeNum(nasdaq.changePct) * 5
-    + safeNum(qqq.changePct) * 3
-    + safeNum(spx.changePct) * 3
-    - Math.max(0, safeNum(vix.price, 18) - 18) * 1.6);
+  const usMomentum = quality.usStock.ok ? clamp(50
+    + safeNum(nasdaq.return20d) * 1.2
+    + safeNum(qqq.return20d) * 1.0
+    + safeNum(spx.return20d) * 0.9
+    + safeNum(nasdaq.changePct) * 2
+    + safeNum(qqq.changePct) * 1.2
+    - Math.max(0, safeNum(vixForRisk, 18) - 18) * 1.4) : null;
 
-  const cryptoMomentum = btc.ok ? clamp(50
+  const cryptoMomentum = quality.crypto.ok ? clamp(50
     + safeNum(btc.return20d) * 1.4
     + safeNum(btc.return5d) * 1.2
     + (btc.price > btc.ma20 ? 7 : -5)
     + (btc.price > btc.ma60 ? 7 : -5)
-    - Math.max(0, safeNum(vix.price, 18) - 20)) : 45;
+    - Math.max(0, safeNum(vixForRisk, 18) - 20)) : null;
 
-  const dollarRatePressure = clamp(45
+  const dollarRatePressure = quality.macro.ok ? clamp(45
     + Math.max(0, safeNum(usdcny.price, 7) - 7) * 18
     + Math.max(0, safeNum(vix.price, 18) - 18) * 1.3
     + safeNum(gold.changePct) * 2
-    + Math.max(0, safeNum(oil.changePct)) * 1.5);
+    + Math.max(0, safeNum(oil.changePct)) * 1.5) : null;
 
-  const riskAppetite = clamp(avg([usMomentum, cryptoMomentum, aMomentum]) ?? 50);
+  const riskInputs = [aMomentum, usMomentum, cryptoMomentum].filter(Number.isFinite);
+  const riskAppetite = riskInputs.length ? clamp(avg(riskInputs)) : null;
 
   return {
     riskAppetite,
@@ -342,29 +599,45 @@ function fmtPlain(value) {
 }
 
 function actionFromScore(score) {
+  if (!Number.isFinite(score)) return ZH.pause;
   if (score >= 66) return ZH.add;
   if (score >= 53) return ZH.hold;
   if (score >= 42) return ZH.watch;
   return ZH.reduce;
 }
 
-function buildRecommendations(quotes, scores) {
+function pauseRecommendation(reason, evidence = []) {
+  return {
+    action: ZH.pause,
+    confidence: 0,
+    advice: reason,
+    reasons: evidence,
+    invalidations: [
+      '\u5173\u952e\u6570\u636e\u6e90\u6062\u590d\u4e14\u901a\u8fc7\u65b0\u9c9c\u5ea6\u68c0\u67e5',
+      '\u4ef7\u683c\u3001\u6ce2\u52a8\u7387\u548c\u8de8\u8d44\u4ea7\u4fe1\u53f7\u91cd\u65b0\u5f62\u6210\u5171\u632f'
+    ]
+  };
+}
+
+function buildRecommendations(quotes, scores, quality) {
   const sse = byKey(quotes, 'sse');
   const nasdaq = byKey(quotes, 'nasdaq');
+  const qqq = byKey(quotes, 'qqq');
   const btc = byKey(quotes, 'btc');
   const vix = byKey(quotes, 'vix');
   const usdcny = byKey(quotes, 'usdcny');
+  const vixText = usable(vix) ? `VIX \u5f53\u524d ${fmtPlain(vix.price)}` : 'VIX \u6570\u636e\u672a\u901a\u8fc7\u8d28\u91cf\u68c0\u67e5';
 
-  const aScore = clamp(scores.aMomentum - Math.max(0, scores.dollarRatePressure - 55) * 0.4);
-  const usScore = clamp(scores.usMomentum - Math.max(0, safeNum(vix.price, 18) - 22) * 2);
-  const btcScore = btc.ok ? clamp(scores.cryptoMomentum - Math.max(0, scores.dollarRatePressure - 58) * 0.5) : 42;
+  const aScore = quality.aShare.ok ? clamp(scores.aMomentum - Math.max(0, safeNum(scores.dollarRatePressure, 50) - 55) * 0.4) : null;
+  const usScore = quality.usStock.ok ? clamp(scores.usMomentum - Math.max(0, safeNum(vix.price, 18) - 22) * 2) : null;
+  const btcScore = quality.crypto.ok ? clamp(scores.cryptoMomentum - Math.max(0, safeNum(scores.dollarRatePressure, 50) - 58) * 0.5) : null;
 
   const aAction = actionFromScore(aScore);
   const usAction = actionFromScore(usScore);
-  const btcAction = btc.ok ? actionFromScore(btcScore) : ZH.watch;
+  const btcAction = actionFromScore(btcScore);
 
   return {
-    aShare: {
+    aShare: quality.aShare.ok ? {
       action: aAction,
       confidence: Math.round(aScore),
       advice: aAction === ZH.add
@@ -373,7 +646,7 @@ function buildRecommendations(quotes, scores) {
           ? 'A \u80a1\u98ce\u9669\u504f\u597d\u504f\u5f31\uff0c\u4f18\u5148\u964d\u4f4e\u9ad8\u5f39\u6027\u9898\u6750\u548c\u4e8f\u635f\u80a1\uff0c\u4fdd\u7559\u7ea2\u5229\u3001\u73b0\u91d1\u6d41\u548c\u5f3a\u57fa\u672c\u9762\u4ed3\u4f4d\u3002'
           : '\u7ef4\u6301\u89c2\u5bdf\u6216\u7ed3\u6784\u6027\u6301\u4ed3\u3002\u53ea\u5728\u884c\u4e1a\u5f3a\u5ea6\u3001\u6210\u4ea4\u989d\u548c\u4eba\u6c11\u5e01\u7a33\u5b9a\u5171\u632f\u65f6\u63d0\u9ad8\u4ed3\u4f4d\u3002',
       reasons: [
-        `\u4e0a\u8bc1 20 \u65e5\u8868\u73b0 ${fmtSigned(sse.return20d)}\uff0c\u8d8b\u52bf\u72b6\u6001\uff1a${sse.trend}`,
+        `\u4e0a\u8bc1 20 \u65e5\u8868\u73b0 ${fmtSigned(sse.return20d)}\uff0c\u8d8b\u52bf\u72b6\u6001\uff1a${sse.trend}\uff0c\u884c\u60c5\u65e5\u671f\uff1a${sse.quoteDate}`,
         `USD/CNY \u5f53\u524d ${fmtPlain(usdcny.price)}\uff0c\u7528\u4e8e\u5ba1\u67e5\u4eba\u6c11\u5e01\u538b\u529b`,
         `A \u80a1\u52a8\u91cf\u8bc4\u5206 ${Math.round(scores.aMomentum)}/100`
       ],
@@ -382,8 +655,11 @@ function buildRecommendations(quotes, scores) {
         'A \u80a1\u6307\u6570\u8dcc\u7834 20/60 \u65e5\u5747\u7ebf\u4e14\u6210\u4ea4\u989d\u653e\u5927\u4e0b\u8dcc',
         '\u653f\u7b56\u9884\u671f\u5151\u73b0\u540e\u9898\u6750\u9ad8\u4f4d\u653e\u91cf\u6ede\u6da8'
       ]
-    },
-    usStock: {
+    } : pauseRecommendation('A \u80a1\u5173\u952e\u6570\u636e\u672a\u901a\u8fc7\u8d28\u91cf\u95f8\u95e8\uff0c\u6682\u505c\u751f\u6210\u65b9\u5411\u6027\u4ed3\u4f4d\u5efa\u8bae\u3002', [
+      `\u901a\u8fc7 ${quality.aShare.passed}/${quality.aShare.required} \u9879 A \u80a1\u6570\u636e\u68c0\u67e5`,
+      `\u5931\u8d25\u6570\u636e\uff1a${quality.failed.join(', ') || '\u65e0'}`
+    ]),
+    usStock: quality.usStock.ok ? {
       action: usAction,
       confidence: Math.round(usScore),
       advice: usAction === ZH.add
@@ -392,8 +668,8 @@ function buildRecommendations(quotes, scores) {
           ? '\u7f8e\u80a1\u627f\u538b\uff0c\u4f18\u5148\u964d\u4f4e\u9ad8\u4f30\u503c\u957f\u4e45\u671f\u8d44\u4ea7\uff0c\u7b49\u5f85\u6ce2\u52a8\u7387\u538b\u529b\u7f13\u548c\u3002'
           : '\u7f8e\u80a1\u7ef4\u6301\u6301\u6709\u6216\u89c2\u671b\uff0cAI \u4e3b\u7ebf\u53ef\u7ee7\u7eed\u8ddf\u8e2a\uff0c\u4f46\u4e0d\u8ffd\u9ad8\u4f4e\u8d54\u7387\u4f4d\u7f6e\u3002',
       reasons: [
-        `\u7eb3\u65af\u8fbe\u514b\u65e5\u6da8\u8dcc ${fmtSigned(nasdaq.changePct)}\uff0c\u8d8b\u52bf\u72b6\u6001\uff1a${nasdaq.trend}`,
-        `VIX \u5f53\u524d ${fmtPlain(vix.price)}\uff0c\u6050\u614c/\u6ce2\u52a8\u7387\u5f71\u54cd\u98ce\u9669\u504f\u597d`,
+        `\u7eb3\u65af\u8fbe\u514b 20 \u65e5\u8868\u73b0 ${fmtSigned(nasdaq.return20d)}\uff0cQQQ 20 \u65e5\u8868\u73b0 ${fmtSigned(qqq.return20d)}`,
+        `${vixText}\uff0c\u884c\u60c5\u65f6\u95f4\uff1a${vix.quoteTime || vix.quoteDate || '\u65e0'}`,
         `\u7f8e\u80a1\u52a8\u91cf\u8bc4\u5206 ${Math.round(scores.usMomentum)}/100`
       ],
       invalidations: [
@@ -401,20 +677,21 @@ function buildRecommendations(quotes, scores) {
         'AI \u8d44\u672c\u5f00\u652f\u6216\u9f99\u5934\u8d22\u62a5\u4f4e\u4e8e\u9884\u671f',
         '\u7f8e\u5143/\u5229\u7387\u538b\u529b\u91cd\u65b0\u62ac\u5347\u5e76\u538b\u5236\u4f30\u503c'
       ]
-    },
-    btc: {
+    } : pauseRecommendation('\u7f8e\u80a1\u5173\u952e\u6570\u636e\u672a\u901a\u8fc7\u8d28\u91cf\u95f8\u95e8\uff0c\u6682\u505c\u751f\u6210\u65b9\u5411\u6027\u4ed3\u4f4d\u5efa\u8bae\u3002', [
+      `\u901a\u8fc7 ${quality.usStock.passed}/${quality.usStock.required} \u9879\u7f8e\u80a1/VIX \u6570\u636e\u68c0\u67e5`,
+      `\u5931\u8d25\u6570\u636e\uff1a${quality.failed.join(', ') || '\u65e0'}`
+    ]),
+    btc: quality.crypto.ok ? {
       action: btcAction,
       confidence: Math.round(btcScore),
-      advice: btc.ok
-        ? (btcAction === ZH.add
-          ? 'BTC \u8d8b\u52bf\u4e0e\u98ce\u9669\u504f\u597d\u5171\u632f\uff0c\u53ef\u5728\u65e2\u5b9a\u4ed3\u4f4d\u4e0a\u9650\u5185\u5206\u6279\u52a0\u4ed3\uff0c\u5fc5\u987b\u8bbe\u7f6e\u56de\u64a4\u548c\u6760\u6746\u98ce\u9669\u9608\u503c\u3002'
-          : btcAction === ZH.reduce
-            ? 'BTC \u9762\u4e34\u98ce\u9669\u504f\u597d\u6216\u7f8e\u5143\u538b\u529b\uff0c\u964d\u4f4e\u9ad8\u6ce2\u52a8\u4ed3\u4f4d\uff0c\u907f\u514d\u6760\u6746\u548c\u8ffd\u6da8\u3002'
-            : 'BTC \u7ef4\u6301\u89c2\u5bdf\u6216\u8f7b\u4ed3\u6301\u6709\u3002\u7b49\u5f85\u4ef7\u683c\u8d8b\u52bf\u3001\u7f8e\u5143\u8d70\u5f31\u548c\u8d44\u91d1\u6d41\u5171\u632f\u3002')
-        : 'BTC \u5b9e\u65f6\u6570\u636e\u6e90\u672a\u6253\u901a\uff0c\u6682\u4e0d\u7528\u9519\u8bef\u6570\u636e\u751f\u6210\u65b9\u5411\u4fe1\u53f7\uff1b\u5148\u4ee5\u7f8e\u80a1\u98ce\u9669\u504f\u597d\u548c VIX \u4f5c\u4e3a\u98ce\u9669\u4ee3\u7406\u3002',
+      advice: btcAction === ZH.add
+        ? 'BTC \u8d8b\u52bf\u4e0e\u98ce\u9669\u504f\u597d\u5171\u632f\uff0c\u53ef\u5728\u65e2\u5b9a\u4ed3\u4f4d\u4e0a\u9650\u5185\u5206\u6279\u52a0\u4ed3\uff0c\u5fc5\u987b\u8bbe\u7f6e\u56de\u64a4\u548c\u6760\u6746\u98ce\u9669\u9608\u503c\u3002'
+        : btcAction === ZH.reduce
+          ? 'BTC \u9762\u4e34\u98ce\u9669\u504f\u597d\u6216\u7f8e\u5143\u538b\u529b\uff0c\u964d\u4f4e\u9ad8\u6ce2\u52a8\u4ed3\u4f4d\uff0c\u907f\u514d\u6760\u6746\u548c\u8ffd\u6da8\u3002'
+          : 'BTC \u7ef4\u6301\u89c2\u5bdf\u6216\u8f7b\u4ed3\u6301\u6709\u3002\u7b49\u5f85\u4ef7\u683c\u8d8b\u52bf\u3001\u7f8e\u5143\u8d70\u5f31\u548c\u8d44\u91d1\u6d41\u5171\u632f\u3002',
       reasons: [
-        `BTC 20 \u65e5\u8868\u73b0 ${fmtSigned(btc.return20d)}\uff0c\u8d8b\u52bf\u72b6\u6001\uff1a${btc.trend || ZH.abnormal}`,
-        `VIX \u5f53\u524d ${fmtPlain(vix.price)}\uff0c\u7528\u4e8e\u5ba1\u67e5\u98ce\u9669\u504f\u597d`,
+        `BTC 20 \u65e5\u8868\u73b0 ${fmtSigned(btc.return20d)}\uff0c\u8d8b\u52bf\u72b6\u6001\uff1a${btc.trend}\uff0c\u6570\u636e\u6e90\uff1a${btc.source}`,
+        `${vixText}\uff0c\u7528\u4e8e\u5ba1\u67e5\u98ce\u9669\u504f\u597d`,
         `\u52a0\u5bc6\u52a8\u91cf\u8bc4\u5206 ${Math.round(scores.cryptoMomentum)}/100`
       ],
       invalidations: [
@@ -422,44 +699,58 @@ function buildRecommendations(quotes, scores) {
         'VIX \u5feb\u901f\u4e0a\u884c\u5bfc\u81f4\u98ce\u9669\u8d44\u4ea7\u540c\u6b65\u56de\u64a4',
         'ETF \u8d44\u91d1\u6301\u7eed\u6d41\u51fa\u6216\u5408\u7ea6\u6760\u6746\u6e05\u7b97\u98ce\u9669\u5347\u6e29'
       ]
-    }
+    } : pauseRecommendation('BTC \u5386\u53f2\u4ef7\u683c\u6570\u636e\u672a\u901a\u8fc7\u8d28\u91cf\u95f8\u95e8\uff0c\u6682\u4e0d\u751f\u6210\u65b9\u5411\u6027\u4fe1\u53f7\u3002', [
+      `BTC \u6570\u636e\u6e90\uff1a${btc.source || '\u5168\u90e8\u5931\u8d25'}`,
+      `\u72b6\u6001\uff1a${btc.error || btc.dataQuality || ZH.insufficient}`
+    ])
   };
 }
 
-function buildPulse(quotes, scores) {
+function buildPulse(quotes, scores, quality) {
   const vix = byKey(quotes, 'vix');
   const usdcny = byKey(quotes, 'usdcny');
   const oil = byKey(quotes, 'oil');
   const gold = byKey(quotes, 'gold');
+  const riskInputs = [
+    quality.aShare.ok ? 'A \u80a1' : null,
+    quality.usStock.ok ? '\u7f8e\u80a1' : null,
+    quality.crypto.ok ? 'BTC' : null
+  ].filter(Boolean).join(' / ');
   return [
     {
       name: '\u98ce\u9669\u504f\u597d',
-      score: Math.round(scores.riskAppetite),
-      comment: `\u7531\u7f8e\u80a1\u3001BTC \u548c VIX \u5408\u6210\u3002VIX \u5f53\u524d ${fmtPlain(vix.price)}\u3002`
+      score: Math.round(safeNum(scores.riskAppetite, 0)),
+      comment: `\u7531 ${riskInputs || '\u6682\u65e0\u8db3\u591f\u6570\u636e'} \u5408\u6210\u3002${usable(vix) ? `VIX \u5f53\u524d ${fmtPlain(vix.price)}` : 'VIX \u672a\u901a\u8fc7\u8d28\u91cf\u68c0\u67e5'}\u3002`
     },
     {
       name: '\u4eba\u6c11\u5e01\u7a33\u5b9a',
-      score: Math.round(clamp(70 - Math.max(0, safeNum(usdcny.price, 7) - 7) * 18)),
+      score: Math.round(clamp(70 - Math.max(0, safeNum(usdcny.price, 7) - 7) * 18) ?? 0),
       comment: `USD/CNY \u5f53\u524d ${fmtPlain(usdcny.price)}\uff0c\u4e0a\u884c\u4ee3\u8868\u4eba\u6c11\u5e01\u5151\u7f8e\u5143\u8d70\u5f31\u3002`
     },
     {
       name: '\u5546\u54c1\u538b\u529b',
-      score: Math.round(clamp(50 + safeNum(oil.changePct) * 4 + safeNum(gold.changePct) * 2)),
+      score: Math.round(clamp(50 + safeNum(oil.changePct) * 4 + safeNum(gold.changePct) * 2) ?? 0),
       comment: `\u539f\u6cb9\u65e5\u6da8\u8dcc ${fmtSigned(oil.changePct)}\uff0c\u9ec4\u91d1\u65e5\u6da8\u8dcc ${fmtSigned(gold.changePct)}\u3002`
     },
     {
-      name: '\u9884\u671f\u5dee\u654f\u611f\u5ea6',
-      score: Math.round(clamp(35 + Math.max(0, safeNum(vix.price, 18) - 15) * 3)),
-      comment: '\u6ce2\u52a8\u7387\u8d8a\u9ad8\uff0c\u6570\u636e\u516c\u5e03\u524d\u540e\u7684\u9884\u671f\u5dee\u4ea4\u6613\u8d8a\u654f\u611f\u3002'
+      name: '\u6570\u636e\u8d28\u91cf',
+      score: Math.round((quotes.filter((q) => q.ok && !q.stale).length / quotes.length) * 100),
+      comment: quality.freshnessSummary
     }
   ];
 }
 
-function buildRegime(scores) {
-  if (scores.riskAppetite >= 62 && scores.dollarRatePressure <= 55) {
+function buildRegime(scores, quality) {
+  if (!Number.isFinite(scores.riskAppetite)) {
+    return { label: '\u6570\u636e\u8d28\u91cf\u4e0d\u8db3', description: '\u6838\u5fc3\u5e02\u573a\u6570\u636e\u672a\u901a\u8fc7\u65b0\u9c9c\u5ea6\u6216\u5b8c\u6574\u6027\u68c0\u67e5\uff0c\u5e94\u6682\u505c\u65b9\u5411\u5224\u65ad\u3002' };
+  }
+  if (quality.stale.length || quality.failed.length) {
+    return { label: '\u6570\u636e\u964d\u7ea7\u8fd0\u884c', description: '\u90e8\u5206\u6570\u636e\u6e90\u5931\u8d25\u6216\u8fc7\u671f\uff0c\u4fe1\u53f7\u53ea\u80fd\u4f5c\u4e3a\u7814\u7a76\u63d0\u793a\uff0c\u9700\u4eba\u5de5\u590d\u6838\u3002' };
+  }
+  if (scores.riskAppetite >= 62 && safeNum(scores.dollarRatePressure, 50) <= 55) {
     return { label: '\u98ce\u9669\u504f\u597d\u6269\u5f20', description: '\u98ce\u9669\u8d44\u4ea7\u8d8b\u52bf\u5360\u4f18\uff0c\u4eba\u6c11\u5e01\u548c\u6ce2\u52a8\u7387\u538b\u529b\u53ef\u63a7\u3002' };
   }
-  if (scores.dollarRatePressure >= 65) {
+  if (safeNum(scores.dollarRatePressure, 50) >= 65) {
     return { label: '\u5916\u90e8\u538b\u529b\u671f', description: '\u4eba\u6c11\u5e01\u3001\u6ce2\u52a8\u7387\u6216\u907f\u9669\u538b\u529b\u504f\u9ad8\uff0c\u9ad8\u6ce2\u52a8\u8d44\u4ea7\u9700\u8981\u964d\u901f\u3002' };
   }
   if (scores.riskAppetite <= 42) {
@@ -468,9 +759,17 @@ function buildRegime(scores) {
   return { label: '\u7ed3\u6784\u6027\u9707\u8361', description: '\u6ca1\u6709\u5f62\u6210\u5355\u8fb9\u5171\u632f\uff0c\u9002\u5408\u7528\u9884\u671f\u5dee\u548c\u884c\u4e1a\u5f3a\u5f31\u505a\u7ed3\u6784\u4ea4\u6613\u3002' };
 }
 
+function scoreComment(score, highText, lowText, midText) {
+  if (!Number.isFinite(score)) return '\u6570\u636e\u8d28\u91cf\u4e0d\u8db3\uff0c\u6682\u505c\u8bc4\u5206\u3002';
+  if (score >= 60) return highText;
+  if (score <= 42) return lowText;
+  return midText;
+}
+
 async function main() {
   const quotes = await fetchAll();
-  const scores = scoreMarket(quotes);
+  const quality = buildQuality(quotes);
+  const scores = scoreMarket(quotes, quality);
   const generatedAt = new Date().toISOString();
   const generatedAtCN = new Intl.DateTimeFormat('zh-CN', {
     timeZone: 'Asia/Shanghai',
@@ -486,15 +785,16 @@ async function main() {
   const data = {
     generatedAt,
     generatedAtCN,
-    source: 'Tencent Finance + CoinGecko + Frankfurter public APIs',
+    source: 'Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter public APIs',
+    quality,
     scores: {
-      ...Object.fromEntries(Object.entries(scores).map(([k, v]) => [k, Math.round(v)])),
-      riskComment: scores.riskAppetite >= 60 ? '\u98ce\u9669\u8d44\u4ea7\u8868\u73b0\u8f83\u5f3a\u3002' : scores.riskAppetite <= 42 ? '\u98ce\u9669\u504f\u597d\u504f\u5f31\u3002' : '\u98ce\u9669\u504f\u597d\u4e2d\u6027\u3002',
-      dollarComment: scores.dollarRatePressure >= 62 ? '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u504f\u9ad8\u3002' : scores.dollarRatePressure <= 45 ? '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u8f83\u4f4e\u3002' : '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u4e2d\u6027\u3002'
+      ...Object.fromEntries(Object.entries(scores).map(([k, v]) => [k, Number.isFinite(v) ? Math.round(v) : null])),
+      riskComment: scoreComment(scores.riskAppetite, '\u98ce\u9669\u8d44\u4ea7\u8868\u73b0\u8f83\u5f3a\u3002', '\u98ce\u9669\u504f\u597d\u504f\u5f31\u3002', '\u98ce\u9669\u504f\u597d\u4e2d\u6027\u3002'),
+      dollarComment: scoreComment(scores.dollarRatePressure, '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u504f\u9ad8\u3002', '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u8f83\u4f4e\u3002', '\u4eba\u6c11\u5e01/\u5916\u90e8\u538b\u529b\u4e2d\u6027\u3002')
     },
-    regime: buildRegime(scores),
-    recommendations: buildRecommendations(quotes, scores),
-    expectationPulse: buildPulse(quotes, scores),
+    regime: buildRegime(scores, quality),
+    recommendations: buildRecommendations(quotes, scores, quality),
+    expectationPulse: buildPulse(quotes, scores, quality),
     quotes
   };
 

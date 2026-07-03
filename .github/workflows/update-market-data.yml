@@ -28,6 +28,12 @@ jobs:
       - name: Update market snapshot
         run: npm run update:data
 
+      - name: Validate market snapshot
+        run: npm run validate:data
+
+      - name: Build site
+        run: npm run build
+
       - name: Commit market snapshot
         uses: stefanzweifel/git-auto-commit-action@v5
         with:

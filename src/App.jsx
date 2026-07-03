@@ -7,7 +7,8 @@ const ACTION = {
   add: '\u52a0\u4ed3',
   hold: '\u6301\u6709',
   reduce: '\u51cf\u4ed3',
-  watch: '\u89c2\u671b'
+  watch: '\u89c2\u671b',
+  pause: '\u6682\u505c\u5224\u65ad'
 };
 
 const GROUP = {
@@ -28,6 +29,8 @@ const TEXT = {
   day5: '5\u65e5',
   day20: '20\u65e5',
   trend: '\u8d8b\u52bf',
+  quality: '\u8d28\u91cf',
+  quoteTime: '\u884c\u60c5\u65f6\u95f4',
   pulseTitle: '\u9884\u671f\u5dee\u611f\u77e5\u7cfb\u7edf',
   pulseSub: '\u57fa\u4e8e\u300a\u9884\u5224\u5e02\u573a\u300b\u4e94\u6b65\u6cd5',
   title: '\u5e02\u573a\u9884\u5224\u770b\u677f',
@@ -35,6 +38,7 @@ const TEXT = {
   updated: '\u66f4\u65b0\u65f6\u95f4',
   source: '\u6570\u636e\u6e90',
   schedule: '\u8ba1\u5212\uff1a\u6bcf\u65e5 07:00 / 19:00 \u5317\u4eac\u65f6\u95f4',
+  freshness: '\u6570\u636e\u8d28\u91cf',
   regime: '\u5e02\u573a\u72b6\u6001',
   risk: '\u98ce\u9669\u504f\u597d',
   pressure: '\u7f8e\u5143/\u5229\u7387\u538b\u529b',
@@ -54,7 +58,8 @@ const actionClass = {
   [ACTION.add]: 'action add',
   [ACTION.hold]: 'action hold',
   [ACTION.reduce]: 'action reduce',
-  [ACTION.watch]: 'action watch'
+  [ACTION.watch]: 'action watch',
+  [ACTION.pause]: 'action pause'
 };
 
 function fmtPct(value) {
@@ -72,6 +77,13 @@ function TrendIcon({ value }) {
   const n = Number(value);
   if (Number.isNaN(n)) return <Activity size={16} />;
   return n >= 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />;
+}
+
+function qualityText(q) {
+  if (!q.ok) return '\u5931\u8d25';
+  if (q.stale) return '\u8fc7\u671f';
+  if (q.dataQuality === 'degraded') return '\u964d\u7ea7';
+  return '\u6b63\u5e38';
 }
 
 function RecommendationCard({ title, icon, item }) {
@@ -119,6 +131,7 @@ function QuoteTable({ title, quotes }) {
           <span>{TEXT.day5}</span>
           <span>{TEXT.day20}</span>
           <span>{TEXT.trend}</span>
+          <span>{TEXT.quality}</span>
         </div>
         {quotes.map((q) => (
           <div className="row" key={q.key}>
@@ -134,6 +147,11 @@ function QuoteTable({ title, quotes }) {
             <span className={q.return5d >= 0 ? 'pos' : 'neg'}>{fmtPct(q.return5d)}</span>
             <span className={q.return20d >= 0 ? 'pos' : 'neg'}>{fmtPct(q.return20d)}</span>
             <span>{q.trend}</span>
+            <span className={`quality ${q.ok && !q.stale ? q.dataQuality : 'failed'}`}>
+              <b>{qualityText(q)}</b>
+              <small>{q.quoteTime || q.quoteDate || '--'}</small>
+              <small>{q.source || q.error || '--'}</small>
+            </span>
           </div>
         ))}
       </div>
@@ -205,6 +223,7 @@ function App() {
           <span><Clock size={16} />{TEXT.updated}: {data.generatedAtCN}</span>
           <span><Database size={16} />{TEXT.source}: {data.source}</span>
           <span><RefreshCw size={16} />{TEXT.schedule}</span>
+          <span><ShieldCheck size={16} />{TEXT.freshness}: {data.quality?.freshnessSummary || '--'}</span>
         </div>
       </header>
 
