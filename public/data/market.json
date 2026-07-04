@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-04T00:01:00.655Z",
-  "generatedAtCN": "2026/07/04 08:01:00",
+  "generatedAt": "2026-07-04T12:03:43.881Z",
+  "generatedAtCN": "2026/07/04 20:03:43",
   "source": "Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter + FRED + CNINFO/public disclosure portals",
   "quality": {
     "aShare": {
@@ -62,7 +62,7 @@
       "advice": "美股承压，优先降低高估值长久期资产，等待波动率压力缓和。",
       "reasons": [
         "纳斯达克 20 日表现 -3.72%，QQQ 20 日表现 -3.68%",
-        "VIX 当前 16.15，行情时间：2026-07-02",
+        "VIX 当前 15.81，行情时间：2026-07-03",
         "美股动量评分 37/100"
       ],
       "invalidations": [
@@ -76,8 +76,8 @@
       "confidence": 50,
       "advice": "BTC 维持观察或轻仓持有。等待价格趋势、美元走弱和资金流共振。",
       "reasons": [
-        "BTC 20 日表现 -4.79%，趋势状态：短强，数据源：Binance Vision daily kline",
-        "VIX 当前 16.15，用于审查风险偏好",
+        "BTC 20 日表现 -4.88%，趋势状态：短强，数据源：Binance Vision daily kline",
+        "VIX 当前 15.81，用于审查风险偏好",
         "加密动量评分 50/100"
       ],
       "invalidations": [
@@ -91,7 +91,7 @@
     {
       "name": "风险偏好",
       "score": 42,
-      "comment": "由 A 股 / 美股 / BTC 合成。VIX 当前 16.15。"
+      "comment": "由 A 股 / 美股 / BTC 合成。VIX 当前 15.81。"
     },
     {
       "name": "人民币稳定",
@@ -188,11 +188,11 @@
     {
       "key": "risk_crowding",
       "name": "风险拥挤/脆弱度",
-      "value": "VIX 16.15 / QQQ20 -3.68% / BTC20 -4.79%",
+      "value": "VIX 15.81 / QQQ20 -3.68% / BTC20 -4.88%",
       "change": "10Y-2Y 0.31%",
       "read": "风险定价未达极端",
       "source": "Cboe/Tencent/Binance/FRED",
-      "quoteDate": "2026-07-02"
+      "quoteDate": "2026-07-03"
     }
   ],
   "marketTraces": [
@@ -220,8 +220,8 @@
       "name": "BTC/ETH 风险弹性",
       "signal": "ETH 或山寨风险偏好更强",
       "evidence": [
-        "BTC20 -4.79%",
-        "ETH20 +1.91%"
+        "BTC20 -4.88%",
+        "ETH20 +1.99%"
       ],
       "action": "若美股与加密同向走弱，避免杠杆；若背离，查找 ETF/监管/流动性催化。"
     },
@@ -231,13 +231,13 @@
       "signal": "未形成信用-波动共振压力",
       "evidence": [
         "HY OAS 20日 +0.01%",
-        "VIX 16.15"
+        "VIX 15.81"
       ],
       "action": "信用和波动同时走弱时，降低高 beta 和长久期资产。"
     }
   ],
   "publicDisclosure": {
-    "updatedAt": "2026-07-04T00:00:55.419Z",
+    "updatedAt": "2026-07-04T12:03:37.859Z",
     "legalBoundary": "仅纳入合法公开披露；不抓取或推断未公开个人身份、住址、联系方式或家庭隐私。",
     "privacyGuardrail": "配偶/子女/亲属只按公告原文的关系范围呈现，不做人肉识别或额外身份拼接。",
     "china": {
@@ -824,22 +824,22 @@
       "group": "全球因子",
       "name": "VIX 恐慌指数",
       "symbol": "usVIX",
-      "price": 16.15,
-      "previousClose": 16.59,
-      "changePct": -2.65220012055456,
-      "return5d": -14.505029115934365,
-      "return20d": 4.870129870129869,
-      "return60d": -17.136993329912777,
-      "ma20": 18.170499999999997,
-      "ma60": 17.76383333333333,
+      "price": 15.81,
+      "previousClose": 16.15,
+      "changePct": -2.105263157894721,
+      "return5d": -14.122759369907655,
+      "return20d": -26.499302649930268,
+      "return60d": -17.78471138845554,
+      "ma20": 17.8855,
+      "ma60": 17.706833333333332,
       "volume": null,
       "avgVolume20": 0,
       "trend": "震荡",
       "ok": true,
       "source": "Cboe VIX daily history",
-      "quoteDate": "2026-07-02",
-      "quoteTime": "2026-07-02",
-      "ageDays": 2,
+      "quoteDate": "2026-07-03",
+      "quoteTime": "2026-07-03",
+      "ageDays": 1,
       "stale": false,
       "historyOk": true,
       "dataQuality": "ok"
@@ -853,16 +853,16 @@
       "gate": "BTC_USDT",
       "coinLoreId": 90,
       "coinId": "bitcoin",
-      "price": 62600.01,
+      "price": 62535.99,
       "previousClose": 62583.26,
-      "changePct": 0.02676434560935359,
-      "return5d": 3.882827490976215,
-      "return20d": -4.785718468449618,
-      "return60d": -22.625786225711174,
-      "ma20": 62180.35549999999,
-      "ma60": 69357.03749999999,
-      "volume": 3.36273,
-      "avgVolume20": 17181.4762675,
+      "changePct": -0.07553138011666682,
+      "return5d": 3.77658823293181,
+      "return20d": -4.883092547202173,
+      "return60d": -22.70491556076768,
+      "ma20": 62177.15449999999,
+      "ma60": 69355.9705,
+      "volume": 4325.00066,
+      "avgVolume20": 17397.558164,
       "trend": "短强",
       "ok": true,
       "source": "Binance Vision daily kline",
@@ -883,16 +883,16 @@
       "gate": "ETH_USDT",
       "coinLoreId": 80,
       "coinId": "ethereum",
-      "price": 1758.65,
+      "price": 1759.96,
       "previousClose": 1758.21,
-      "changePct": 0.025025452022231498,
-      "return5d": 9.025026812227633,
-      "return20d": 1.9140946442438134,
-      "return60d": -25.505237697869752,
-      "ma20": 1676.6045,
-      "ma60": 1898.6380000000006,
-      "volume": 25.762,
-      "avgVolume20": 268628.321205,
+      "changePct": 0.09953304781566974,
+      "return5d": 9.10623841494791,
+      "return20d": 1.9900093879301473,
+      "return60d": -25.449747328202232,
+      "ma20": 1676.6699999999996,
+      "ma60": 1898.6598333333343,
+      "volume": 63562.7456,
+      "avgVolume20": 271805.17038499995,
       "trend": "短强",
       "ok": true,
       "source": "Binance Vision daily kline",
