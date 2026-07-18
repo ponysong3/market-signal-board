@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-18T11:50:58.288Z",
-  "generatedAtCN": "2026/07/18 19:50:58",
+  "generatedAt": "2026-07-18T23:49:32.135Z",
+  "generatedAtCN": "2026/07/19 07:49:32",
   "source": "Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter + FRED + CNINFO/public disclosure portals",
   "quality": {
     "aShare": {
@@ -28,11 +28,11 @@
     "freshnessSummary": "OK 14/14, stale 0, failed 0"
   },
   "scores": {
-    "riskAppetite": 37,
+    "riskAppetite": 38,
     "dollarRatePressure": 55,
     "aMomentum": 5,
     "usMomentum": 39,
-    "cryptoMomentum": 66,
+    "cryptoMomentum": 69,
     "riskComment": "风险偏好偏弱。",
     "dollarComment": "人民币/外部压力中性。"
   },
@@ -72,13 +72,13 @@
       ]
     },
     "btc": {
-      "action": "持有",
-      "confidence": 66,
-      "advice": "BTC 维持观察或轻仓持有。等待价格趋势、美元走弱和资金流共振。",
+      "action": "加仓",
+      "confidence": 69,
+      "advice": "BTC 趋势与风险偏好共振，可在既定仓位上限内分批加仓，必须设置回撤和杠杆风险阈值。",
       "reasons": [
-        "BTC 20 日表现 +7.47%，趋势状态：短强，数据源：Binance Vision daily kline",
+        "BTC 20 日表现 +8.81%，趋势状态：短强，数据源：Binance Vision daily kline",
         "VIX 当前 18.77，用于审查风险偏好",
-        "加密动量评分 66/100"
+        "加密动量评分 69/100"
       ],
       "invalidations": [
         "BTC 跌破 20/60 日均线且放量下行",
@@ -90,7 +90,7 @@
   "expectationPulse": [
     {
       "name": "风险偏好",
-      "score": 37,
+      "score": 38,
       "comment": "由 A 股 / 美股 / BTC 合成。VIX 当前 18.77。"
     },
     {
@@ -188,7 +188,7 @@
     {
       "key": "risk_crowding",
       "name": "风险拥挤/脆弱度",
-      "value": "VIX 18.77 / QQQ20 -3.66% / BTC20 +7.47%",
+      "value": "VIX 18.77 / QQQ20 -3.66% / BTC20 +8.81%",
       "change": "10Y-2Y 0.41%",
       "read": "风险定价未达极端",
       "source": "Cboe/Tencent/Binance/FRED",
@@ -220,8 +220,8 @@
       "name": "BTC/ETH 风险弹性",
       "signal": "ETH 或山寨风险偏好更强",
       "evidence": [
-        "BTC20 +7.47%",
-        "ETH20 +17.41%"
+        "BTC20 +8.81%",
+        "ETH20 +18.46%"
       ],
       "action": "若美股与加密同向走弱，避免杠杆；若背离，查找 ETF/监管/流动性催化。"
     },
@@ -237,7 +237,7 @@
     }
   ],
   "publicDisclosure": {
-    "updatedAt": "2026-07-18T11:50:51.930Z",
+    "updatedAt": "2026-07-18T23:49:26.205Z",
     "legalBoundary": "仅纳入合法公开披露；不抓取或推断未公开个人身份、住址、联系方式或家庭隐私。",
     "privacyGuardrail": "配偶/子女/亲属只按公告原文的关系范围呈现，不做人肉识别或额外身份拼接。",
     "china": {
@@ -519,7 +519,7 @@
     {
       "market": "BTC",
       "setup": "加密动量 + 美股风险偏好 + 流动性",
-      "action": "持有",
+      "action": "加仓",
       "operation": "只在 BTC 重回均线且 VIX/信用不恶化时加仓。",
       "confirm": [
         "升温",
@@ -853,16 +853,16 @@
       "gate": "BTC_USDT",
       "coinLoreId": 90,
       "coinId": "bitcoin",
-      "price": 64030.3,
+      "price": 64826.04,
       "previousClose": 63931.67,
-      "changePct": 0.1542740866928849,
-      "return5d": 2.7204508833949648,
-      "return20d": 7.474846421463588,
-      "return60d": -16.664497498254683,
-      "ma20": 62922.9935,
-      "ma60": 65641.43999999999,
-      "volume": 3344.76619,
-      "avgVolume20": 16695.182957999998,
+      "changePct": 1.398946719208194,
+      "return5d": 3.9970148161885266,
+      "return20d": 8.810495860735546,
+      "return60d": -15.628841054965514,
+      "ma20": 62962.78049999999,
+      "ma60": 65654.70233333333,
+      "volume": 8003.84844,
+      "avgVolume20": 16928.137070499994,
       "trend": "短强",
       "ok": true,
       "source": "Binance Vision daily kline",
@@ -883,16 +883,16 @@
       "gate": "ETH_USDT",
       "coinLoreId": 80,
       "coinId": "ethereum",
-      "price": 1845.71,
+      "price": 1862.15,
       "previousClose": 1841.93,
-      "changePct": 0.2052195251719624,
-      "return5d": 3.882997883740824,
-      "return20d": 17.414565256113377,
-      "return60d": -12.605531433333484,
-      "ma20": 1770.4824999999996,
-      "ma60": 1795.5666666666668,
-      "volume": 33729.4942,
-      "avgVolume20": 253045.69383999993,
+      "changePct": 1.0977615870309876,
+      "return5d": 4.8082984375703575,
+      "return20d": 18.460393394233954,
+      "return60d": -11.827096542025528,
+      "ma20": 1771.3044999999997,
+      "ma60": 1795.8406666666667,
+      "volume": 92273.6333,
+      "avgVolume20": 255972.90079499997,
       "trend": "短强",
       "ok": true,
       "source": "Binance Vision daily kline",
