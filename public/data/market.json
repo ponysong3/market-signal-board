@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-05T00:34:44.431Z",
-  "generatedAtCN": "2026/09/05 08:34:44",
+  "generatedAt": "2026-09-05T13:38:55.745Z",
+  "generatedAtCN": "2026/09/05 21:38:55",
   "source": "Tencent Finance + Binance Vision + Gate.io + CoinGecko/Coinlore fallback + Frankfurter + FRED + CNINFO/public disclosure portals",
   "quality": {
     "aShare": {
@@ -76,7 +76,7 @@
       "confidence": 100,
       "advice": "BTC 趋势与风险偏好共振，可在既定仓位上限内分批加仓，必须设置回撤和杠杆风险阈值。",
       "reasons": [
-        "BTC 20 日表现 +26.62%，趋势状态：强势，数据源：Binance Vision daily kline",
+        "BTC 20 日表现 +26.66%，趋势状态：强势，数据源：Binance Vision daily kline",
         "VIX 当前 14.53，用于审查风险偏好",
         "加密动量评分 100/100"
       ],
@@ -188,7 +188,7 @@
     {
       "key": "risk_crowding",
       "name": "风险拥挤/脆弱度",
-      "value": "VIX 14.53 / QQQ20 -0.56% / BTC20 +26.62%",
+      "value": "VIX 14.53 / QQQ20 -0.56% / BTC20 +26.66%",
       "change": "10Y-2Y 0.43%",
       "read": "风险定价未达极端",
       "source": "Cboe/Tencent/Binance/FRED",
@@ -220,8 +220,8 @@
       "name": "BTC/ETH 风险弹性",
       "signal": "ETH 或山寨风险偏好更强",
       "evidence": [
-        "BTC20 +26.62%",
-        "ETH20 +30.70%"
+        "BTC20 +26.66%",
+        "ETH20 +30.99%"
       ],
       "action": "若美股与加密同向走弱，避免杠杆；若背离，查找 ETF/监管/流动性催化。"
     },
@@ -237,7 +237,7 @@
     }
   ],
   "publicDisclosure": {
-    "updatedAt": "2026-09-05T00:34:38.785Z",
+    "updatedAt": "2026-09-05T13:38:50.113Z",
     "legalBoundary": "仅纳入合法公开披露；不抓取或推断未公开个人身份、住址、联系方式或家庭隐私。",
     "privacyGuardrail": "配偶/子女/亲属只按公告原文的关系范围呈现，不做人肉识别或额外身份拼接。",
     "china": {
@@ -853,16 +853,16 @@
       "gate": "BTC_USDT",
       "coinLoreId": 90,
       "coinId": "bitcoin",
-      "price": 79645.96,
+      "price": 79670,
       "previousClose": 79660.77,
-      "changePct": -0.018591334228879042,
-      "return5d": 1.354864497643149,
-      "return20d": 26.623147853736096,
-      "return60d": 25.69593549901137,
-      "ma20": 76463.24549999999,
-      "ma60": 68227.15066666667,
-      "volume": 92.39923,
-      "avgVolume20": 18626.4098265,
+      "changePct": 0.011586631663229596,
+      "return5d": 1.3854570216396356,
+      "return20d": 26.661367249602552,
+      "return60d": 25.733875029018847,
+      "ma20": 76464.44749999998,
+      "ma60": 68227.55133333334,
+      "volume": 4106.17909,
+      "avgVolume20": 18827.0988195,
       "trend": "强势",
       "ok": true,
       "source": "Binance Vision daily kline",
@@ -883,16 +883,16 @@
       "gate": "ETH_USDT",
       "coinLoreId": 80,
       "coinId": "ethereum",
-      "price": 2452.01,
+      "price": 2457.33,
       "previousClose": 2455.85,
-      "changePct": -0.15636134128711454,
-      "return5d": -0.6338013899864214,
-      "return20d": 30.704157782516006,
-      "return60d": 38.41824494058541,
-      "ma20": 2388.3455,
-      "ma60": 2044.9591666666672,
-      "volume": 1611.4365,
-      "avgVolume20": 354734.238535,
+      "changePct": 0.060264266954423995,
+      "return5d": -0.4182116588657303,
+      "return20d": 30.98773987206822,
+      "return60d": 38.71856388834005,
+      "ma20": 2388.6115,
+      "ma60": 2045.047833333334,
+      "volume": 58956.2406,
+      "avgVolume20": 357601.47874000005,
       "trend": "强势",
       "ok": true,
       "source": "Binance Vision daily kline",
