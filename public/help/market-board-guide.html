@@ -1,371 +1,112 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>预判市场实战看板使用指导</title>
-    <style>
-      :root {
-        --bg: #f5f7f8;
-        --ink: #172026;
-        --muted: #62717d;
-        --line: #d9e1e6;
-        --panel: #ffffff;
-        --blue: #0f6b8d;
-        --green: #16845b;
-        --red: #b94a48;
-        --amber: #a96f11;
-      }
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>市场分析看板 · 使用指导</title>
+<style>
+*{box-sizing:border-box;letter-spacing:0}body{margin:0;color:#222b30;background:#f7f9fa;font:15px/1.85 'Segoe UI','Microsoft YaHei',sans-serif}main{max-width:900px;margin:auto;padding:28px 24px 60px}h1{font-size:28px;line-height:1.4}h2{font-size:21px;margin:32px 0 10px;padding-top:18px;border-top:1px solid #dce3e6}h3{font-size:17px;margin:22px 0 8px}p,li{overflow-wrap:anywhere}a{color:#126781}nav{display:flex;flex-wrap:wrap;gap:8px 18px;padding:16px 0;border-bottom:1px solid #dce3e6}table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:12px 10px;border-bottom:1px solid #dce3e6;text-align:left;vertical-align:top}th{background:#edf2f4}.scroll{overflow-x:auto}.note{border-left:3px solid #b38229;padding:12px 16px;background:#fff4e1}.formula{background:#edf3f1;padding:14px;font-family:inherit;white-space:pre-wrap;overflow-wrap:anywhere}.muted{color:#68747c}li{margin:7px 0}@media(max-width:600px){main{padding:20px 16px}h1{font-size:24px}td,th{padding:9px 6px}}
+</style></head>
+<body><main>
+<a href="/">← 返回市场分析看板</a>
+<h1>从看板到交易计划</h1>
+<p>这份看板回答三个问题：当前环境是否支持新增仓位？哪些具体标的满足同一套筛选条件？判断错了，在哪里退出、可能损失多少？它是每日两次的日线研究快照，不是盘中交易终端。</p>
+<nav><a href="#routine">每天怎么用</a><a href="#markets">市场环境</a><a href="#candidates">标的与状态</a><a href="#plan">价格计划</a><a href="#sizing">仓位测算</a><a href="#macro">宏观价格</a><a href="#freshness">时效与公告</a><a href="#limits">反向审查</a></nav>
 
-      * { box-sizing: border-box; }
+<h2 id="routine">1. 每天的操作顺序</h2>
+<ol>
+<li><strong>先看生成时间与日线日期。</strong>生成时间是采集完成时间，卡片日期是最后一根完整日线所属交易日。两个时间不是一回事。07:00与19:00为北京时间计划采集时间，GitHub排队和数据发布可能延迟。</li>
+<li><strong>再看市场环境。</strong>“顺势筛选”才支持按本策略筛选新增多头；“等待趋势”“防守观察”表示条件未成立。不要为了每天交易而强行挑一只。</li>
+<li><strong>切到A股、美股或比特币。</strong>按代码、名称、板块搜索；选择“有条件计划”查看仍需确认的入场条件，也要查看“回避/暂停”。</li>
+<li><strong>打开标的详情。</strong>读“筛选依据”和“还缺什么”，再看价格区间与仓位测算。规则分高不代表胜率高，也不能取代基本面分析。</li>
+<li><strong>下单前回到交易终端。</strong>核对实时报价、财报或重要公告、是否跳空、涨跌停、买卖价差。任何一个核心条件变化，都要撤销旧计划重新评估。</li>
+<li><strong>写下复盘。</strong>记录生成时间、标的、触发条件、真实成交价、计划风险、退出原因。不要只记录盈亏；先检验是否遵守同一套规则。</li>
+</ol>
 
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--ink);
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        line-height: 1.72;
-      }
+<h2 id="markets">2. 市场环境：先看方向，再看标的</h2>
+<p>A股基准是510300沪深300ETF，美股基准是SPY标普500ETF，BTC以自身作为趋势基准。这是策略选取的代理，不代表这些基准覆盖整个经济。</p>
+<div class="scroll"><table><thead><tr><th>状态</th><th>计算条件</th><th>对操作的意义</th></tr></thead><tbody>
+<tr><td>顺势筛选</td><td>基准收盘价 &gt; MA20 &gt; MA60</td><td>短期价格与中期方向一致，进入标的筛选；不是无条件买入。</td></tr>
+<tr><td>防守观察</td><td>基准收盘价 &lt; MA60</td><td>按本策略不新增多头，复核已有风险敞口；不自动给出做空指令。</td></tr>
+<tr><td>等待趋势</td><td>不满足上述两类</td><td>结构混合，等下一次收盘确认。</td></tr>
+<tr><td>暂停判断</td><td>基准缺失、过期或快照失效</td><td>没有可靠判断，不等于市场中性。</td></tr>
+</tbody></table></div>
+<p>MA20是最近20根完整日线收盘价的平均数，MA60同理。均线描述已经出现的价格趋势，会滞后；震荡市中会反复给出假突破。</p>
 
-      main {
-        max-width: 1040px;
-        margin: 0 auto;
-        padding: 34px 22px 56px;
-      }
+<h2 id="candidates">3. 候选标的、图表和评分</h2>
+<p>当前固定筛选16个标的。入池表示值得持续观察这一类敞口，不是今天建议买入全部标的，更不是全市场最优排名。</p>
+<div class="scroll"><table><thead><tr><th>市场</th><th>候选池</th><th>观察用途</th></tr></thead><tbody>
+<tr><td>A股</td><td>510300、159915、512480、510880；601899紫金矿业、600900长江电力、300308中际旭创、002384东山精密</td><td>大盘、成长、半导体、红利、资源、公用事业与电子产业。</td></tr>
+<tr><td>美股</td><td>SPY、QQQ、SOXX、NVDA、MSFT、GLD、TLT</td><td>宽基、科技、黄金与长期美债。GLD/TLT当前仍受SPY趋势门槛限制，不是独立对冲策略。</td></tr>
+<tr><td>比特币</td><td>BTC/USDT现货</td><td>趋势和波动风险。没有杠杆、合约或自动下单。</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>收盘价与日涨跌：</strong>最后一根完整日线的收盘价，以及相对前一根收盘价的变化。A股以CNY计价，美股以USD计价，BTC以USDT计价。</li>
+<li><strong>小图：</strong>最近30个完整交易日的收盘走势。绿色表示这段区间末值高于起点，红色相反；它不表示未来方向。</li>
+<li><strong>20日涨幅：</strong>当前完整收盘价相对20个交易日前收盘价的变化，不是自然月涨幅。</li>
+<li><strong>相对基准：</strong>标的20日收益率减同市场基准20日收益率，以百分点（pp）计。例如标的涨8%、基准涨5%，相对强度是+3个百分点。BTC对自身的相对值为0，不含额外信息。</li>
+<li><strong>量比：</strong>最新完整日成交量除以前20个完整交易日的平均成交量，分母不包含当天。1.2倍是本策略的人为确认门槛，不是自然规律。</li>
+</ul>
+<p>规则分：标的趋势30分、基准趋势20分、相对强度不为负15分、量比达到1.2倍15分、收盘突破前20日高点10分、未过度偏离10分。它只是把规则满足程度汇总，未经回测校准，绝不是“90分就有90%胜率”。</p>
+<div class="scroll"><table><thead><tr><th>标的状态</th><th>怎么读</th></tr></thead><tbody>
+<tr><td>优先观察</td><td>趋势、相对强度、放量突破、风险收益与追价约束同时成立，优先复核下一交易时段的试仓条件。</td></tr>
+<tr><td>等待确认</td><td>趋势可观察，但还缺突破、放量或相对强度等条件。价格计划是条件式预案，不可直接执行。</td></tr>
+<tr><td>不追高</td><td>价格超过入场上限，或偏离MA20超过3倍ATR。即便趋势很好，也不追入。</td></tr>
+<tr><td>回避新增</td><td>标的或基准趋势不符合本策略，不展示新增价格计划。这不是对公司长期价值的否定。</td></tr>
+<tr><td>暂停判断</td><td>数据缺失或过期，撤下价格与交易计划。数据异常不等于价格机会。</td></tr>
+</tbody></table></div>
 
-      header {
-        padding: 22px 0 18px;
-        border-bottom: 1px solid var(--line);
-      }
+<h2 id="plan">4. 价格计划：可验证的条件，不是预测目标</h2>
+<p>ATR用来描述日常波动。每日真实波幅取“最高减最低、最高与前收盘差的绝对值、最低与前收盘差的绝对值”三者最大值。先取14期均值，再用Wilder平滑：新ATR =（旧ATR×13 + 新波幅）÷14。它包含跳空影响，但不保证未来波动不超过历史。</p>
+<div class="formula">突破触发 = 前20个交易日最高价 + 一个最小报价单位
+追价上限 = 突破触发 + 0.25 × ATR
+止损参考 = 突破触发 − 1.5 × ATR
+退出参考 = 突破触发 + 3.5 × ATR
+净收益/风险 =（退出参考 − 追价上限 − 估算成本）÷（追价上限 − 止损参考 + 估算成本）</div>
+<p>这些数字按标的报价单位取整。目标是让触发、追价边界和错误成本清楚可检查，而非计算企业内在价值。退出参考是波动幅度推导的计划价，不是分析师目标价。</p>
+<p><strong>示例：</strong>假设前20日高点100元、报价单位0.01元、ATR为2元。触发约100.01元，上限100.51元，止损97.01元，退出107.01元。若下一交易时段直接跳空到104元，已超过追价上限，这个计划应放弃，不能为了成交抬高入场价。</p>
+<p>仅当趋势、相对强度、完整日线放量突破均成立，再核对下一交易时段价格仍在区间，才考虑小仓试探。若只是盘中触及，未满足完整日线确认，不能当作已经通过本策略。</p>
+<p class="note">股票日线采用前复权口径。分红、拆股与新除权会改变历史价位；执行前必须与交易终端复核。止损价不是成交保证：跳空、跌停或流动性不足会扩大损失。参见<a href="https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-15" target="_blank" rel="noreferrer">SEC投资者教育：止损及止损限价订单</a>。</p>
 
-      .eyebrow {
-        margin: 0 0 8px;
-        color: var(--blue);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-      }
+<h2 id="sizing">5. 仓位测算：先决定容许损失多少</h2>
+<p>在标的详情里输入与该标的相同币种的账户资金。输入值仅用于当前页面计算，不会提交到服务器。默认单笔风险预算0.5%，可调整为大于0且不超过2%；这是测算参数，不是对你财务状况的评估。</p>
+<div class="formula">风险预算 = 账户资金 × 单笔风险比例
+单位计划损失 = 追价上限 − 止损参考 + 估算往返成本
+数量 = min（风险预算 ÷ 单位计划损失，仓位金额上限 ÷ 追价上限）
+最后按交易单位向下取整</div>
+<p>默认集中度上限：宽基ETF为账户资金20%，其他股票及行业ETF为10%，BTC为5%。A股按100股/份为一单位，美股按1股，BTC测算按0.00001个；真实平台的最小金额、数量精度仍须核对。数量为0意味着本次预算不足，不能通过放宽止损来凑单。</p>
+<p>估算往返费用与滑点：A股0.3%，美股0.2%，BTC 0.4%。它们用于比较与保守测算，不是券商费率报价；真实税费、交易平台与市场状态可能不同。</p>
+<p>例如账户10万元，0.5%风险预算是500元，不是买入500元。若单位计划损失5元，风险约束最多买100股；再检查这100股金额是否超过集中度上限。</p>
+<p><strong>多个持仓不能把单笔风险简单当作独立风险。</strong>QQQ、SOXX、NVDA高度相关；行业ETF和其中的个股也可能重叠。该计算器不读取真实组合，不会自动扣减已有风险预算。新增前需人工汇总同主题敞口和全部计划损失。</p>
 
-      h1 {
-        margin: 0;
-        font-size: clamp(30px, 5vw, 46px);
-        line-height: 1.08;
-      }
+<h2 id="macro">6. 宏观价格：理解风险环境</h2>
+<div class="scroll"><table><thead><tr><th>数据</th><th>第一性原理</th><th>实战参考与反例</th></tr></thead><tbody>
+<tr><td>10年期美债收益率 DGS10</td><td>长期资金价格与无风险折现率参考。</td><td>上升可压制长久期估值，但若由增长改善驱动，盈利上修可能抵消；不能机械等同于美股下跌。</td></tr>
+<tr><td>10年期实际利率 DFII10</td><td>通胀保值债反映的实际收益率。</td><td>上升通常提高黄金等无息资产的机会成本；地缘风险、央行需求可能使金价与实际利率短期同涨。</td></tr>
+<tr><td>通胀盈亏平衡率 T10YIE</td><td>名义国债与TIPS收益率之差。</td><td>同时含通胀预期、风险溢价和流动性影响，不是下一次CPI预测，也不是美联储降息概率。</td></tr>
+<tr><td>高收益债信用利差 BAMLH0A0HYM2</td><td>承担企业违约等信用风险所要求的额外补偿。</td><td>走阔提示融资压力或风险厌恶，科技与BTC需要复核敞口；单日变化不等于危机。</td></tr>
+<tr><td>VIX</td><td>标普500期权价格隐含的未来30天预期波动。</td><td>高VIX说明保护昂贵，不等于确定下跌；低VIX也不是低风险保证。</td></tr>
+</tbody></table></div>
+<p>利率与利差显示“较5个有效观测前”的变化。1个基点（bp）=0.01个百分点；4.00%变成4.10%是+10bp。遇到假期或缺失值，这5个观测不一定等于5个自然日。缺失观测会跳过，绝不当作0%。</p>
+<p>这些因子用于人工审查，不参与当前技术触发评分。数据采用实际观测日，并按发布时间滞后设置失效窗口；不要用它解释未接入的实时资金流。原始定义见<a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noreferrer">FRED美债利率</a>、<a href="https://fred.stlouisfed.org/series/T10YIE" target="_blank" rel="noreferrer">通胀盈亏平衡率</a>和<a href="https://www.cboe.com/tradable_products/vix/" target="_blank" rel="noreferrer">Cboe VIX</a>。</p>
 
-      .intro {
-        max-width: 840px;
-        color: var(--muted);
-        font-size: 17px;
-      }
+<h2 id="freshness">7. 时效、自动更新与公开公告</h2>
+<ul>
+<li><strong>快照：</strong>每天北京时间07:00、19:00计划采集。页面每5分钟检查是否发布了新快照，回到页面时也检查；刷新按钮只重新读取已发布快照，不直接启动采集。</li>
+<li><strong>总失效时间：</strong>生成后14小时撤下所有建议价格、宏观数值和近期公告。浏览器每30秒重新判断时效，不会因为页面一直开着而永久保留旧信号。</li>
+<li><strong>A股与美股：</strong>只使用完整收盘日线；收盘后预留45分钟数据缓冲，并处理周末与美国夏令时。若应有最新收盘却没有，则暂停。尚未接入完整节假日日历，因此长假可能保守暂停，不宣称能自动识别所有休市原因。</li>
+<li><strong>BTC：</strong>剔除未完成的UTC日线，仅保留收盘后不超过36小时的分析数据，另外受快照14小时总上限限制。来源为<a href="https://github.com/binance/binance-spot-api-docs/blob/master/faqs/market_data_only.md" target="_blank" rel="noreferrer">Binance公共市场数据接口</a>，失败时尝试Gate.io现货日线。</li>
+<li><strong>宏观价格：</strong>FRED观测最长7天，VIX必须覆盖最近应有的美股收盘。按实际观测日失效，重复抓到旧值不会把它重新变成新数据。</li>
+<li><strong>公告：</strong>仅展示最近7天合法公开披露的匹配公告，按披露日期过滤，并不保证其中的交易也发生在7天内。公告标题无法证明准确交易方向、金额或动机，需要打开原文。</li>
+</ul>
+<p>中国部分是上市公司董监高及相关主体公开公告，不等于政府官员持仓。美国部分保留<a href="https://disclosures-clerk.house.gov/FinancialDisclosure" target="_blank" rel="noreferrer">众议院官方检索</a>和<a href="https://efdsearch.senate.gov/search/" target="_blank" rel="noreferrer">参议院官方检索</a>入口；未取得可核验的近期交易记录时，不生成跟单信号。没有新公告时，首页直接隐藏公告区；查询失败会在“数据状态与覆盖边界”说明。</p>
 
-      nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin: 20px 0 8px;
-      }
-
-      nav a, .back {
-        display: inline-flex;
-        align-items: center;
-        min-height: 34px;
-        padding: 6px 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        color: var(--blue);
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 14px;
-      }
-
-      section {
-        margin-top: 18px;
-        padding: 20px;
-        background: var(--panel);
-        border: 1px solid var(--line);
-        border-radius: 8px;
-      }
-
-      h2 {
-        margin: 0 0 10px;
-        font-size: 23px;
-      }
-
-      h3 {
-        margin: 16px 0 6px;
-        font-size: 17px;
-      }
-
-      p, li {
-        color: var(--muted);
-      }
-
-      strong {
-        color: var(--ink);
-      }
-
-      ul, ol {
-        padding-left: 22px;
-      }
-
-      .rule {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 14px;
-      }
-
-      .rule div, .note {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 14px;
-        background: #fbfcfd;
-      }
-
-      .tag {
-        display: inline-block;
-        margin-right: 6px;
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 800;
-      }
-
-      .green { background: #e5f6ee; color: var(--green); }
-      .amber { background: #fff3d9; color: var(--amber); }
-      .red { background: #fbe9e8; color: var(--red); }
-      .blue { background: #e9f2f6; color: var(--blue); }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        overflow: hidden;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-      }
-
-      th, td {
-        padding: 10px;
-        border-bottom: 1px solid var(--line);
-        text-align: left;
-        vertical-align: top;
-        font-size: 14px;
-      }
-
-      th {
-        background: #eef4f6;
-        color: var(--ink);
-      }
-
-      td {
-        color: var(--muted);
-      }
-
-      code {
-        padding: 2px 5px;
-        border-radius: 5px;
-        background: #eef0f2;
-      }
-
-      @media (max-width: 760px) {
-        main { padding: 22px 14px 42px; }
-        .rule { grid-template-columns: 1fr; }
-        section { padding: 16px; }
-        table { display: block; overflow-x: auto; }
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <a class="back" href="/">返回看板</a>
-      <header>
-        <p class="eyebrow">Market Signal Board Guide</p>
-        <h1>预判市场实战看板使用指导</h1>
-        <p class="intro">
-          这个看板不是为了告诉你“今天一定买什么”，而是把市场中最重要的价格、宏观、流动性、风险偏好和公开披露线索放到同一张图里，帮助你判断：市场正在交易什么预期，这个预期有没有过度，自己的仓位是否应该进攻、防守或等待。
-        </p>
-        <nav>
-          <a href="#method">核心方法</a>
-          <a href="#summary">顶部总览</a>
-          <a href="#recommendations">交易建议</a>
-          <a href="#pulse">预期差系统</a>
-          <a href="#nowcast">高频 Nowcast</a>
-          <a href="#pricing">隐含定价</a>
-          <a href="#traces">市场痕迹</a>
-          <a href="#disclosure">公示持仓</a>
-          <a href="#chain">领先链条</a>
-          <a href="#playbook">操作手册</a>
-          <a href="#quotes">行情表</a>
-          <a href="#routine">每日流程</a>
-        </nav>
-      </header>
-
-      <section id="method">
-        <h2>一、第一性原理：市场价格是“预期的贴现”</h2>
-        <p>
-          股票、债券、汇率、商品和比特币每天都在表达同一件事：资金认为未来增长、通胀、利率、风险和政策会怎样变化。真正有交易价值的不是“数据好不好”，而是“市场原来以为会怎样，现在是否发现错了”。
-        </p>
-        <div class="rule">
-          <div>
-            <span class="tag blue">1</span>
-            <strong>先看市场交易的预期</strong>
-            <p>比如美债利率上行，说明市场在重新定价利率、通胀或财政压力；这会压制长久期资产，如高估值科技股和部分成长股。</p>
-          </div>
-          <div>
-            <span class="tag amber">2</span>
-            <strong>再找预期差</strong>
-            <p>如果数据差但市场不跌，可能是坏消息已被充分定价；如果数据好但市场不涨，可能是利好兑现或估值太贵。</p>
-          </div>
-          <div>
-            <span class="tag green">3</span>
-            <strong>最后落到仓位和失效条件</strong>
-            <p>任何观点都必须能回答：买多少、错了看哪里、什么情况下退出。否则只是观点，不是交易系统。</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="summary">
-        <h2>二、顶部总览：先判断今天是进攻、防守还是等待</h2>
-        <h3>市场状态</h3>
-        <p>这是看板对当前跨资产环境的总判断。它综合 A 股、美股、BTC、VIX、美元人民币、商品等数据，给出“风险偏好扩张、结构性震荡、外部压力期、风险偏好收缩、数据降级运行”等状态。</p>
-        <h3>风险偏好</h3>
-        <p>风险偏好可以理解为“资金愿不愿意买波动更大的资产”。分数越高，说明股票、BTC、成长股等风险资产的趋势越顺；分数越低，说明市场在避险。</p>
-        <h3>美元/利率压力</h3>
-        <p>这个分数越高，代表美元、利率、VIX 或商品通胀压力越大。它对 A 股、港股、成长股、BTC 通常偏不利，因为资金会更重视现金流和确定性。</p>
-      </section>
-
-      <section id="recommendations">
-        <h2>三、A 股、美股、BTC 交易建议：只当“仓位方向”，不当神谕</h2>
-        <table>
-          <thead>
-            <tr><th>字段</th><th>含义</th><th>使用方式</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>加仓</td><td>趋势、风险偏好、外部压力相对配合。</td><td>只能在自己设定的仓位上限内分批，不代表满仓。</td></tr>
-            <tr><td>持有</td><td>当前环境没有明显恶化，但追高性价比一般。</td><td>适合保留核心仓，减少频繁换手。</td></tr>
-            <tr><td>观望</td><td>信号不够一致，市场可能在等待关键数据或政策。</td><td>少做方向性押注，多等确认。</td></tr>
-            <tr><td>减仓</td><td>趋势或风险偏好明显转弱。</td><td>优先降高 beta、高估值、无现金流资产。</td></tr>
-            <tr><td>暂停判断</td><td>关键数据源失败、过期或质量不够。</td><td>不要用残缺数据硬做结论。</td></tr>
-          </tbody>
-        </table>
-        <p>置信度不是胜率，它表示当前多项证据是否一致。高置信度也会错，所以必须同时看“失效条件”。</p>
-      </section>
-
-      <section id="pulse">
-        <h2>四、预期差感知系统：看市场的“体温”</h2>
-        <p>这一块把几个核心维度压缩成分数，帮助你快速判断今天市场的主要矛盾。</p>
-        <ul>
-          <li><strong>风险偏好：</strong>股票、BTC、波动率共同反映资金是否愿意承担风险。</li>
-          <li><strong>人民币稳定：</strong>美元人民币上行通常代表人民币走弱，对中国资产估值和外资风险偏好有压力。</li>
-          <li><strong>商品压力：</strong>油、黄金等商品异动会影响通胀、避险和周期股定价。</li>
-          <li><strong>数据质量：</strong>告诉你今天看板是否可靠。数据异常时，方向信号应降级。</li>
-        </ul>
-      </section>
-
-      <section id="nowcast">
-        <h2>五、高频 Nowcast：在官方数据公布前观察市场线索</h2>
-        <p>Nowcast 的意思是“现在预测”。官方 GDP、CPI、PMI 通常滞后，但资产价格每天都在提前反映预期。</p>
-        <h3>中国增长即时感知</h3>
-        <p>用 A 股指数、创业板、人民币汇率等观察中国增长和政策预期。如果指数走强且人民币稳定，说明市场愿意给中国资产更高风险溢价。</p>
-        <h3>通胀压力 Nowcast</h3>
-        <p>用原油、黄金、通胀盈亏平衡等观察通胀预期。油价快速上涨可能抬升 CPI/PPI 预期，从而压制估值较高的资产。</p>
-        <h3>流动性/信用脉冲</h3>
-        <p>信用利差收窄、金融条件宽松，通常支持股票和 BTC；信用利差扩大，说明市场开始担心违约和融资压力。</p>
-        <h3>避险微观痕迹</h3>
-        <p>黄金强、白银弱、VIX 升，可能说明资金在避险。没有新闻但避险资产异动时，要警惕市场先于新闻行动。</p>
-      </section>
-
-      <section id="pricing">
-        <h2>六、市场隐含定价：看债券、通胀、信用、波动率在说什么</h2>
-        <table>
-          <thead>
-            <tr><th>指标</th><th>通俗解释</th><th>对投资的意义</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>美国 10 年期利率</td><td>全球资产定价的核心折现率之一。</td><td>上行通常压制高估值成长股、黄金和 BTC；下行通常支持估值修复。</td></tr>
-            <tr><td>10 年通胀盈亏平衡</td><td>市场隐含的长期通胀预期。</td><td>上行说明通胀预期升温，利率敏感资产要谨慎。</td></tr>
-            <tr><td>高收益债利差</td><td>垃圾债相对国债多给的风险补偿。</td><td>利差扩大代表信用风险上升，股票和高 beta 资产承压。</td></tr>
-            <tr><td>VIX 和拥挤度</td><td>市场对未来波动的定价。</td><td>低 VIX 加高涨幅代表乐观拥挤，容易出现“稍不及预期就下跌”。</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section id="traces">
-        <h2>七、聪明钱/微观痕迹：看价格之间是否出现背离</h2>
-        <p>这一块关注“不同资产之间是否说同一句话”。如果股票上涨、信用利差收窄、VIX 低位，说明风险偏好一致；如果股票涨但信用利差扩大，就要警惕表面繁荣。</p>
-        <ul>
-          <li><strong>黄金/白银异动：</strong>黄金更偏避险，白银兼具工业属性。黄金强而白银不跟，可能是避险而不是通胀繁荣。</li>
-          <li><strong>原油对 CPI 的压力：</strong>油价影响交通、化工和通胀预期，是 CPI/PPI 的前置线索。</li>
-          <li><strong>BTC/ETH 风险弹性：</strong>BTC 强于 ETH 往往更偏“核心吸金”；ETH 强于 BTC 往往说明风险偏好更外扩。</li>
-          <li><strong>信用利差 + VIX：</strong>两者一起恶化时，通常比单一价格下跌更值得重视。</li>
-        </ul>
-      </section>
-
-      <section id="disclosure">
-        <h2>八、合法公示持仓/交易变动：只能作为线索，不是内幕判断</h2>
-        <p>这个模块只展示合法公开披露的数据或官方入口。中国侧来自 CNINFO 公告筛选，主要是上市公司董监高、实控人及近亲属交易相关公告；美国侧提供 House 和 Senate 的官方财务披露入口。</p>
-        <h3>为什么有意义</h3>
-        <p>公开披露的持仓或交易变动可能提示治理风险、政策敏感行业关注度、事件催化或市场情绪。但它不能单独决定买卖，因为披露有滞后，且很多交易可能是个人资金安排、误操作或合规披露。</p>
-        <h3>如何使用</h3>
-        <ul>
-          <li>看到“短线交易、窗口期、违规买卖”时，先降低治理评分，再看公司基本面是否受影响。</li>
-          <li>看到增持或减持时，不要直接跟随，要结合估值、业绩、行业景气和成交量。</li>
-          <li>美国官员披露要回到官方页面核验，不使用来源不清的数据做交易依据。</li>
-        </ul>
-        <p class="note"><strong>隐私边界：</strong>看板不推断未公开亲属身份，不展示地址、联系方式、私人账户等信息，只处理合法公示范围内的信息。</p>
-      </section>
-
-      <section id="chain">
-        <h2>九、领先指标时间链：理解经济周期的传导顺序</h2>
-        <p>经济和市场通常不是同时变化，而是按链条传导：信用和流动性最先变，风险资产随后反应，企业利润和 PMI 再确认，最后才体现在就业和通胀等滞后指标上。</p>
-        <ol>
-          <li><strong>信用/流动性：</strong>最领先。融资环境变好，风险资产通常先涨。</li>
-          <li><strong>估值/风险偏好：</strong>股票市场开始给未来修复提前定价。</li>
-          <li><strong>PMI/企业利润：</strong>实体经济数据确认市场预期是否正确。</li>
-          <li><strong>就业/通胀：</strong>通常滞后。等它们完全确认时，市场可能已走完一段。</li>
-        </ol>
-      </section>
-
-      <section id="playbook">
-        <h2>十、今日操作手册：把观点变成可执行动作</h2>
-        <p>这一块是看板最接近交易执行的部分，但仍然不是自动下单信号。</p>
-        <ul>
-          <li><strong>设定：</strong>说明当前市场要满足什么背景，交易才有意义。</li>
-          <li><strong>操作：</strong>给出加仓、持有、减仓或等待的具体行为。</li>
-          <li><strong>确认：</strong>告诉你需要哪些信号继续支持原判断。</li>
-          <li><strong>失效：</strong>告诉你什么情况说明判断错了，应该停止或撤退。</li>
-        </ul>
-        <p>最重要的是“失效”。如果你只看操作，不看失效条件，系统就会从风险管理工具变成情绪放大器。</p>
-      </section>
-
-      <section id="quotes">
-        <h2>十一、行情表和数据质量：先看数据能不能信</h2>
-        <p>行情表展示 A 股、美股、加密资产和全球定价因子的价格、日涨跌、5 日/20 日表现、趋势和数据质量。</p>
-        <ul>
-          <li><strong>5 日：</strong>反映短线情绪和事件冲击。</li>
-          <li><strong>20 日：</strong>接近一个交易月，适合观察中短期趋势。</li>
-          <li><strong>趋势：</strong>由价格与均线关系估算，帮助判断顺势还是逆势。</li>
-          <li><strong>质量：</strong>如果显示过期、降级或失败，相关建议要打折甚至暂停。</li>
-        </ul>
-      </section>
-
-      <section id="routine">
-        <h2>十二、建议的每日使用流程</h2>
-        <ol>
-          <li><strong>先看数据质量：</strong>如果关键数据失败，不做方向性决策。</li>
-          <li><strong>看顶部市场状态：</strong>判断今天偏进攻、防守还是等待。</li>
-          <li><strong>看三类交易建议：</strong>确认 A 股、美股、BTC 的仓位方向是否一致。</li>
-          <li><strong>看隐含定价：</strong>检查利率、通胀、信用、VIX 是否支持你的方向。</li>
-          <li><strong>看微观痕迹和公示持仓：</strong>寻找额外风险、催化或反常背离。</li>
-          <li><strong>最后看操作手册：</strong>只执行有确认条件和失效条件的交易。</li>
-        </ol>
-        <p class="note">
-          简单原则：当价格趋势、流动性、信用、波动率和人民币环境同向时，仓位可以更积极；当它们互相矛盾时，降低仓位，等待更好的预期差。
-        </p>
-      </section>
-    </main>
-  </body>
-</html>
+<h2 id="limits">8. 对抗式审查：怎样推翻自己的交易理由</h2>
+<ol>
+<li><strong>这个数字究竟测量了什么？</strong>股价上涨只证明市场成交价更高，不证明“聪明钱提前知道CPI”。普通涨跌不冒充期权大单、资金流或内幕判断。</li>
+<li><strong>是否真的有一致预期？</strong>没有经济学家调查中值、发布值与时间戳，就不能计算宏观预期差。实际值减预期值也不等于资产价格必然变动多少。</li>
+<li><strong>换一个解释还成立吗？</strong>上涨可能来自回补、再平衡或单一大权重。用基准趋势、相对强度、成交量交叉检查，但不要把它们当成互相独立的证据。</li>
+<li><strong>有没有尚未覆盖的重要事件？</strong>当前未接入完整财报日历、实时盘口、CME概率、一致预期、期权大单、交通与用电数据。重要财报和政策事件必须人工核对，不能把“页面没显示”当作没有风险。</li>
+<li><strong>如果开盘跳过入场区间或止损怎么办？</strong>不追价，已有仓位按实际流动性处理，并承认损失可能超预算；别把计划价当成市场承诺。</li>
+<li><strong>规则真的有效吗？</strong>当前没有经过滚动样本外回测，不能声称收益率、胜率或预测能力。先做模拟或小规模记录，检验滑点、假突破与不同市场状态，再评估是否适合自己的期限。</li>
+</ol>
+<p class="note">这套工具把“观察事实、提出条件、限制损失、检查失效”做成可复核流程。它不保证盈利，也不会替你下单。一个有用的看板应该允许结论是：今天没有足够好的机会。</p>
+<p><a href="/">返回市场分析看板</a></p>
+</main></body></html>

@@ -9,9 +9,14 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: market-snapshot
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +32,9 @@ jobs:
 
       - name: Update market snapshot
         run: npm run update:data
+
+      - name: Test trading gates
+        run: npm test
 
       - name: Validate market snapshot
         run: npm run validate:data

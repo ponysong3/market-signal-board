@@ -1,70 +1,36 @@
 # Market Signal Board
 
-This is a Vite + React market dashboard based on the framework in:
+Daily Chinese-language trading research dashboard for A-shares, US assets and BTC spot. Existing production: https://market-signal-board.vercel.app.
 
-`C:\Users\ponys\Documents\Obsidian Vault\投资\预判市场.md`
+## Run
 
-Core idea: trade the expectation gap, not the absolute data print. The board combines cross-asset market pricing, trend state, volatility, RMB pressure, commodities, and crypto data availability into actionable but reviewable signals.
-
-## Features
-
-- A-share, US stock, Bitcoin/Ethereum, FX, VIX, crude oil, and gold dashboard.
-- Beijing time 07:00 and 19:00 scheduled refresh through GitHub Actions.
-- Trading suggestions for A-shares, US stocks, and BTC.
-- Each suggestion includes confidence, evidence, and invalidation conditions.
-- Public JSON data snapshot at `public/data/market.json`.
-- Data freshness and quality gates. If critical data is stale, missing, or incomplete, the affected market switches to paused judgment instead of emitting a directional signal.
-- Help guide at `public/help/market-board-guide.html`, linked from the dashboard header.
-- UI text validation prevents visible Unicode escape strings such as `\u8bbe\u5b9a\uff1a` from reaching the page.
-- Practical prediction modules based on `预判市场.md`:
-  - 高频 Nowcast: growth, inflation, liquidity, and safe-haven pressure.
-  - Market-implied pricing: rates, breakeven inflation, credit spreads, and risk crowding.
-  - Smart-money traces: gold/silver, oil/inflation, crypto beta, and credit/VIX interaction.
-  - Public disclosure watch: legally disclosed China listed-company insider/relative trading announcements and US official financial disclosure portal links.
-  - Lead-lag chain: liquidity -> valuation/risk appetite -> PMI/profits -> employment/inflation.
-  - Daily playbook: setup, action, confirmation, and invalidation for A-shares, US stocks, and BTC.
-
-## Data Sources
-
-- A-share index data: Tencent Finance kline API
-- US index and ETF quotes: Tencent Finance quote API
-- VIX: Tencent quote API with Cboe VIX daily history fallback
-- BTC/ETH: Binance Vision daily kline, Gate.io daily kline, CoinGecko fallback, Coinlore degraded fallback
-- USD/CNY: Frankfurter public FX API
-- Oil, gold, and silver: Tencent Finance futures quote API
-- US rates, inflation breakeven, high-yield credit spread, and financial conditions: FRED CSV endpoints
-- China public disclosure watch: CNINFO official announcement search, filtered for listed-company directors/supervisors/senior managers/controllers and close-relative transaction disclosures
-- US public disclosure watch: official House Clerk Financial Disclosure and Senate eFD search portals
-
-If a source is blocked, the dashboard marks that asset as a data gap and avoids fabricating signals from missing prices.
-
-The public disclosure module only uses legally public records. It does not infer private family identities, addresses, contact details, or non-public holdings. When an official portal does not expose a stable unauthenticated structured feed, the board links the official source and does not substitute unverifiable records.
-
-## Local Development
-
-```bash
-npm install
+```sh
+npm ci
 npm run update:data
+npm test
 npm run validate:data
 npm run validate:ui-text
+npm run build
 npm run dev
 ```
 
-## Build
+## Data And Strategy
 
-```bash
-npm run build
-```
+- `scripts/update-market-data.js` collects 16 curated instruments, FRED rates and credit, Cboe VIX, and public CNINFO announcements disclosed within seven days.
+- `src/trading.js` owns shared closed-bar analysis, date-aware freshness checks, conditional breakout selection and risk sizing. The browser re-evaluates validity every 30 seconds, on visibility changes, and polls snapshots every five minutes.
+- The strategy is an unbacktested trend/breakout screen, not a probability model, valuation engine or whole-market recommendation. Bad or missing data fails closed. Macro factors are context only.
+- Equity history uses Tencent adjusted OHLCV with verified exchange suffixes. BTC uses Binance public BTCUSDT daily OHLCV with Gate.io fallback. Partial bars are excluded; relative volume excludes the current bar from its denominator.
+- Snapshots expire after 14 hours. Equities require the latest expected weekday close with a 45-minute publication buffer; US timezone observes DST. Exchange holiday calendars are not supplied, so holidays can conservatively pause signals. BTC bars expire 36 hours after UTC close. FRED factors expire within seven days. Old disclosures and unavailable factor values never appear as current content.
+- An expired market benchmark invalidates every dependent candidate in the browser, even if the candidate's own quote is fresh.
+- Sizing inputs stay in React state. No brokerage integration, credential handling, order placement or user-input persistence is present.
+- New JSON schema is version 2. Deployment must update the UI and snapshot together.
 
 ## Scheduled Updates
 
-`.github/workflows/update-market-data.yml` runs at:
+`.github/workflows/update-market-data.yml` runs at 23:00 and 11:00 UTC (07:00 and 19:00 Beijing), plus manual dispatch. GitHub scheduling and Vercel deployments can be delayed; this is not an intraday realtime feed. The workflow runs strategy tests, snapshot validation, Unicode text validation and build before committing a new snapshot. Concurrent runs serialize. The existing GitHub/Vercel integration publishes updated snapshots.
 
-- `23:00 UTC` = Beijing `07:00`
-- `11:00 UTC` = Beijing `19:00`
+## Verification
 
-The workflow regenerates `public/data/market.json` and commits it back to the repository.
+`scripts/trading.test.js` exercises future/expired snapshots, stale dependencies, UTC and DST sessions, unclosed bars, historical data validation, missing volume, weak benchmark, price chasing, risk/lot caps, stale announcements and FRED missing-value parsing. `scripts/validate-market-data.js` recomputes candidate gates and validates the current snapshot before publication.
 
-## Risk Note
-
-This project is a research and decision-support dashboard. It is not personalized investment advice. Every trade should define position size, invalidation conditions, and manual review requirements before execution.
+The Chinese usage guide is at `public/help/market-board-guide.html` and is linked from the dashboard header.
