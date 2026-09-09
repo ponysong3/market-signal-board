@@ -10,15 +10,15 @@
     "update:data": "node scripts/update-market-data.js",
     "validate:data": "node scripts/validate-market-data.js",
     "validate:ui-text": "node scripts/validate-ui-text.js",
-    "test": "node --test scripts/trading.test.js"
+    "test": "node --test scripts/trading.test.js scripts/valuation.test.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.6.0",
-    "vite": "^7.0.0",
-    "typescript": "^5.8.0",
+    "cheerio": "^1.2.0",
+    "lucide-react": "^0.468.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "lucide-react": "^0.468.0"
-  },
-  "devDependencies": {}
+    "typescript": "^5.8.0",
+    "vite": "^7.0.0"
+  }
 }

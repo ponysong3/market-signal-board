@@ -23,7 +23,15 @@ npm run dev
 - Snapshots expire after 14 hours. Equities require the latest expected weekday close with a 45-minute publication buffer; US timezone observes DST. Exchange holiday calendars are not supplied, so holidays can conservatively pause signals. BTC bars expire 36 hours after UTC close. FRED factors expire within seven days. Old disclosures and unavailable factor values never appear as current content.
 - An expired market benchmark invalidates every dependent candidate in the browser, even if the candidate's own quote is fresh.
 - Sizing inputs stay in React state. No brokerage integration, credential handling, order placement or user-input persistence is present.
-- New JSON schema is version 2. Deployment must update the UI and snapshot together.
+- New JSON schema is version 3. Deployment must update the UI and snapshot together.
+
+## Long-Term Value
+
+`scripts/fetch-valuation.js` reads dated financial reports for six individual equities and structured issuer metrics for SOXX/TLT, plus same-date NAV for Chinese ETFs. `src/valuation.js` separates five-year earnings-exit valuation from technical timing. Scenario growth, terminal P/E, earnings haircut and discount rates are explicit research assumptions, not consensus or proven intrinsic values. Dividends are omitted; the result is not a complete DCF.
+
+The default base earnings use the lower of trailing EPS and the latest annual EPS. CN TTM uses annual + current YTD - prior YTD; US TTM requires four contiguous single quarters. Negative earnings, missing periods, mismatched currency/prices, major share-count changes and expired inputs fail closed. Prices for valuation and NAV comparisons are unadjusted same-date closes. The intrinsic-value scenario never treats ETF NAV or BTC/gold as corporate cash flows.
+
+`investmentView` combines independent technical and value evidence: valuation premiums and quality concerns cancel stock entry plans; weak technical conditions cannot be overridden by a value discount. Modest safety margins halve the technical position cap. Missing or expired stock valuation never re-enables a rejected plan. Slider scenarios are local-only and do not change published signals. Full assumptions, dates, limitations and formulas are in the Chinese help guide.
 
 ## Scheduled Updates
 

@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { finite, quoteFresh, recentDisclosure, snapshotFresh, buildCandidate } from '../src/trading.js';
+import { buildEquityValue, investmentView } from '../src/valuation.js';
 
 const data = JSON.parse(fs.readFileSync('public/data/market.json', 'utf8'));
-assert.equal(data.schemaVersion, 2);
+assert.equal(data.schemaVersion, 3);
 const generated = Date.parse(data.generatedAt);
 assert(Number.isFinite(generated));
 assert(snapshotFresh(data.generatedAt), 'Snapshot is older than 14 hours or from the future');
@@ -11,6 +12,16 @@ assert(Array.isArray(data.candidates) && data.candidates.length >= 3);
 assert.equal(new Set(data.candidates.map(c => c.key)).size, data.candidates.length);
 for (const c of data.candidates) {
   assert(c.name && c.symbol && c.market && c.currency);
+  assert(c.valuation && c.valuation.status && c.valuation.kind);
+  const v = c.valuation;
+  if (v.kind === 'earnings' && v.status === 'ok') {
+    const expectedValue = buildEquityValue(c, v.input, generated);
+    assert.deepEqual(v.scenarios, expectedValue.scenarios, `${c.symbol}: valuation scenarios mismatch`);
+    assert.equal(v.margin, expectedValue.margin);
+    assert.equal(v.state, expectedValue.state);
+    const decision = investmentView(c, generated);
+    if (['premium', 'expensive'].includes(v.state) || v.qualityFlags.length) assert.equal(decision.plan, null);
+  }
   const benchmark = data.candidates.find(q => q.key === { CN: 'csi300', US: 'spy', CRYPTO: 'btc' }[c.market]);
   const expected = buildCandidate(c, benchmark, generated);
   assert.equal(c.status, expected.status, `${c.symbol}: incorrect eligibility`);

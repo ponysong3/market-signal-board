@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { collectValuations } from './fetch-valuation.js';
 import { analyzeBars, buildCandidate, marketView, quoteFresh, recentDisclosure, DAY, SNAPSHOT_TTL } from '../src/trading.js';
 
 const instruments = [
@@ -43,7 +44,10 @@ async function equityQuote(item) {
   const raw = node?.qfqday || node?.day;
   if (!Array.isArray(raw)) throw new Error('日线接口未返回数据');
   const rows = raw.map(x => ({ date: x[0], open: number(x[1]), close: number(x[2]), high: number(x[3]), low: number(x[4]), volume: number(x[5]) }));
-  return { ...analyzeBars(item, rows), source: '腾讯财经前复权日线', sourceUrl: url, fetchedAt: new Date().toISOString() };
+  const analysis = analyzeBars(item, rows);
+  const rawQuote = node?.qt?.[item.providerSymbol];
+  const referenceClose = item.market === 'US' && String(rawQuote?.[30]).slice(0, 10) === analysis.quoteDate ? number(rawQuote[3]) : null;
+  return { ...analysis, referenceClose, source: '腾讯财经前复权日线', sourceUrl: url, fetchedAt: new Date().toISOString() };
 }
 
 async function cryptoQuote(item) {
@@ -145,15 +149,16 @@ async function main() {
     Promise.all([...series.map(collectFactor), collectVix()]),
     collectDisclosures()
   ]);
+  const valuations = await collectValuations(quotes, json, request);
   const now = Date.now();
   const markets = ['CN', 'US', 'CRYPTO'].map(market => marketView(market, quotes, now));
-  const candidates = quotes.map(q => buildCandidate(q, quotes.find(x => x.key === { CN: 'csi300', US: 'spy', CRYPTO: 'btc' }[q.market]), now));
+  const candidates = quotes.map((q, i) => ({ ...buildCandidate(q, quotes.find(x => x.key === { CN: 'csi300', US: 'spy', CRYPTO: 'btc' }[q.market]), now), valuation: valuations[i] }));
   const data = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SNAPSHOT_TTL).toISOString(),
     schedule: '每日北京时间 07:00 / 19:00，日线快照',
-    strategy: '顺势突破 v1，规则筛选，未经历史回测；评分不是胜率。',
+    strategy: '顺势突破 + 独立长期价值情景；增长、折现率、退出倍数为研究假设，未经回测，评分不是胜率。',
     markets, candidates, factors: factors.filter(x => x.ok), disclosures,
     quality: {
       instruments: quotes.length, valid: quotes.filter(q => quoteFresh(q, now)).length,

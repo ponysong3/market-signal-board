@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const files = [
   'src/App.jsx',
+  'src/Valuation.jsx',
   'public/help/market-board-guide.html',
   'public/data/market.json'
 ];
