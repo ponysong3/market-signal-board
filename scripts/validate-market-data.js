@@ -2,9 +2,11 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { finite, quoteFresh, recentDisclosure, snapshotFresh, buildCandidate } from '../src/trading.js';
 import { buildEquityValue, investmentView } from '../src/valuation.js';
+import { expectationFresh, expectationView, summarizeForecasts } from '../src/expectations.js';
+import { decisionView } from '../src/decision.js';
 
 const data = JSON.parse(fs.readFileSync('public/data/market.json', 'utf8'));
-assert.equal(data.schemaVersion, 3);
+assert.equal(data.schemaVersion, 4);
 const generated = Date.parse(data.generatedAt);
 assert(Number.isFinite(generated));
 assert(snapshotFresh(data.generatedAt), 'Snapshot is older than 14 hours or from the future');
@@ -13,6 +15,24 @@ assert.equal(new Set(data.candidates.map(c => c.key)).size, data.candidates.leng
 for (const c of data.candidates) {
   assert(c.name && c.symbol && c.market && c.currency);
   assert(c.valuation && c.valuation.status && c.valuation.kind);
+  const e = c.expectation;
+  assert(e && ['ok', 'unavailable'].includes(e.status), `${c.symbol}: expectation missing`);
+  if (e.status === 'ok') {
+    assert(expectationFresh(e, generated));
+    assert.equal(new Set(e.samples.map(r => r.orgId)).size, e.count);
+    const rebuilt = summarizeForecasts(e.samples, e.financialDate, generated);
+    for (const field of ['medianEPS', 'minEPS', 'maxEPS', 'count', 'dispersionPct', 'expiresAt', 'fiscalYear']) assert.deepEqual(e[field], rebuilt[field], `${c.symbol}: ${field} expectation mismatch`);
+    assert.equal(e.basisVerified, false, 'Public research EPS basis is not audited');
+    for (const p of e.pairs) {
+      assert(p.before > 0 && p.to > p.from && p.fiscalYear === e.fiscalYear);
+      assert(Math.abs(p.changePct - (p.after / p.before - 1) * 100) < 1e-8);
+    }
+  }
+  const combined = decisionView(c, generated);
+  const expectation = expectationView(c, generated);
+  if (['demanding', 'down'].includes(expectation.key)) assert.equal(combined.plan, null);
+  if (combined.priority) assert(expectation.supportive && c.status === 'ready');
+  if (combined.plan) assert(c.plan && combined.plan.maxPositionPct <= c.plan.maxPositionPct);
   const v = c.valuation;
   if (v.kind === 'earnings' && v.status === 'ok') {
     const expectedValue = buildEquityValue(c, v.input, generated);

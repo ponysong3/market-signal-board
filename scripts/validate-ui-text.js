@@ -3,6 +3,9 @@ import fs from 'node:fs';
 const files = [
   'src/App.jsx',
   'src/Valuation.jsx',
+  'src/Expectations.jsx',
+  'src/expectations.js',
+  'src/decision.js',
   'public/help/market-board-guide.html',
   'public/data/market.json'
 ];

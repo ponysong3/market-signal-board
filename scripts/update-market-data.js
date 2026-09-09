@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { collectValuations } from './fetch-valuation.js';
+import { collectExpectations } from './fetch-expectations.js';
 import { analyzeBars, buildCandidate, marketView, quoteFresh, recentDisclosure, DAY, SNAPSHOT_TTL } from '../src/trading.js';
 
 const instruments = [
@@ -153,12 +154,14 @@ async function main() {
   const now = Date.now();
   const markets = ['CN', 'US', 'CRYPTO'].map(market => marketView(market, quotes, now));
   const candidates = quotes.map((q, i) => ({ ...buildCandidate(q, quotes.find(x => x.key === { CN: 'csi300', US: 'spy', CRYPTO: 'btc' }[q.market]), now), valuation: valuations[i] }));
+  const expectations = await collectExpectations(candidates, json, now);
+  candidates.forEach((c, i) => { c.expectation = expectations[i]; });
   const data = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     generatedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SNAPSHOT_TTL).toISOString(),
     schedule: '每日北京时间 07:00 / 19:00，日线快照',
-    strategy: '顺势突破 + 独立长期价值情景；增长、折现率、退出倍数为研究假设，未经回测，评分不是胜率。',
+    strategy: '顺势突破 + 独立长期价值情景 + 有日期的研报样本与价格盈利门槛。研报不是全市场一致预期，模型假设不是市场共识；未经回测，评分不是胜率。',
     markets, candidates, factors: factors.filter(x => x.ok), disclosures,
     quality: {
       instruments: quotes.length, valid: quotes.filter(q => quoteFresh(q, now)).length,

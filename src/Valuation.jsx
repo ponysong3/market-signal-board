@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { earningsValue, valuationFresh, investmentView } from './valuation.js';
+import { earningsValue, valuationFresh } from './valuation.js';
+import { decisionView as investmentView } from './decision.js';
 const fmt = (x, d = 2) => typeof x === 'number' && Number.isFinite(x) ? x.toLocaleString('zh-CN', { minimumFractionDigits: d, maximumFractionDigits: d }) : '--';
 const url = x => { try { const u = new URL(x); return u.protocol === 'https:' ? u.href : undefined; } catch { return undefined; } };
 const names = { 'NAV as of': '单位净值', 'P/E Ratio': '底层P/E', 'P/B Ratio': '底层P/B', 'Effective Duration': '有效久期（年）', '30 Day SEC Yield': '30日SEC收益率（%）' };
