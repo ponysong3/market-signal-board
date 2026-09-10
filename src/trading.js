@@ -1,6 +1,7 @@
 export const HOUR = 3_600_000;
 export const DAY = 24 * HOUR;
 export const SNAPSHOT_TTL = 14 * HOUR;
+export const UPDATE_SCHEDULE = '每日07:00 / 19:00；A股工作日15:50收盘补采（北京时间）';
 export const MARKETS = { CN: 'A股', US: '美股', CRYPTO: '比特币' };
 export const STATUS = { ready: '优先观察', watch: '等待确认', extended: '不追高', avoid: '回避新增', blocked: '暂停判断' };
 const mean = xs => xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -35,8 +36,21 @@ export function quoteFresh(q, now = Date.now()) {
 }
 
 export function signalActive(item, generatedAt, now = Date.now()) {
-  return snapshotFresh(generatedAt, now) && quoteFresh(item, now)
-    && item.dependencies?.every(q => quoteFresh(q, now));
+  return signalStatus(item, generatedAt, now).active;
+}
+
+export function signalStatus(item, generatedAt, now = Date.now()) {
+  if (!snapshotFresh(generatedAt, now)) return { active: false, label: '快照已失效', reason: '快照超过14小时或生成时间异常，等待重新采集。' };
+  if (!item?.ok) return { active: false, label: '行情采集异常', reason: item?.error || '未取得有效行情，暂停判断。' };
+  if (!quoteFresh(item, now)) {
+    const expected = expectedSession(item.market, now);
+    const waiting = /^\d{4}-\d{2}-\d{2}$/.test(item.quoteDate || '') && item.quoteDate < expected;
+    return { active: false, label: waiting ? '等待收盘更新' : '行情日期异常', reason: waiting
+      ? `等待${expected}收盘数据；当前仅有${item.quoteDate}日线，暂不使用旧价格生成计划。`
+      : '行情日期缺失、尚未收盘或已超过有效窗口，暂停判断。' };
+  }
+  if (!item.dependencies?.length || !item.dependencies.every(q => quoteFresh(q, now))) return { active: false, label: '等待基准更新', reason: '标的行情可用，但市场基准未覆盖最近应有收盘，暂停依赖它的交易判断。' };
+  return { active: true, label: '行情有效', reason: '' };
 }
 
 export function recentDisclosure(item, now = Date.now()) {

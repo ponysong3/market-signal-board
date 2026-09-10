@@ -5,6 +5,8 @@ on:
   schedule:
     # Beijing 07:00 and 19:00 = UTC 23:00 and 11:00
     - cron: "0 23,11 * * *"
+    # A-share close supplement: Beijing 15:50, after the 15:45 publication buffer.
+    - cron: "50 7 * * 1-5"
 
 permissions:
   contents: write

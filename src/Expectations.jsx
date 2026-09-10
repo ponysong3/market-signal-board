@@ -6,11 +6,11 @@ import { valuationFresh } from './valuation.js';
 const fmt = (x, digits = 2) => typeof x === 'number' && Number.isFinite(x) ? x.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits }) : '--';
 const safeUrl = x => { try { const u = new URL(x); return u.protocol === 'https:' ? u.href : undefined; } catch { return undefined; } };
 
-export function ExpectationSummary({ item, active, now }) {
+export function ExpectationSummary({ item, active, now, inactiveLabel = '行情不可用' }) {
   const view = expectationView(item, now);
   const e = item.expectation;
   return <div className={`expectation-summary expectation-${active ? view.key : 'missing'}`}>
-    <span>预期与价格门槛</span><b>{active ? view.label : '行情失效，暂停比较'}</b>
+    <span>预期与价格门槛</span><b>{active ? view.label : `${inactiveLabel}，暂停比较`}</b>
     {active && view.hurdle && <p>{e.fiscalYear}年 EPS 样本 {fmt(e.medianEPS)} / 现价要求 {fmt(view.hurdle.requiredEPS)}<small>{e.currency}/股 · 样本相对门槛 {fmt(view.gapPct)}%</small></p>}
     {active && expectationFresh(e, now) && <small>{e.count}家机构 · 最新研报 {e.asOf} · 非全市场共识</small>}
     {active && !view.hurdle && item.type === '股票' && valuationFresh(item.valuation, now) && <small>现价五年增长门槛 {fmt(item.valuation.impliedGrowth)}%/年（模型假设）</small>}

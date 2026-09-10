@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Activity, ArrowUpRight, CircleHelp, Clock3, ExternalLink, RefreshCw, Search, ShieldAlert, SlidersHorizontal, X } from 'lucide-react';
-import { MARKETS, STATUS, finite, snapshotFresh, signalActive, quoteFresh, recentDisclosure, marketView, positionSize } from './trading.js';
+import { MARKETS, STATUS, finite, snapshotFresh, signalActive, signalStatus, quoteFresh, recentDisclosure, marketView, positionSize } from './trading.js';
 import './styles.css';
 import { valuationFresh } from './valuation.js';
 import { decisionView as investmentView } from './decision.js';
@@ -46,22 +46,22 @@ function PriceChart({ item }) {
   return <canvas ref={canvas} className="sparkline" role="img" aria-label={`${item.name}最近30个完整交易日收盘走势`} />;
 }
 
-function Candidate({ item, active, onSelect, now }) {
+function Candidate({ item, active, onSelect, now, availability }) {
   const state = active ? item.status : 'blocked';
   const decision = investmentView(item, now);
   const p = active ? decision.plan : null;
   return <article className={`candidate state-${state}`}>
     <div className="candidate-top"><div><span className="symbol">{item.symbol} <small>{item.theme}</small></span><h3>{item.name}</h3></div><span className={`badge ${state}`}>{STATUS[state]}</span></div>
     <div className="quote-line"><strong>{active ? fmt(item.price, item.decimals) : '--'} <small>{item.currency}</small></strong><span className={item.changePct >= 0 ? 'up' : 'down'}>{active ? pct(item.changePct) : '日线不可用'}</span></div>
-    {active ? <><PriceChart item={item} /><div className="stat-line"><span>20日 <b>{pct(item.return20d)}</b></span><span>相对基准 <b>{fmt(item.relativeStrength)} pp</b></span><span>规则分 <b>{item.score}/100</b></span></div></> : <p className="empty">{item.blockers?.[0] || '快照或依赖行情已过期，暂停价格与信号展示。'}</p>}
+    {active ? <><PriceChart item={item} /><div className="stat-line"><span>20日 <b>{pct(item.return20d)}</b></span><span>相对基准 <b>{fmt(item.relativeStrength)} pp</b></span><span>规则分 <b>{item.score}/100</b></span></div></> : <p className="empty">{availability.reason}</p>}
     {p ? <dl className="levels"><div><dt>突破触发</dt><dd>{fmt(p.entry, item.decimals)}</dd></div><div><dt>追价上限</dt><dd>{fmt(p.entryMax, item.decimals)}</dd></div><div><dt>止损参考</dt><dd className="down">{fmt(p.stop, item.decimals)}</dd></div><div><dt>退出参考</dt><dd>{fmt(p.target, item.decimals)}</dd></div></dl> : <p className="no-plan">{active ? item.blockers?.slice(0, 2).join('；') || '当前没有满足条件的新增计划。' : '等待下一份有效行情。'}</p>}
     <ValueSummary item={item} active={active} now={now} />
-    <ExpectationSummary item={item} active={active} now={now} />
+    <ExpectationSummary item={item} active={active} now={now} inactiveLabel={availability.label} />
     <div className="candidate-bottom"><small>{active ? `${item.quoteDate} 收盘` : '暂停新增判断'}{p ? ` · 净收益/风险 ${fmt(p.rr)}:1` : ''}</small><button className="detail-button" onClick={() => onSelect(item.key)}>查看依据 <ArrowUpRight size={15} /></button></div>
   </article>;
 }
 
-function Detail({ item, active, onClose, now }) {
+function Detail({ item, active, onClose, now, availability }) {
   const dialog = useRef(null);
   const [capital, setCapital] = useState('');
   const [risk, setRisk] = useState('0.5');
@@ -76,7 +76,7 @@ function Detail({ item, active, onClose, now }) {
   return <dialog ref={dialog} className="detail" onCancel={onClose} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
     <div className="detail-head"><div><span className="symbol">{item.symbol} · {item.currency}</span><h2>{item.name}</h2></div><button className="icon-button" title="关闭详情" aria-label="关闭详情" onClick={onClose}><X size={20} /></button></div>
     <span className={`badge ${active ? item.status : 'blocked'}`}>{active ? STATUS[item.status] : '暂停判断'}</span>
-    {active ? <><h3>筛选依据</h3><ul>{item.reasons.map(x => <li key={x}>{x}</li>)}</ul><p className="muted">规则分衡量条件满足程度，不是上涨概率；候选池不是全市场排名。</p></> : <p className="alert">快照、标的或基准日线已经失效，原有价格计划已撤下。</p>}
+    {active ? <><h3>筛选依据</h3><ul>{item.reasons.map(x => <li key={x}>{x}</li>)}</ul><p className="muted">规则分衡量条件满足程度，不是上涨概率；候选池不是全市场排名。</p></> : <p className="alert">{availability.reason}</p>}
     <ValuationDetail key={item.valuation?.checkedAt || item.key} item={item} active={active} now={now} />
     <ExpectationDetail item={item} active={active} now={now} />
     {active && item.blockers.length > 0 && <><h3>技术面还缺什么</h3><ul>{item.blockers.map(x => <li key={x}>{x}</li>)}</ul></>}
@@ -144,7 +144,7 @@ function App() {
   const currentValid = data.candidates.filter(active).length;
   return <main className="shell">
     <header className="header"><div className="brand"><Activity size={25} /><div><h1>市场分析看板</h1><p>日线交易参考 · A股 / 美股 / BTC</p></div></div><nav><span className={`live-dot ${fresh ? '' : 'expired'}`}>{fresh ? '快照有效' : '快照过期'}</span><button className="icon-button" onClick={refresh} disabled={busy} title="检查最新快照（不会触发数据采集）" aria-label="检查最新快照"><RefreshCw size={18} className={busy ? 'spinning' : ''} /></button><a className="icon-button" href="/help/market-board-guide.html" target="_blank" rel="noreferrer" title="使用指导" aria-label="使用指导"><CircleHelp size={20} /></a></nav></header>
-    <div className="timestamp"><span><Clock3 size={14} /> 生成于 {time(data.generatedAt)} 北京时间</span><span>每日 07:00 / 19:00 更新 · 非盘中实时行情</span><span>有效候选行情 {currentValid}/{data.candidates.length}</span>{checkedAt && <span>检查于 {time(checkedAt)}</span>}</div>
+    <div className="timestamp"><span><Clock3 size={14} /> 生成于 {time(data.generatedAt)} 北京时间</span><span>{data.schedule}</span><span>非盘中实时行情</span><span>有效候选行情 {currentValid}/{data.candidates.length}</span>{checkedAt && <span>检查于 {time(checkedAt)}</span>}</div>
     {!fresh && <p className="alert" role="alert"><ShieldAlert size={18} /> 快照超过14小时或时间异常，已撤下全部交易价格和建议。等待数据更新后恢复。</p>}
     {error && <p className="alert" role="alert">{error}。当前保留的快照仍按实际时效检查。</p>}
     <section className="market-strip" aria-label="市场环境">{views.map(v => <button key={v.market} className={`market-overview ${market === v.market ? 'chosen' : ''}`} onClick={() => { setMarket(v.market); setSearch(''); }}><span>{MARKETS[v.market]} <ArrowUpRight size={15} /></span><strong>{fresh ? v.state : '暂停判断'}</strong><p>{fresh ? v.reason : '需要新快照，暂不判断方向。'}</p><small>{fresh ? `基准收盘 ${v.quoteDate || '--'}` : '数据已过期'}</small></button>)}</section>
@@ -152,7 +152,7 @@ function App() {
       <div className="section-heading"><div><h2>标的、价值、预期与执行条件</h2><p>技术时机 + 长期价值 + 预期兑现门槛 · 规则分仅代表技术条件</p></div><span className="counter">{all.filter(c => active(c) && investmentView(c, now).priority).length} 三重确认 / {all.length} 候选</span></div>
       <div className="toolbar"><div className="tabs" role="tablist" aria-label="选择市场">{Object.entries(MARKETS).map(([key, label]) => <button key={key} role="tab" aria-selected={market === key} onClick={() => { setMarket(key); setSearch(''); }}>{label}</button>)}</div><label className="search"><Search size={16} /><input aria-label="搜索代码或名称" placeholder="代码、名称或板块" value={search} onChange={e => setSearch(e.target.value)} /></label><select aria-label="筛选状态" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">全部状态</option><option value="plans">有条件计划</option><option value="value">价值折价观察</option><option value="expensive">情景估值偏贵</option><option value="expectation">预期门槛 / 分歧风险</option><option value="risks">回避 / 暂停</option></select></div>
       {all.every(c => !active(c) || !investmentView(c, now).priority) && <p className="market-note">当前没有价值、预期与趋势共同确认的标的。盈利预测高不等于价格便宜；现价可能已要求更高的增长。</p>}
-      <div className="candidate-grid">{filtered.map(c => <Candidate key={c.key} item={c} active={active(c)} now={now} onSelect={setSelected} />)}</div>
+      <div className="candidate-grid">{filtered.map(c => <Candidate key={c.key} item={c} active={active(c)} now={now} onSelect={setSelected} availability={signalStatus(c, data.generatedAt, now)} />)}</div>
       {!filtered.length && <p className="empty">没有符合当前筛选条件的标的。</p>}
     </section>
     <section className="factor-section"><div className="section-heading"><div><h2>宏观定价与市场预期</h2><p>隐含通胀与波动预期分别观察；利率变化以基点计，不直接触发买卖</p></div></div>{factors.length ? <div className="factor-grid">{factors.map(f => <article key={f.key} className="factor"><h3>{f.name}</h3><strong>{fmt(f.value)}<small>{f.unit}</small></strong><span>{finite(f.change5obsBp) ? `较5个有效观测前 ${fmt(f.change5obsBp)} bp` : '期权隐含波动率'}</span><p>{f.meaning}</p><small>关联：{f.exposure}</small><a href={safeUrl(f.sourceUrl)} target="_blank" rel="noreferrer">{f.quoteDate} · {f.source} <ExternalLink size={12} /></a></article>)}</div> : <p className="empty">暂无时效窗口内的宏观价格，未展示旧数值。</p>}</section>
@@ -161,7 +161,7 @@ function App() {
     <section className="valuation-coverage"><h3>价值依据覆盖</h3><p>{fresh ? data.candidates.filter(c => active(c) && c.valuation?.kind === 'earnings' && valuationFresh(c.valuation, now)).length : 0}/6只个股有时效内的盈利情景估值。股票ETF底层估值覆盖仍有限，净值偏离不代表长期低估；黄金与BTC不发布现金流内在价值。技术评分与价值情景分开呈现。</p></section>
     <section className="valuation-coverage"><h3>预期依据覆盖</h3><p>{data.candidates.filter(c => active(c) && expectationFresh(c.expectation, now)).length}/6只个股有时效内的机构研报样本；其中 {data.candidates.filter(c => active(c) && expectationFresh(c.expectation, now) && c.expectation.count >= 3).length} 只覆盖至少3家机构。样本来自A股公开研报，美股机构预测、ETF底层预期、BTC衍生品定价尚未接入。研报每股口径未逐份核验，不授予三重确认。</p><p>未采集公布前冻结的一致预期和发布后的同口径实际值，不计算“业绩惊喜率”或“政策超预期分”。<a href="/help/market-board-guide.html#expectations">预期的定义、公式和使用边界</a></p></section>
     <footer>日线计划需在下单前复核实时价格和事件风险。估值依赖假设，未回测，非自动交易；止损参考不是成交或最大损失保证。<a href="/help/market-board-guide.html">完整使用指导 <CircleHelp size={14} /></a></footer>
-    {selectedItem && <Detail key={selectedItem.key} item={selectedItem} active={active(selectedItem)} now={now} onClose={() => setSelected(null)} />}
+    {selectedItem && <Detail key={selectedItem.key} item={selectedItem} active={active(selectedItem)} now={now} onClose={() => setSelected(null)} availability={signalStatus(selectedItem, data.generatedAt, now)} />}
   </main>;
 }
 

@@ -43,7 +43,7 @@ US forecasts, ETF constituent consensus, BTC derivatives and pre-release frozen 
 
 ## Scheduled Updates
 
-`.github/workflows/update-market-data.yml` runs at 23:00 and 11:00 UTC (07:00 and 19:00 Beijing), plus manual dispatch. GitHub scheduling and Vercel deployments can be delayed; this is not an intraday realtime feed. The workflow runs strategy tests, snapshot validation, Unicode text validation and build before committing a new snapshot. Concurrent runs serialize. The existing GitHub/Vercel integration publishes updated snapshots.
+`.github/workflows/update-market-data.yml` runs at 23:00 and 11:00 UTC (07:00 and 19:00 Beijing), with a weekday 07:50 UTC / 15:50 Beijing A-share close supplement and manual dispatch. The supplement is after the 15:45 daily-bar publication buffer: pre-buffer collections still contain yesterday's close and must not remain tradeable after today's close is expected. `signalStatus` distinguishes a waiting daily close, collection failure, stale benchmark and expired snapshot. It never makes an old close fresh merely by relabeling it. GitHub scheduling and Vercel deployments can be delayed; the UI explains the expected and available dates while waiting. This is not an intraday realtime feed. The workflow runs strategy tests, snapshot validation, Unicode text validation and build before committing a new snapshot. Concurrent runs serialize. The existing GitHub/Vercel integration publishes updated snapshots.
 
 ## Verification
 

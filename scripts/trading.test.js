@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeBars, buildCandidate, expectedSession, quoteFresh, snapshotFresh, signalActive, recentDisclosure, positionSize, DAY, HOUR } from '../src/trading.js';
+import fs from 'node:fs';
+import { analyzeBars, buildCandidate, expectedSession, quoteFresh, snapshotFresh, signalActive, signalStatus, recentDisclosure, positionSize, DAY, HOUR } from '../src/trading.js';
 import { parseSeriesCsv } from './update-market-data.js';
 
 const now = Date.parse('2026-09-09T06:00:00Z');
@@ -24,6 +25,47 @@ test('old snapshots, future snapshots and stale dependencies fail closed in the 
   assert(signalActive(item, new Date(now).toISOString(), now));
   assert(!signalActive({ ...item, dependencies: [{ ...bench, quoteDate: '2026-09-01' }] }, new Date(now).toISOString(), now));
   assert(!signalActive(item, new Date(now).toISOString(), now + 15 * HOUR));
+});
+
+test('A-share pre-buffer snapshot waits for the new close after 15:45 and recovers on collection', () => {
+  const before = Date.parse('2026-09-10T07:27:00Z');
+  const after = Date.parse('2026-09-10T07:50:00Z');
+  const rows = Array.from({ length: 130 }, (_, i) => {
+    const date = new Date(Date.parse('2026-09-10') - (129 - i) * DAY);
+    return { date: date.toISOString().slice(0, 10), day: date.getUTCDay(), open: 100 + i, high: 103 + i, low: 99 + i, close: 102 + i, volume: 100 };
+  }).filter(r => ![0, 6].includes(r.day));
+  const instrument = { ...q, market: 'CN' };
+  const earlyQuote = analyzeBars(instrument, rows, before);
+  const early = buildCandidate(earlyQuote, earlyQuote, before);
+  const generated = new Date(before).toISOString();
+  assert.equal(early.quoteDate, '2026-09-09');
+  assert(signalActive(early, generated, before));
+  assert(snapshotFresh(generated, after), 'the snapshot itself has not expired');
+  assert(!signalActive(early, generated, after), 'do not extend old daily prices through a new close');
+  assert.equal(signalStatus(early, generated, after).label, '等待收盘更新');
+  assert.match(signalStatus(early, generated, after).reason, /2026-09-10.*2026-09-09/);
+  const latestQuote = analyzeBars(instrument, rows, after);
+  const latest = buildCandidate(latestQuote, latestQuote, after);
+  assert.equal(latest.quoteDate, '2026-09-10');
+  assert(signalActive(latest, new Date(after).toISOString(), after));
+  const staleBenchmark = { ...latest, dependencies: early.dependencies };
+  assert.equal(signalStatus(staleBenchmark, generated, after).label, '等待基准更新');
+});
+
+test('availability separates failed collection, expired snapshot and abnormal dates', () => {
+  const at = Date.parse('2026-09-10T09:00:00Z');
+  const stamp = new Date(at).toISOString();
+  assert.equal(signalStatus({ ...q, ok: false, error: 'HTTP failure' }, stamp, at).reason, 'HTTP failure');
+  assert.equal(signalStatus(q, '2020-01-01', at).label, '快照已失效');
+  assert.equal(signalStatus({ ...q, market: 'CN', quoteDate: '2026-09-11' }, stamp, at).label, '行情日期异常');
+  assert(!signalActive({ ...q, quoteDate: '2026-09-09', dependencies: [] }, stamp, at));
+});
+
+test('scheduled A-share supplement runs after the close publication buffer', () => {
+  const workflow = fs.readFileSync(new URL('../.github/workflows/update-market-data.yml', import.meta.url), 'utf8');
+  assert(workflow.includes('cron: "50 7 * * 1-5"'));
+  assert(workflow.includes('cron: "0 23,11 * * *"'), 'retain the existing morning/evening schedule');
+  assert.equal(expectedSession('CN', Date.parse('2026-09-10T07:50:00Z')), '2026-09-10');
 });
 test('crypto is continuous and old closes expire even over weekends', () => {
   const c = { ...q, market: 'CRYPTO', quoteDate: '2026-09-07' };

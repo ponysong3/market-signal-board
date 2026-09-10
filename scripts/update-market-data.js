@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { collectValuations } from './fetch-valuation.js';
 import { collectExpectations } from './fetch-expectations.js';
-import { analyzeBars, buildCandidate, marketView, quoteFresh, recentDisclosure, DAY, SNAPSHOT_TTL } from '../src/trading.js';
+import { analyzeBars, buildCandidate, marketView, quoteFresh, recentDisclosure, DAY, SNAPSHOT_TTL, UPDATE_SCHEDULE } from '../src/trading.js';
 
 const instruments = [
   ['csi300', 'CN', '沪深300ETF', '510300', 'sh510300', '宽基ETF', '中国大盘', 100, 0.001],
@@ -160,7 +160,7 @@ async function main() {
     schemaVersion: 4,
     generatedAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SNAPSHOT_TTL).toISOString(),
-    schedule: '每日北京时间 07:00 / 19:00，日线快照',
+    schedule: UPDATE_SCHEDULE,
     strategy: '顺势突破 + 独立长期价值情景 + 有日期的研报样本与价格盈利门槛。研报不是全市场一致预期，模型假设不是市场共识；未经回测，评分不是胜率。',
     markets, candidates, factors: factors.filter(x => x.ok), disclosures,
     quality: {
