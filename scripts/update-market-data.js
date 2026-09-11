@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { collectValuations } from './fetch-valuation.js';
 import { collectExpectations } from './fetch-expectations.js';
 import { analyzeBars, buildCandidate, marketView, quoteFresh, recentDisclosure, DAY, SNAPSHOT_TTL, UPDATE_SCHEDULE } from '../src/trading.js';
@@ -22,11 +23,14 @@ const instruments = [
   ['btc', 'CRYPTO', '比特币现货', 'BTC/USDT', 'BTCUSDT', '现货', '比特币', 0.00001, 0.01]
 ].map(([key, market, name, symbol, providerSymbol, type, theme, lot, tick]) => ({ key, market, name, symbol, providerSymbol, type, theme, lot, tick, decimals: tick === 0.001 ? 3 : 2, currency: market === 'CN' ? 'CNY' : market === 'US' ? 'USD' : 'USDT' }));
 
+const collectionBudget = new AsyncLocalStorage();
 async function request(url, options = {}) {
   let last;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const response = await fetch(url, { ...options, headers: { 'user-agent': 'Mozilla/5.0 MarketSignalBoard', ...options.headers }, signal: AbortSignal.timeout(10_000) });
+      const remaining = Math.floor((collectionBudget.getStore()?.deadline ?? Infinity) - Date.now());
+      if (remaining <= 0) throw new Error('本次采集超出时间预算');
+      const response = await fetch(url, { ...options, headers: { 'user-agent': 'Mozilla/5.0 MarketSignalBoard', ...options.headers }, signal: AbortSignal.timeout(Math.min(10_000, remaining)) });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.text();
     } catch (e) { last = e; }
@@ -144,18 +148,21 @@ async function collectDisclosures() {
   return { checkedAt: new Date().toISOString(), failedQueries: results.filter(x => x.status === 'rejected').length, items: [...items.values()].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8) };
 }
 
-async function main() {
-  const [quotes, factors, disclosures] = await Promise.all([
-    Promise.all(instruments.map(collectQuote)),
+async function collectSnapshot() {
+  const quotesPromise = Promise.all(instruments.map(collectQuote));
+  // Slow macro sources must not delay price-dependent financial/forecast collection.
+  const contextPromise = Promise.all([
     Promise.all([...series.map(collectFactor), collectVix()]),
     collectDisclosures()
   ]);
+  const quotes = await quotesPromise;
   const valuations = await collectValuations(quotes, json, request);
   const now = Date.now();
   const markets = ['CN', 'US', 'CRYPTO'].map(market => marketView(market, quotes, now));
   const candidates = quotes.map((q, i) => ({ ...buildCandidate(q, quotes.find(x => x.key === { CN: 'csi300', US: 'spy', CRYPTO: 'btc' }[q.market]), now), valuation: valuations[i] }));
   const expectations = await collectExpectations(candidates, json, now);
   candidates.forEach((c, i) => { c.expectation = expectations[i]; });
+  const [factors, disclosures] = await contextPromise;
   const data = {
     schemaVersion: 4,
     generatedAt: new Date(now).toISOString(),
@@ -168,9 +175,19 @@ async function main() {
       issues: [...quotes.filter(q => !quoteFresh(q, now)).map(q => ({ name: `${q.name} ${q.symbol}`, reason: q.error || `日线停留在 ${q.quoteDate}` })), ...factors.filter(f => !f.ok).map(f => ({ name: f.name, reason: f.error }))]
     }
   };
+  return data;
+}
+
+export function buildSnapshot({ budgetMs = 90_000 } = {}) {
+  if (!Number.isFinite(budgetMs) || budgetMs <= 0) throw new Error('Invalid collection budget');
+  return collectionBudget.run({ deadline: Date.now() + budgetMs }, collectSnapshot);
+}
+
+async function main() {
+  const data = await buildSnapshot();
   await fs.mkdir('public/data', { recursive: true });
   await fs.writeFile('public/data/market.json', `${JSON.stringify(data, null, 2)}\n`, 'utf8');
-  console.log(JSON.stringify({ generatedAt: data.generatedAt, valid: data.quality.valid, total: quotes.length, factors: data.factors.length, disclosures: disclosures.items.length, statuses: candidates.map(c => `${c.symbol}: ${c.status}`), issues: data.quality.issues }, null, 2));
+  console.log(JSON.stringify({ generatedAt: data.generatedAt, valid: data.quality.valid, total: data.candidates.length, factors: data.factors.length, disclosures: data.disclosures.items.length, statuses: data.candidates.map(c => `${c.symbol}: ${c.status}`), issues: data.quality.issues }, null, 2));
 }
 
 if (process.argv[1]?.replaceAll('\\', '/').endsWith('/update-market-data.js')) main().catch(e => { console.error(e); process.exitCode = 1; });

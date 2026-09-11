@@ -10,7 +10,7 @@
     "update:data": "node scripts/update-market-data.js",
     "validate:data": "node scripts/validate-market-data.js",
     "validate:ui-text": "node scripts/validate-ui-text.js",
-    "test": "node --test scripts/trading.test.js scripts/valuation.test.js scripts/expectations.test.js"
+    "test": "node --test scripts/trading.test.js scripts/valuation.test.js scripts/expectations.test.js scripts/recovery.test.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.6.0",

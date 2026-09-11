@@ -7,6 +7,7 @@ import { valuationFresh } from './valuation.js';
 import { decisionView as investmentView } from './decision.js';
 import { expectationFresh, expectationView } from './expectations.js';
 import { ExpectationSummary, ExpectationDetail } from './Expectations.jsx';
+import { refreshSnapshot } from './snapshot.js';
 import { ValueSummary, ValuationDetail } from './Valuation.jsx';
 
 const fmt = (n, digits = 2) => finite(n) ? n.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits }) : '--';
@@ -52,7 +53,7 @@ function Candidate({ item, active, onSelect, now, availability }) {
   const p = active ? decision.plan : null;
   return <article className={`candidate state-${state}`}>
     <div className="candidate-top"><div><span className="symbol">{item.symbol} <small>{item.theme}</small></span><h3>{item.name}</h3></div><span className={`badge ${state}`}>{STATUS[state]}</span></div>
-    <div className="quote-line"><strong>{active ? fmt(item.price, item.decimals) : '--'} <small>{item.currency}</small></strong><span className={item.changePct >= 0 ? 'up' : 'down'}>{active ? pct(item.changePct) : '日线不可用'}</span></div>
+    <div className="quote-line"><strong>{active ? fmt(item.price, item.decimals) : '--'} <small>{item.currency}</small></strong><span className={active ? item.changePct >= 0 ? 'up' : 'down' : 'muted'}>{active ? pct(item.changePct) : availability.label}</span></div>
     {active ? <><PriceChart item={item} /><div className="stat-line"><span>20日 <b>{pct(item.return20d)}</b></span><span>相对基准 <b>{fmt(item.relativeStrength)} pp</b></span><span>规则分 <b>{item.score}/100</b></span></div></> : <p className="empty">{availability.reason}</p>}
     {p ? <dl className="levels"><div><dt>突破触发</dt><dd>{fmt(p.entry, item.decimals)}</dd></div><div><dt>追价上限</dt><dd>{fmt(p.entryMax, item.decimals)}</dd></div><div><dt>止损参考</dt><dd className="down">{fmt(p.stop, item.decimals)}</dd></div><div><dt>退出参考</dt><dd>{fmt(p.target, item.decimals)}</dd></div></dl> : <p className="no-plan">{active ? item.blockers?.slice(0, 2).join('；') || '当前没有满足条件的新增计划。' : '等待下一份有效行情。'}</p>}
     <ValueSummary item={item} active={active} now={now} />
@@ -95,6 +96,7 @@ function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [recovering, setRecovering] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [market, setMarket] = useState('CN');
   const [filter, setFilter] = useState('all');
@@ -102,16 +104,22 @@ function App() {
   const [selected, setSelected] = useState(null);
   const [checkedAt, setCheckedAt] = useState(null);
   const inFlight = useRef(false);
+  const latestData = useRef(null);
   const mounted = useRef(true);
   const refresh = useCallback(async () => {
     if (inFlight.current) return;
     inFlight.current = true; setBusy(true);
     try {
-      const response = await fetch(`/data/market.json?t=${Date.now()}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const next = await response.json();
-      if (next.schemaVersion !== 4 || !Array.isArray(next.candidates) || !next.candidates.every(c => c.expectation) || !Array.isArray(next.factors) || !next.disclosures || !next.quality || !Number.isFinite(Date.parse(next.generatedAt))) throw new Error('快照格式不兼容');
-      if (mounted.current) { setData(next); setError(''); setCheckedAt(Date.now()); }
+      const result = await refreshSnapshot({ current: latestData.current,
+        fetchJson: async kind => {
+          const response = await fetch(kind === 'live' ? '/api/market' : `/data/market.json?t=${Date.now()}`, { cache: 'no-store', signal: AbortSignal.timeout(kind === 'live' ? 55_000 : 10_000) });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.json();
+        },
+        onData: next => { if (mounted.current) { latestData.current = next; setData(next); setNow(Date.now()); } },
+        onRecovery: value => { if (mounted.current) setRecovering(value); }
+      });
+      if (mounted.current) { setError(result.warning); setCheckedAt(Date.now()); }
     } catch (e) { if (mounted.current) setError(`获取最新快照失败：${e.message}`); }
     finally { inFlight.current = false; if (mounted.current) setBusy(false); }
   }, []);
@@ -143,8 +151,9 @@ function App() {
   const news = fresh ? data.disclosures.items.filter(x => recentDisclosure(x, now)) : [];
   const currentValid = data.candidates.filter(active).length;
   return <main className="shell">
-    <header className="header"><div className="brand"><Activity size={25} /><div><h1>市场分析看板</h1><p>日线交易参考 · A股 / 美股 / BTC</p></div></div><nav><span className={`live-dot ${fresh ? '' : 'expired'}`}>{fresh ? '快照有效' : '快照过期'}</span><button className="icon-button" onClick={refresh} disabled={busy} title="检查最新快照（不会触发数据采集）" aria-label="检查最新快照"><RefreshCw size={18} className={busy ? 'spinning' : ''} /></button><a className="icon-button" href="/help/market-board-guide.html" target="_blank" rel="noreferrer" title="使用指导" aria-label="使用指导"><CircleHelp size={20} /></a></nav></header>
-    <div className="timestamp"><span><Clock3 size={14} /> 生成于 {time(data.generatedAt)} 北京时间</span><span>{data.schedule}</span><span>非盘中实时行情</span><span>有效候选行情 {currentValid}/{data.candidates.length}</span>{checkedAt && <span>检查于 {time(checkedAt)}</span>}</div>
+    <header className="header"><div className="brand"><Activity size={25} /><div><h1>市场分析看板</h1><p>日线交易参考 · A股 / 美股 / BTC</p></div></div><nav><span className={`live-dot ${fresh && currentValid === data.candidates.length ? '' : 'expired'}`}>{recovering ? '正在补采' : !fresh ? '快照过期' : currentValid < data.candidates.length ? '行情待补齐' : '行情有效'}</span><button className="icon-button" onClick={refresh} disabled={busy} title="检查行情，缺失或过期时自动补采" aria-label="检查最新快照"><RefreshCw size={18} className={busy ? 'spinning' : ''} /></button><a className="icon-button" href="/help/market-board-guide.html" target="_blank" rel="noreferrer" title="使用指导" aria-label="使用指导"><CircleHelp size={20} /></a></nav></header>
+    <div className="timestamp"><span><Clock3 size={14} /> 生成于 {time(data.generatedAt)} 北京时间</span><span>{data.schedule}</span><span>{data.delivery === 'on-demand' ? '网站按需采集' : '定时快照'} · 非盘中实时行情</span><span>有效候选行情 {currentValid}/{data.candidates.length}</span>{checkedAt && <span>检查于 {time(checkedAt)}</span>}</div>
+    {recovering && <p className="market-note" role="status">检测到行情落后，网站正在直接补采，通常需要数十秒；无需等待下一次定时任务。</p>}
     {!fresh && <p className="alert" role="alert"><ShieldAlert size={18} /> 快照超过14小时或时间异常，已撤下全部交易价格和建议。等待数据更新后恢复。</p>}
     {error && <p className="alert" role="alert">{error}。当前保留的快照仍按实际时效检查。</p>}
     <section className="market-strip" aria-label="市场环境">{views.map(v => <button key={v.market} className={`market-overview ${market === v.market ? 'chosen' : ''}`} onClick={() => { setMarket(v.market); setSearch(''); }}><span>{MARKETS[v.market]} <ArrowUpRight size={15} /></span><strong>{fresh ? v.state : '暂停判断'}</strong><p>{fresh ? v.reason : '需要新快照，暂不判断方向。'}</p><small>{fresh ? `基准收盘 ${v.quoteDate || '--'}` : '数据已过期'}</small></button>)}</section>

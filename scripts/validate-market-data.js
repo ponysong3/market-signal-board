@@ -12,6 +12,8 @@ assert(Number.isFinite(generated));
 assert(snapshotFresh(data.generatedAt), 'Snapshot is older than 14 hours or from the future');
 assert(Array.isArray(data.candidates) && data.candidates.length >= 3);
 assert.equal(new Set(data.candidates.map(c => c.key)).size, data.candidates.length);
+assert(data.candidates.some(c => quoteFresh(c, generated)), 'No current daily bars: do not publish an empty healthy snapshot');
+assert.equal(data.quality.valid, data.candidates.filter(c => quoteFresh(c, generated)).length, 'Coverage count must match actual quote dates');
 for (const c of data.candidates) {
   assert(c.name && c.symbol && c.market && c.currency);
   assert(c.valuation && c.valuation.status && c.valuation.kind);

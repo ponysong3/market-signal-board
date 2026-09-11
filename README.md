@@ -22,7 +22,7 @@ npm run dev
 - Equity history uses Tencent adjusted OHLCV with verified exchange suffixes. BTC uses Binance public BTCUSDT daily OHLCV with Gate.io fallback. Partial bars are excluded; relative volume excludes the current bar from its denominator.
 - Snapshots expire after 14 hours. Equities require the latest expected weekday close with a 45-minute publication buffer; US timezone observes DST. Exchange holiday calendars are not supplied, so holidays can conservatively pause signals. BTC bars expire 36 hours after UTC close. FRED factors expire within seven days. Old disclosures and unavailable factor values never appear as current content.
 - An expired market benchmark invalidates every dependent candidate in the browser, even if the candidate's own quote is fresh.
-- Sizing inputs stay in React state. No brokerage integration, credential handling, order placement or user-input persistence is present.
+- Sizing inputs stay in React state. No brokerage integration, credential handling, order placement or user-input persistence is present. The read-only `/api/market` endpoint collects only the fixed public instrument pool; it accepts no arbitrary upstream URL or user ticker.
 - JSON schema is version 4. Deployment must update the UI and snapshot together.
 
 ## Long-Term Value
@@ -44,6 +44,14 @@ US forecasts, ETF constituent consensus, BTC derivatives and pre-release frozen 
 ## Scheduled Updates
 
 `.github/workflows/update-market-data.yml` runs at 23:00 and 11:00 UTC (07:00 and 19:00 Beijing), with a weekday 07:50 UTC / 15:50 Beijing A-share close supplement and manual dispatch. The supplement is after the 15:45 daily-bar publication buffer: pre-buffer collections still contain yesterday's close and must not remain tradeable after today's close is expected. `signalStatus` distinguishes a waiting daily close, collection failure, stale benchmark and expired snapshot. It never makes an old close fresh merely by relabeling it. GitHub scheduling and Vercel deployments can be delayed; the UI explains the expected and available dates while waiting. This is not an intraday realtime feed. The workflow runs strategy tests, snapshot validation, Unicode text validation and build before committing a new snapshot. Concurrent runs serialize. The existing GitHub/Vercel integration publishes updated snapshots.
+
+## On-Demand Recovery
+
+GitHub scheduled workflows can be delayed or dropped. The browser now checks static snapshots first and automatically calls `/api/market` when any daily quote/benchmark or the 14-hour snapshot is stale. It repeats this check every five minutes, on visibility changes and on refresh. `src/snapshot.js` prevents delayed static updates and partial failed collections from overwriting a more usable retained snapshot; timestamps are never renewed without collection. No browser storage or secrets are involved.
+
+The Vercel Node function reuses `buildSnapshot` with a 45-second total HTTP budget and a 60-second function limit. Request deadlines are invocation-scoped using AsyncLocalStorage. A short 120-second cache and concurrent-request coalescing reduce upstream load; a new expected closing session invalidates the in-process cache even before TTL expiry. CDN caching is disabled near closing boundaries. Failed API collections use a 60-second instance cooldown and return 503 without exposing provider errors; they do not pretend old data is new. The cache is per instance and best effort, not a durable/global rate limiter. API calls consume hosting resources. No scheduler or upstream availability guarantee is made.
+
+The same endpoint is available in local Vite development via `vite.config.js`. Test scheduled-update outages, failed API requests, expired cache, close-boundary transitions, concurrent requests and old-static overwrite prevention with `scripts/recovery.test.js`. Before publishing, verify a real API response and simulate an outdated static deployment in the browser: the A-share cards must recover without a GitHub workflow or page reload.
 
 ## Verification
 
