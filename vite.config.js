@@ -4,6 +4,17 @@ export default defineConfig({
   plugins: [{
     name: 'local-market-api',
     configureServer(server) {
+      server.middlewares.use('/api/events', async (req, res) => {
+        try {
+          const { default: handler } = await import('./api/events.js');
+          res.status = code => { res.statusCode = code; return res; };
+          res.json = value => { res.setHeader('Content-Type', 'application/json; charset=utf-8'); res.end(JSON.stringify(value)); };
+          await handler(req, res);
+        } catch {
+          res.statusCode = 503;
+          res.end(JSON.stringify({ error: 'Local events API unavailable' }));
+        }
+      });
       server.middlewares.use('/api/market', async (req, res) => {
         try {
           const { default: handler } = await import('./api/market.js');

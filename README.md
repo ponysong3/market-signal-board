@@ -53,7 +53,19 @@ The Vercel Node function reuses `buildSnapshot` with a 45-second total HTTP budg
 
 The same endpoint is available in local Vite development via `vite.config.js`. Test scheduled-update outages, failed API requests, expired cache, close-boundary transitions, concurrent requests and old-static overwrite prevention with `scripts/recovery.test.js`. Before publishing, verify a real API response and simulate an outdated static deployment in the browser: the A-share cards must recover without a GitHub workflow or page reload.
 
-## Verification
+## Event And Tail Risk
+
+`/api/events` is independent of the expensive quote/valuation recovery pipeline. It reads four pinned official public sources: UN Chinese RSS, MOFCOM news, Federal Reserve monetary releases, and OFAC recent actions. No user URL or query is forwarded upstream, redirects are rejected, requests time out after 10 seconds, and responses are capped at 2 MB. Cheerio parses the observed RSS/HTML structures; failed or changed structures, invalid/future dates and extended source silence are coverage gaps, not zero risk. Headlines are plain text rendered by React, never HTML. No user inputs leave the browser.
+
+The visible page polls events every five minutes and on visibility/explicit refresh. This is an on-demand reader, not unattended 24/7 monitoring. Complete in-process cache TTL is 300 seconds, partial-result TTL is 60 seconds, CDN TTL is at most 60 seconds. A 15-minute check TTL hides stale lists; individual publication TTL is 72 hours, never renewed on re-fetch. Date-only MOFCOM releases use Beijing midnight, OFAC uses conservative UTC midnight. Publication dates are not occurrence timestamps. Source-silence heuristics are 7 days for UN, 14 for MOFCOM/OFAC and 90 for Fed. A headline exiting the window is not proof that its impact ended.
+
+`src/events.js` matches topics only, not polarity, causation, probability or confirmed exposure. Conditional transmission paths, counterarguments, required verification and explicit coverage gaps accompany each source link. Category-to-instrument mapping is a research assumption; article count is not severity or independent corroboration. Daily cross-asset returns are clearly separated from event returns; no priced-in percentage is fabricated.
+
+The UI always supplies event context to `decisionView`, which applies an additional gate after technical/value/expectation gates for **all asset types**. Unavailable or incomplete sources and relevant unverified headlines halve an otherwise valid plan's existing cap once; neither creates a plan. Absolute daily changes >=5% equities/ETFs or >=8% BTC suspend additions; valid VIX >=30 plus the market benchmark falling >=2% also suspends additions. Current quote/benchmark/factor dates are required for price-based gates. A local-only pause switch hides all entry plans without executing, canceling or selling anything; it resets on reload. Any prior veto remains in force. These are unbacktested risk rules, not statistically calibrated probabilities.
+
+The stress calculator is an explicitly hypothetical unlevered-long exposure% * adverse-gap% / 100 calculation, not VaR or a maximum-loss guarantee. Price/expectation and event APIs remain separately fault-isolated. Tests cover stale/future timestamps, publication precision, deduplication, negation, source failure, unsafe URLs, exception recovery, cache behavior, ETF/BTC overlays, stale shock data and veto preservation. Help chapter 11 documents full assumptions and limitations.
+
+## Verification Commands
 
 `scripts/trading.test.js` exercises future/expired snapshots, stale dependencies, UTC and DST sessions, unclosed bars, historical data validation, missing volume, weak benchmark, price chasing, risk/lot caps, stale announcements and FRED missing-value parsing. `scripts/validate-market-data.js` recomputes candidate gates and validates the current snapshot before publication.
 

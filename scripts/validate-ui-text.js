@@ -7,6 +7,8 @@ const files = [
   'src/expectations.js',
   'src/decision.js',
   'src/snapshot.js',
+  'src/Events.jsx',
+  'src/events.js',
   'public/help/market-board-guide.html',
   'public/data/market.json'
 ];

@@ -6,14 +6,14 @@ const fmt = (x, d = 2) => typeof x === 'number' && Number.isFinite(x) ? x.toLoca
 const url = x => { try { const u = new URL(x); return u.protocol === 'https:' ? u.href : undefined; } catch { return undefined; } };
 const names = { 'NAV as of': '单位净值', 'P/E Ratio': '底层P/E', 'P/B Ratio': '底层P/B', 'Effective Duration': '有效久期（年）', '30 Day SEC Yield': '30日SEC收益率（%）' };
 
-export function ValueSummary({ item, active, now }) {
+export function ValueSummary({ item, active, now, context }) {
   const v = item.valuation;
   if (!active) return <div className="value-summary"><span>长期价值</span><p>价格时效不足，暂停比较。</p></div>;
   if (!valuationFresh(v, now) || v.kind !== 'earnings') return <div className="value-summary"><span>长期价值</span><b>{v?.status === 'ok' && !valuationFresh(v, now) ? '价值依据已过期' : v?.label || '价值未覆盖'}</b>{valuationFresh(v, now) && v.metrics?.length > 0 && <small>{v.metrics.slice(0, 2).map(m => `${names[m.name] || m.name} ${fmt(m.value)}`).join(' · ')}</small>}</div>;
-  return <div className={`value-summary value-${v.state}`}><span>5年情景折现价值</span><b>{fmt(v.scenarios[0].value, item.decimals)}–{fmt(v.scenarios[2].value, item.decimals)} <small>{item.currency}</small></b><p>基准 {fmt(v.scenarios[1].value, item.decimals)} · 安全边际 <strong>{fmt(v.margin)}%</strong></p><small>相对基准价值的折价；负数表示溢价</small><b className="value-conclusion">{investmentView(item, now).label}</b></div>;
+  return <div className={`value-summary value-${v.state}`}><span>5年情景折现价值</span><b>{fmt(v.scenarios[0].value, item.decimals)}–{fmt(v.scenarios[2].value, item.decimals)} <small>{item.currency}</small></b><p>基准 {fmt(v.scenarios[1].value, item.decimals)} · 安全边际 <strong>{fmt(v.margin)}%</strong></p><small>相对基准价值的折价；负数表示溢价</small><b className="value-conclusion">{investmentView(item, now, context).label}</b></div>;
 }
 
-export function ValuationDetail({ item, active, now }) {
+export function ValuationDetail({ item, active, now, context }) {
   const v = item.valuation;
   const defaults = v?.scenarios?.[1];
   const [growth, setGrowth] = useState(defaults?.growth ?? 10);
@@ -25,7 +25,7 @@ export function ValuationDetail({ item, active, now }) {
   if (v.kind !== 'earnings') return <section className="value-detail"><h3>{v.label}</h3><p>{v.reason}</p><dl className="anchor-metrics">{v.metrics?.map(m => <div key={m.name}><dt>{names[m.name] || m.name}</dt><dd>{fmt(m.value)} <small>截至 {m.date}</small></dd></div>)}</dl>{Number.isFinite(v.navPremium) && <p>同日价格相对净值 {fmt(v.navPremium)}%。净值偏离不是长期价值安全边际。</p>}{v.rateShock && <div className="table-scroll"><table><thead><tr><th>收益率平移假设</th><th>久期近似价格变化</th></tr></thead><tbody>{v.rateShock.map(s => <tr key={s.rateChange}><td>{s.rateChange > 0 ? '+' : ''}{s.rateChange}个百分点</td><td>{fmt(s.priceChangePct)}%</td></tr>)}</tbody></table></div>}<a className="source-link" href={url(v.sourceUrl)} target="_blank" rel="noreferrer">{v.source} <ExternalLink size={13} /></a></section>;
   const value = earningsValue(defaults.eps, growth, pe, discount);
   const customMargin = value ? (value - v.input.referencePrice) / value * 100 : null;
-  const decision = investmentView(item, now);
+  const decision = investmentView(item, now, context);
   return <section className="value-detail"><h3>价格与长期价值 · {v.label}</h3><p>{v.method}。增长率、折现率和退出倍数均为研究假设，不是市场一致预期或已确定内在价值。</p>
     <dl className="anchor-metrics"><div><dt>比较价格（未复权收盘）</dt><dd>{fmt(v.input.referencePrice, item.decimals)} {item.currency} <small>{v.input.priceDate}</small></dd></div><div><dt>TTM摊薄EPS / 对应P/E</dt><dd>{fmt(v.input.ttmEPS, 3)} / {fmt(v.pe)}倍</dd></div><div><dt>最新完整年EPS / 基础盈利</dt><dd>{fmt(v.input.annualEPS, 3)} / {fmt(v.normalizedEPS, 3)}</dd></div><div><dt>低于基准20%的观察价</dt><dd>{fmt(v.safetyPrice, item.decimals)} {item.currency}</dd></div></dl>
     <div className="table-scroll"><table><thead><tr><th>情景</th><th>盈利基数</th><th>5年年增速</th><th>退出P/E</th><th>折现率</th><th>折现价值</th></tr></thead><tbody>{v.scenarios.map(s => <tr key={s.name}><td>{s.name}</td><td>{fmt(s.eps, 3)}</td><td>{s.growth}%</td><td>{s.terminalPE}倍</td><td>{s.discount}%</td><td>{fmt(s.value, item.decimals)}</td></tr>)}</tbody></table></div>
