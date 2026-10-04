@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
-  "generatedAt": "2026-10-03T15:01:49.070Z",
-  "expiresAt": "2026-10-04T05:01:49.070Z",
+  "generatedAt": "2026-10-04T02:20:31.251Z",
+  "expiresAt": "2026-10-04T16:20:31.251Z",
   "schedule": "每日07:00 / 19:00；A股工作日15:50收盘补采（北京时间）",
   "strategy": "顺势突破 + 独立长期价值情景 + 有日期的研报样本与价格盈利门槛。研报不是全市场一致预期，模型假设不是市场共识；未经回测，评分不是胜率。",
   "markets": [
@@ -28,8 +28,8 @@
       "state": "顺势筛选",
       "reason": "基准收盘价 > 20日均线 > 60日均线，可筛选同向候选。",
       "allowLong": true,
-      "quoteDate": "2026-10-02",
-      "return20d": 9.367752290960274
+      "quoteDate": "2026-10-03",
+      "return20d": 10.29586550377848
     }
   ],
   "candidates": [
@@ -183,7 +183,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh510300,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.697Z",
+      "fetchedAt": "2026-10-04T02:20:27.516Z",
       "dependencies": [
         {
           "market": "CN",
@@ -200,26 +200,15 @@
       ],
       "valuation": {
         "kind": "fund",
-        "status": "ok",
-        "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-10-03T15:01:46.482Z",
-        "metrics": [
-          {
-            "name": "NAV as of",
-            "value": 4.4312,
-            "date": "2026-09-30"
-          }
-        ],
-        "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。",
-        "source": "东方财富基金净值 / 腾讯未复权收盘",
-        "sourceUrl": "https://api.fund.eastmoney.com/f10/lsjz?fundCode=510300&pageIndex=1&pageSize=5",
-        "navPremium": 0.01805380032497972,
-        "expiresAt": "2026-10-04T00:00:00.000Z"
+        "status": "unavailable",
+        "label": "价值数据不足",
+        "reason": "fetch failed",
+        "checkedAt": "2026-10-04T02:20:30.099Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -373,7 +362,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz159915,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.696Z",
+      "fetchedAt": "2026-10-04T02:20:27.517Z",
       "dependencies": [
         {
           "market": "CN",
@@ -392,7 +381,7 @@
         "kind": "fund",
         "status": "ok",
         "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-10-03T15:01:46.483Z",
+        "checkedAt": "2026-10-04T02:20:28.761Z",
         "metrics": [
           {
             "name": "NAV as of",
@@ -409,7 +398,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -563,7 +552,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh512480,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.704Z",
+      "fetchedAt": "2026-10-04T02:20:27.569Z",
       "dependencies": [
         {
           "market": "CN",
@@ -582,7 +571,7 @@
         "kind": "fund",
         "status": "ok",
         "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-10-03T15:01:46.483Z",
+        "checkedAt": "2026-10-04T02:20:28.761Z",
         "metrics": [
           {
             "name": "NAV as of",
@@ -599,7 +588,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -753,7 +742,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh510880,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.705Z",
+      "fetchedAt": "2026-10-04T02:20:27.577Z",
       "dependencies": [
         {
           "market": "CN",
@@ -772,7 +761,7 @@
         "kind": "fund",
         "status": "ok",
         "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-10-03T15:01:46.484Z",
+        "checkedAt": "2026-10-04T02:20:28.762Z",
         "metrics": [
           {
             "name": "NAV as of",
@@ -789,7 +778,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -943,7 +932,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601899,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.780Z",
+      "fetchedAt": "2026-10-04T02:20:27.595Z",
       "dependencies": [
         {
           "market": "CN",
@@ -962,7 +951,7 @@
         "kind": "earnings",
         "status": "ok",
         "label": "高于基准情景",
-        "checkedAt": "2026-10-03T15:01:47.431Z",
+        "checkedAt": "2026-10-04T02:20:30.114Z",
         "input": {
           "reportDate": "2026-06-30",
           "publishedAt": "2026-08-22",
@@ -1071,7 +1060,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "expiresAt": "2026-10-07T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -1276,7 +1265,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600900,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.779Z",
+      "fetchedAt": "2026-10-04T02:20:27.581Z",
       "dependencies": [
         {
           "market": "CN",
@@ -1295,7 +1284,7 @@
         "kind": "earnings",
         "status": "ok",
         "label": "高于基准情景",
-        "checkedAt": "2026-10-03T15:01:47.433Z",
+        "checkedAt": "2026-10-04T02:20:30.124Z",
         "input": {
           "reportDate": "2026-06-30",
           "publishedAt": "2026-08-31",
@@ -1404,7 +1393,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "expiresAt": "2026-10-16T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -1587,7 +1576,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz300308,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.894Z",
+      "fetchedAt": "2026-10-04T02:20:27.756Z",
       "dependencies": [
         {
           "market": "CN",
@@ -1606,7 +1595,7 @@
         "kind": "earnings",
         "status": "ok",
         "label": "高于乐观情景",
-        "checkedAt": "2026-10-03T15:01:47.768Z",
+        "checkedAt": "2026-10-04T02:20:30.151Z",
         "input": {
           "reportDate": "2026-06-30",
           "publishedAt": "2026-08-22",
@@ -1717,7 +1706,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "expiresAt": "2026-10-06T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -1946,7 +1935,7 @@
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz002384,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.892Z",
+      "fetchedAt": "2026-10-04T02:20:27.779Z",
       "dependencies": [
         {
           "market": "CN",
@@ -1965,7 +1954,7 @@
         "kind": "earnings",
         "status": "ok",
         "label": "高于乐观情景",
-        "checkedAt": "2026-10-03T15:01:47.767Z",
+        "checkedAt": "2026-10-04T02:20:30.107Z",
         "input": {
           "reportDate": "2026-06-30",
           "publishedAt": "2026-08-22",
@@ -2074,7 +2063,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "expiresAt": "2026-10-09T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -2268,7 +2257,7 @@
       "referenceClose": 769.64,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usSPY.AM,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.906Z",
+      "fetchedAt": "2026-10-04T02:20:27.930Z",
       "dependencies": [
         {
           "market": "US",
@@ -2304,14 +2293,14 @@
         "kind": "fund",
         "status": "unavailable",
         "label": "底层长期估值未覆盖",
-        "checkedAt": "2026-10-03T15:01:46.486Z",
+        "checkedAt": "2026-10-04T02:20:28.766Z",
         "metrics": [],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -2465,7 +2454,7 @@
       "referenceClose": 749.58,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usQQQ.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:44.907Z",
+      "fetchedAt": "2026-10-04T02:20:27.904Z",
       "dependencies": [
         {
           "market": "US",
@@ -2500,14 +2489,14 @@
         "kind": "fund",
         "status": "unavailable",
         "label": "底层长期估值未覆盖",
-        "checkedAt": "2026-10-03T15:01:46.486Z",
+        "checkedAt": "2026-10-04T02:20:28.766Z",
         "metrics": [],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -2661,7 +2650,7 @@
       "referenceClose": 588.9,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usSOXX.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:45.021Z",
+      "fetchedAt": "2026-10-04T02:20:28.414Z",
       "dependencies": [
         {
           "market": "US",
@@ -2686,7 +2675,7 @@
         "kind": "fund",
         "status": "ok",
         "label": "底层估值倍数参考",
-        "checkedAt": "2026-10-03T15:01:46.486Z",
+        "checkedAt": "2026-10-04T02:20:28.766Z",
         "metrics": [
           {
             "name": "P/B Ratio",
@@ -2714,7 +2703,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -2868,7 +2857,7 @@
       "referenceClose": 233.95,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usNVDA.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:45.022Z",
+      "fetchedAt": "2026-10-04T02:20:28.382Z",
       "dependencies": [
         {
           "market": "US",
@@ -2903,7 +2892,7 @@
         "kind": "earnings",
         "status": "ok",
         "label": "高于基准情景",
-        "checkedAt": "2026-10-03T15:01:47.432Z",
+        "checkedAt": "2026-10-04T02:20:30.560Z",
         "input": {
           "reportDate": "2026-07-26",
           "publishedAt": "2026-08-26",
@@ -3020,7 +3009,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入可核验日期、财年及GAAP口径的美股机构预测；仅保留模型反推的盈利要求，不伪造一致预期。"
       }
     },
@@ -3174,7 +3163,7 @@
       "referenceClose": 517.53,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usMSFT.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:45.020Z",
+      "fetchedAt": "2026-10-04T02:20:28.381Z",
       "dependencies": [
         {
           "market": "US",
@@ -3210,7 +3199,7 @@
         "kind": "earnings",
         "status": "ok",
         "label": "高于基准情景",
-        "checkedAt": "2026-10-03T15:01:47.432Z",
+        "checkedAt": "2026-10-04T02:20:30.191Z",
         "input": {
           "reportDate": "2026-06-30",
           "publishedAt": "2026-07-29",
@@ -3327,7 +3316,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入可核验日期、财年及GAAP口径的美股机构预测；仅保留模型反推的盈利要求，不伪造一致预期。"
       }
     },
@@ -3481,7 +3470,7 @@
       "referenceClose": 380.14,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usGLD.AM,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:45.031Z",
+      "fetchedAt": "2026-10-04T02:20:28.418Z",
       "dependencies": [
         {
           "market": "US",
@@ -3513,7 +3502,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -3667,7 +3656,7 @@
       "referenceClose": 77.48,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usTLT.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-10-03T15:01:45.025Z",
+      "fetchedAt": "2026-10-04T02:20:28.760Z",
       "dependencies": [
         {
           "market": "US",
@@ -3693,7 +3682,7 @@
         "kind": "bond",
         "status": "ok",
         "label": "收益率 / 久期参考",
-        "checkedAt": "2026-10-03T15:01:46.488Z",
+        "checkedAt": "2026-10-04T02:20:28.768Z",
         "metrics": [
           {
             "name": "Effective Duration",
@@ -3734,7 +3723,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -3751,23 +3740,19 @@
       "decimals": 2,
       "currency": "USDT",
       "ok": true,
-      "quoteDate": "2026-10-02",
-      "price": 84518.01,
-      "changePct": -0.4265313227313272,
-      "return5d": 0.05446775262807346,
-      "return20d": 9.367752290960274,
-      "ma20": 82071.87000000002,
-      "ma60": 75827.17549999998,
-      "atr": 2329.308358278837,
+      "quoteDate": "2026-10-03",
+      "price": 84753.56,
+      "changePct": 0.27869799584727684,
+      "return5d": 1.5012573052386458,
+      "return20d": 10.29586550377848,
+      "ma20": 82467.44750000001,
+      "ma60": 76171.29216666664,
+      "atr": 2204.426719265461,
       "high20": 87395.67,
       "low10": 82563,
-      "volumeRatio": 1.640324797520889,
+      "volumeRatio": 0.4034703345379634,
       "bars": 119,
       "sparkline": [
-        {
-          "date": "2026-09-03",
-          "close": 81270.37
-        },
         {
           "date": "2026-09-04",
           "close": 79660.77
@@ -3883,38 +3868,43 @@
         {
           "date": "2026-10-02",
           "close": 84518.01
+        },
+        {
+          "date": "2026-10-03",
+          "close": 84753.56
         }
       ],
       "source": "Binance 公共现货日线",
       "sourceUrl": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=120",
-      "fetchedAt": "2026-10-03T15:01:46.481Z",
+      "fetchedAt": "2026-10-04T02:20:28.424Z",
       "dependencies": [
         {
           "market": "CRYPTO",
-          "quoteDate": "2026-10-02",
+          "quoteDate": "2026-10-03",
           "ok": true
         }
       ],
       "status": "watch",
       "plan": {
         "entry": 87395.68,
-        "entryMax": 87978.01,
-        "stop": 83901.71,
-        "target": 95548.26,
-        "rr": 1.63008,
+        "entryMax": 87946.79,
+        "stop": 84089.03,
+        "target": 95111.18,
+        "rr": 1.61837,
         "costRate": 0.004,
-        "lossPerUnit": 4428.21204,
+        "lossPerUnit": 4209.54716,
         "maxPositionPct": 5,
         "confirmation": "仅在基准与标的趋势成立、相对强度不为负、完整日线放量突破后，下一交易时段复核价格仍在入场区间；所有条件同时成立才考虑试仓。",
         "invalidation": "跌破止损参考价、收盘跌破MA20、基准转弱或数据过期，撤销新增计划并复核已有仓位。"
       },
-      "score": 90,
+      "score": 75,
       "reasons": [
-        "20日涨幅 9.37%，相对基准 +0.00 个百分点",
-        "收盘 84518.01 / MA20 82071.87 / MA60 75827.18",
-        "完整日成交量 / 前20日均量 1.64倍"
+        "20日涨幅 10.30%，相对基准 +0.00 个百分点",
+        "收盘 84753.56 / MA20 82467.45 / MA60 76171.29",
+        "完整日成交量 / 前20日均量 0.40倍"
       ],
       "blockers": [
+        "成交量尚未达到前20日均量的1.2倍",
         "尚未收盘突破前20日高点"
       ],
       "relativeStrength": 0,
@@ -3927,7 +3917,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-10-03T15:01:49.070Z",
+        "checkedAt": "2026-10-04T02:20:31.251Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     }
@@ -4014,7 +4004,7 @@
     }
   ],
   "disclosures": {
-    "checkedAt": "2026-10-03T15:01:46.829Z",
+    "checkedAt": "2026-10-04T02:20:29.869Z",
     "failedQueries": 0,
     "items": []
   },
