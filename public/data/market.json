@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
-  "generatedAt": "2026-11-12T03:33:19.113Z",
-  "expiresAt": "2026-11-12T17:33:19.113Z",
+  "generatedAt": "2026-11-12T16:19:58.153Z",
+  "expiresAt": "2026-11-13T06:19:58.153Z",
   "schedule": "每日07:00 / 19:00；A股工作日15:50收盘补采（北京时间）",
   "strategy": "顺势突破 + 独立长期价值情景 + 有日期的研报样本与价格盈利门槛。研报不是全市场一致预期，模型假设不是市场共识；未经回测，评分不是胜率。",
   "markets": [
@@ -11,8 +11,8 @@
       "state": "防守观察",
       "reason": "基准低于60日均线，优先控制已有敞口。",
       "allowLong": false,
-      "quoteDate": "2026-11-11",
-      "return20d": -3.3535165346995632
+      "quoteDate": "2026-11-12",
+      "return20d": -3.0174446016030254
     },
     {
       "market": "US",
@@ -47,23 +47,19 @@
       "decimals": 3,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 4.15,
-      "changePct": 0.36275695284160303,
-      "return5d": -0.5988023952095634,
-      "return20d": -3.3535165346995632,
-      "ma20": 4.156199999999999,
-      "ma60": 4.443116666666666,
-      "atr": 0.06889819863543833,
-      "high20": 4.351,
+      "quoteDate": "2026-11-12",
+      "price": 4.114,
+      "changePct": -0.8674698795180791,
+      "return5d": -1.9308700834326675,
+      "return20d": -3.0174446016030254,
+      "ma20": 4.1498,
+      "ma60": 4.432549999999998,
+      "atr": 0.06890681623646153,
+      "high20": 4.282,
       "low10": 4.041,
-      "volumeRatio": 0.5013784251764524,
+      "volumeRatio": 0.5500163416824907,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 4.59
-        },
         {
           "date": "2026-09-24",
           "close": 4.515
@@ -179,16 +175,20 @@
         {
           "date": "2026-11-11",
           "close": 4.15
+        },
+        {
+          "date": "2026-11-12",
+          "close": 4.114
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh510300,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.589Z",
+      "fetchedAt": "2026-11-12T16:19:55.223Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
@@ -196,9 +196,9 @@
       "plan": null,
       "score": 25,
       "reasons": [
-        "20日涨幅 -3.35%，相对基准 +0.00 个百分点",
-        "收盘 4.150 / MA20 4.156 / MA60 4.443",
-        "完整日成交量 / 前20日均量 0.50倍"
+        "20日涨幅 -3.02%，相对基准 +0.00 个百分点",
+        "收盘 4.114 / MA20 4.150 / MA60 4.433",
+        "完整日成交量 / 前20日均量 0.55倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
@@ -211,24 +211,24 @@
         "kind": "fund",
         "status": "ok",
         "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-11-12T03:33:15.810Z",
+        "checkedAt": "2026-11-12T16:19:55.403Z",
         "metrics": [
           {
             "name": "NAV as of",
-            "value": 4.1528,
-            "date": "2026-11-11"
+            "value": 4.1203,
+            "date": "2026-11-12"
           }
         ],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。",
         "source": "东方财富基金净值 / 腾讯未复权收盘",
         "sourceUrl": "https://api.fund.eastmoney.com/f10/lsjz?fundCode=510300&pageIndex=1&pageSize=5",
-        "navPremium": -0.06742438836446762,
-        "expiresAt": "2026-11-15T00:00:00.000Z"
+        "navPremium": -0.15290148775575219,
+        "expiresAt": "2026-11-16T00:00:00.000Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -245,23 +245,19 @@
       "decimals": 3,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 2.59,
-      "changePct": 3.228377839776808,
-      "return5d": 1.1323701679031517,
-      "return20d": -10.411622276029064,
-      "ma20": 2.6012499999999994,
-      "ma60": 3.108166666666667,
-      "atr": 0.10474328736172431,
-      "high20": 2.981,
+      "quoteDate": "2026-11-12",
+      "price": 2.524,
+      "changePct": -2.5482625482625476,
+      "return5d": -2.3219814241486114,
+      "return20d": -10.049893086243767,
+      "ma20": 2.58715,
+      "ma60": 3.089883333333334,
+      "atr": 0.10547802038971994,
+      "high20": 2.85,
       "low10": 2.392,
-      "volumeRatio": 0.9424069985181597,
+      "volumeRatio": 0.9406109834509688,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 3.399
-        },
         {
           "date": "2026-09-24",
           "close": 3.312
@@ -377,16 +373,20 @@
         {
           "date": "2026-11-11",
           "close": 2.59
+        },
+        {
+          "date": "2026-11-12",
+          "close": 2.524
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz159915,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.593Z",
+      "fetchedAt": "2026-11-12T16:19:55.229Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
@@ -394,8 +394,8 @@
       "plan": null,
       "score": 10,
       "reasons": [
-        "20日涨幅 -10.41%，相对基准 -7.06 个百分点",
-        "收盘 2.590 / MA20 2.601 / MA60 3.108",
+        "20日涨幅 -10.05%，相对基准 -7.03 个百分点",
+        "收盘 2.524 / MA20 2.587 / MA60 3.090",
         "完整日成交量 / 前20日均量 0.94倍"
       ],
       "blockers": [
@@ -405,29 +405,29 @@
         "成交量尚未达到前20日均量的1.2倍",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": -7.0581057413295,
+      "relativeStrength": -7.032448484640741,
       "valuation": {
         "kind": "fund",
         "status": "ok",
         "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-11-12T03:33:15.811Z",
+        "checkedAt": "2026-11-12T16:19:55.404Z",
         "metrics": [
           {
             "name": "NAV as of",
-            "value": 2.5894,
-            "date": "2026-11-11"
+            "value": 2.5263,
+            "date": "2026-11-12"
           }
         ],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。",
         "source": "东方财富基金净值 / 腾讯未复权收盘",
         "sourceUrl": "https://api.fund.eastmoney.com/f10/lsjz?fundCode=159915&pageIndex=1&pageSize=5",
-        "navPremium": 0.02317139105583177,
-        "expiresAt": "2026-11-15T00:00:00.000Z"
+        "navPremium": -0.0910422356806384,
+        "expiresAt": "2026-11-16T00:00:00.000Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -444,23 +444,19 @@
       "decimals": 3,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 0.809,
-      "changePct": 3.0573248407643305,
-      "return5d": 4.792746113989632,
-      "return20d": -5.710955710955701,
-      "ma20": 0.78965,
-      "ma60": 0.9341166666666664,
-      "atr": 0.039913579308639154,
-      "high20": 0.891,
+      "quoteDate": "2026-11-12",
+      "price": 0.813,
+      "changePct": 0.49443757725586845,
+      "return5d": 1.7521902377972243,
+      "return20d": -3.214285714285714,
+      "ma20": 0.7883,
+      "ma60": 0.9295333333333331,
+      "atr": 0.040491325617446096,
+      "high20": 0.858,
       "low10": 0.694,
-      "volumeRatio": 0.9798728162056074,
+      "volumeRatio": 1.281072914370184,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 1.051
-        },
         {
           "date": "2026-09-24",
           "close": 1.023
@@ -576,57 +572,49 @@
         {
           "date": "2026-11-11",
           "close": 0.809
+        },
+        {
+          "date": "2026-11-12",
+          "close": 0.813
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh512480,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.613Z",
+      "fetchedAt": "2026-11-12T16:19:55.222Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
       "status": "avoid",
       "plan": null,
-      "score": 10,
+      "score": 25,
       "reasons": [
-        "20日涨幅 -5.71%，相对基准 -2.36 个百分点",
-        "收盘 0.809 / MA20 0.790 / MA60 0.934",
-        "完整日成交量 / 前20日均量 0.98倍"
+        "20日涨幅 -3.21%，相对基准 -0.20 个百分点",
+        "收盘 0.813 / MA20 0.788 / MA60 0.930",
+        "完整日成交量 / 前20日均量 1.28倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
         "市场基准趋势未确认",
         "20日表现落后于基准",
-        "成交量尚未达到前20日均量的1.2倍",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": -2.3574391762561375,
+      "relativeStrength": -0.19684111268268856,
       "valuation": {
         "kind": "fund",
-        "status": "ok",
-        "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-11-12T03:33:15.812Z",
-        "metrics": [
-          {
-            "name": "NAV as of",
-            "value": 0.8084,
-            "date": "2026-11-11"
-          }
-        ],
-        "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。",
-        "source": "东方财富基金净值 / 腾讯未复权收盘",
-        "sourceUrl": "https://api.fund.eastmoney.com/f10/lsjz?fundCode=512480&pageIndex=1&pageSize=5",
-        "navPremium": 0.07422068283029493,
-        "expiresAt": "2026-11-15T00:00:00.000Z"
+        "status": "unavailable",
+        "label": "价值数据不足",
+        "reason": "fetch failed",
+        "checkedAt": "2026-11-12T16:19:56.444Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -643,23 +631,19 @@
       "decimals": 3,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 3.373,
-      "changePct": -0.11844832691736418,
-      "return5d": -1.4607069821793717,
-      "return20d": -3.60102886539011,
-      "ma20": 3.3963,
-      "ma60": 3.3980999999999995,
-      "atr": 0.0550020396132792,
-      "high20": 3.52,
+      "quoteDate": "2026-11-12",
+      "price": 3.357,
+      "changePct": -0.474355173436114,
+      "return5d": 0.26881720430107503,
+      "return20d": -1.438637698179679,
+      "ma20": 3.3938500000000005,
+      "ma60": 3.3989999999999996,
+      "atr": 0.053431404625864314,
+      "high20": 3.496,
       "low10": 3.318,
-      "volumeRatio": 0.6188020022125755,
+      "volumeRatio": 0.7962421226088608,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 3.35
-        },
         {
           "date": "2026-09-24",
           "close": 3.357
@@ -775,57 +759,60 @@
         {
           "date": "2026-11-11",
           "close": 3.373
+        },
+        {
+          "date": "2026-11-12",
+          "close": 3.357
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh510880,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.604Z",
+      "fetchedAt": "2026-11-12T16:19:55.229Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
       "status": "avoid",
       "plan": null,
-      "score": 10,
+      "score": 25,
       "reasons": [
-        "20日涨幅 -3.60%，相对基准 -0.25 个百分点",
-        "收盘 3.373 / MA20 3.396 / MA60 3.398",
-        "完整日成交量 / 前20日均量 0.62倍"
+        "20日涨幅 -1.44%，相对基准 +1.58 个百分点",
+        "收盘 3.357 / MA20 3.394 / MA60 3.399",
+        "完整日成交量 / 前20日均量 0.80倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
         "市场基准趋势未确认",
-        "20日表现落后于基准",
         "成交量尚未达到前20日均量的1.2倍",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": -0.2475123306905469,
+      "relativeStrength": 1.5788069034233465,
       "valuation": {
         "kind": "fund",
         "status": "ok",
         "label": "净值偏离参考，非长期价值",
-        "checkedAt": "2026-11-12T03:33:15.812Z",
+        "checkedAt": "2026-11-12T16:19:55.406Z",
         "metrics": [
           {
             "name": "NAV as of",
-            "value": 3.3746,
-            "date": "2026-11-11"
+            "value": 3.3557,
+            "date": "2026-11-12"
           }
         ],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。",
         "source": "东方财富基金净值 / 腾讯未复权收盘",
         "sourceUrl": "https://api.fund.eastmoney.com/f10/lsjz?fundCode=510880&pageIndex=1&pageSize=5",
-        "navPremium": -0.047413026729092866,
-        "expiresAt": "2026-11-15T00:00:00.000Z"
+        "navPremium": 0.03874005423607496,
+        "expiresAt": "2026-11-16T00:00:00.000Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -842,23 +829,19 @@
       "decimals": 2,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 27.86,
-      "changePct": -1.1355571327182457,
-      "return5d": -4.752136752136749,
-      "return20d": -7.071380920613746,
-      "ma20": 28.415499999999998,
-      "ma60": 31.012666666666664,
-      "atr": 1.1276861447620539,
-      "high20": 30.49,
+      "quoteDate": "2026-11-12",
+      "price": 26.78,
+      "changePct": -3.876525484565685,
+      "return5d": -9.158751696065126,
+      "return20d": -8.849557522123884,
+      "ma20": 28.285500000000003,
+      "ma60": 30.906333333333325,
+      "atr": 1.1299965349364582,
+      "high20": 30.29,
       "low10": 25.9,
-      "volumeRatio": 0.7247243919647958,
+      "volumeRatio": 1.0939981382228352,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 31.41
-        },
         {
           "date": "2026-09-24",
           "close": 30.01
@@ -974,16 +957,20 @@
         {
           "date": "2026-11-11",
           "close": 27.86
+        },
+        {
+          "date": "2026-11-12",
+          "close": 26.78
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601899,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.608Z",
+      "fetchedAt": "2026-11-12T16:19:55.295Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
@@ -991,9 +978,9 @@
       "plan": null,
       "score": 10,
       "reasons": [
-        "20日涨幅 -7.07%，相对基准 -3.72 个百分点",
-        "收盘 27.86 / MA20 28.42 / MA60 31.01",
-        "完整日成交量 / 前20日均量 0.72倍"
+        "20日涨幅 -8.85%，相对基准 -5.83 个百分点",
+        "收盘 26.78 / MA20 28.29 / MA60 30.91",
+        "完整日成交量 / 前20日均量 1.09倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
@@ -1002,12 +989,12 @@
         "成交量尚未达到前20日均量的1.2倍",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": -3.7178643859141824,
+      "relativeStrength": -5.832112920520859,
       "valuation": {
         "kind": "earnings",
         "status": "ok",
         "label": "高于基准情景",
-        "checkedAt": "2026-11-12T03:33:18.140Z",
+        "checkedAt": "2026-11-12T16:19:56.413Z",
         "input": {
           "reportDate": "2026-09-30",
           "publishedAt": "2026-10-24",
@@ -1040,8 +1027,8 @@
             }
           ],
           "basis": "摊薄EPS：最新年报+本年累计-上年同期；基准盈利取TTM和最新年报较低值。经营现金流/每股收益为近似质量检查，不等于股东自由现金流。",
-          "referencePrice": 27.86,
-          "priceDate": "2026-11-11",
+          "referencePrice": 26.78,
+          "priceDate": "2026-11-12",
           "source": "东方财富财报汇总 / 腾讯未复权收盘",
           "sourceUrl": "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_FINANCE_MAINFINADATA&columns=ALL&filter=%28SECUCODE%3D%22601899.SH%22%29&pageSize=20&sortColumns=REPORT_DATE&sortTypes=-1",
           "priceSourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh601899,day,,,120,bfq"
@@ -1103,12 +1090,12 @@
             "value": 34.38
           }
         ],
-        "margin": -88.6486,
-        "upside": -46.9914,
+        "margin": -81.3356,
+        "upside": -44.8536,
         "state": "premium",
         "safetyPrice": 11.8146,
-        "pe": 10.6336,
-        "impliedGrowth": 18.0766,
+        "pe": 10.2214,
+        "impliedGrowth": 17.1466,
         "qualityFlags": [],
         "confidence": "假设敏感 / 盈利代理，非完整现金流估值",
         "reason": "矿价、成本和资本开支可能使周期高点利润不可持续。"
@@ -1116,7 +1103,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "expiresAt": "2026-12-10T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -1208,23 +1195,19 @@
       "decimals": 2,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 29.48,
-      "changePct": -0.6403774856757694,
-      "return5d": -0.6403774856757694,
-      "return20d": 0.10186757215620013,
-      "ma20": 29.653499999999998,
-      "ma60": 28.790000000000006,
-      "atr": 0.516823558885404,
+      "quoteDate": "2026-11-12",
+      "price": 29.61,
+      "changePct": 0.4409769335142366,
+      "return5d": 1.127049180327866,
+      "return20d": 0.03378378378378066,
+      "ma20": 29.654000000000003,
+      "ma60": 28.816500000000005,
+      "atr": 0.5077646906534227,
       "high20": 30.1,
       "low10": 28.75,
-      "volumeRatio": 0.5512670017472963,
+      "volumeRatio": 0.5998917485367553,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 28.08
-        },
         {
           "date": "2026-09-24",
           "close": 28.36
@@ -1340,16 +1323,20 @@
         {
           "date": "2026-11-11",
           "close": 29.48
+        },
+        {
+          "date": "2026-11-12",
+          "close": 29.61
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600900,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.614Z",
+      "fetchedAt": "2026-11-12T16:19:55.296Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
@@ -1357,9 +1344,9 @@
       "plan": null,
       "score": 25,
       "reasons": [
-        "20日涨幅 0.10%，相对基准 +3.46 个百分点",
-        "收盘 29.48 / MA20 29.65 / MA60 28.79",
-        "完整日成交量 / 前20日均量 0.55倍"
+        "20日涨幅 0.03%，相对基准 +3.05 个百分点",
+        "收盘 29.61 / MA20 29.65 / MA60 28.82",
+        "完整日成交量 / 前20日均量 0.60倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
@@ -1367,12 +1354,12 @@
         "成交量尚未达到前20日均量的1.2倍",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": 3.4553841068557634,
+      "relativeStrength": 3.051228385386806,
       "valuation": {
         "kind": "earnings",
         "status": "ok",
         "label": "高于乐观情景",
-        "checkedAt": "2026-11-12T03:33:18.164Z",
+        "checkedAt": "2026-11-12T16:19:56.655Z",
         "input": {
           "reportDate": "2026-09-30",
           "publishedAt": "2026-10-31",
@@ -1405,8 +1392,8 @@
             }
           ],
           "basis": "摊薄EPS：最新年报+本年累计-上年同期；基准盈利取TTM和最新年报较低值。经营现金流/每股收益为近似质量检查，不等于股东自由现金流。",
-          "referencePrice": 29.48,
-          "priceDate": "2026-11-11",
+          "referencePrice": 29.61,
+          "priceDate": "2026-11-12",
           "source": "东方财富财报汇总 / 腾讯未复权收盘",
           "sourceUrl": "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_FINANCE_MAINFINADATA&columns=ALL&filter=%28SECUCODE%3D%22600900.SH%22%29&pageSize=20&sortColumns=REPORT_DATE&sortTypes=-1",
           "priceSourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh600900,day,,,120,bfq"
@@ -1468,12 +1455,12 @@
             "value": 27.8221
           }
         ],
-        "margin": -46.5857,
-        "upside": -31.7805,
+        "margin": -47.2321,
+        "upside": -32.08,
         "state": "expensive",
         "safetyPrice": 16.0889,
-        "pe": 22.089,
-        "impliedGrowth": 11.1875,
+        "pe": 22.1864,
+        "impliedGrowth": 11.2853,
         "qualityFlags": [],
         "confidence": "假设敏感 / 盈利代理，非完整现金流估值",
         "reason": "来水、电价、负债和利率变化影响利润；本模型不计期间分红，会低估分红贡献。"
@@ -1481,7 +1468,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "expiresAt": "2026-12-15T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -1585,23 +1572,19 @@
       "decimals": 2,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 542,
-      "changePct": 15.074309978768575,
-      "return5d": 1.616108590498322,
-      "return20d": -21.77803434839082,
-      "ma20": 569.892,
-      "ma60": 769.1680333333334,
-      "atr": 52.02534266132758,
-      "high20": 733.35,
+      "quoteDate": "2026-11-12",
+      "price": 508.9,
+      "changePct": -6.107011070110701,
+      "return5d": 3.1561024060973386,
+      "return20d": -22.534782476329664,
+      "ma20": 562.49,
+      "ma60": 762.3196000000002,
+      "atr": 52.70272415922915,
+      "high20": 679.9,
       "low10": 427.34,
-      "volumeRatio": 1.6178035908926727,
+      "volumeRatio": 1.5881206376627308,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 921.306
-        },
         {
           "date": "2026-09-24",
           "close": 894.666
@@ -1717,16 +1700,20 @@
         {
           "date": "2026-11-11",
           "close": 542
+        },
+        {
+          "date": "2026-11-12",
+          "close": 508.9
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz300308,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.606Z",
+      "fetchedAt": "2026-11-12T16:19:55.363Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
@@ -1734,9 +1721,9 @@
       "plan": null,
       "score": 25,
       "reasons": [
-        "20日涨幅 -21.78%，相对基准 -18.42 个百分点",
-        "收盘 542.00 / MA20 569.89 / MA60 769.17",
-        "完整日成交量 / 前20日均量 1.62倍"
+        "20日涨幅 -22.53%，相对基准 -19.52 个百分点",
+        "收盘 508.90 / MA20 562.49 / MA60 762.32",
+        "完整日成交量 / 前20日均量 1.59倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
@@ -1744,12 +1731,12 @@
         "20日表现落后于基准",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": -18.424517813691256,
+      "relativeStrength": -19.51733787472664,
       "valuation": {
         "kind": "earnings",
         "status": "ok",
-        "label": "高于乐观情景",
-        "checkedAt": "2026-11-12T03:33:18.191Z",
+        "label": "高于基准情景",
+        "checkedAt": "2026-11-12T16:19:56.664Z",
         "input": {
           "reportDate": "2026-09-30",
           "publishedAt": "2026-10-30",
@@ -1782,8 +1769,8 @@
             }
           ],
           "basis": "摊薄EPS：最新年报+本年累计-上年同期；基准盈利取TTM和最新年报较低值。经营现金流/每股收益为近似质量检查，不等于股东自由现金流。",
-          "referencePrice": 542,
-          "priceDate": "2026-11-11",
+          "referencePrice": 508.9,
+          "priceDate": "2026-11-12",
           "source": "东方财富财报汇总 / 腾讯未复权收盘",
           "sourceUrl": "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_FINANCE_MAINFINADATA&columns=ALL&filter=%28SECUCODE%3D%22300308.SZ%22%29&pageSize=20&sortColumns=REPORT_DATE&sortTypes=-1",
           "priceSourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz300308,day,,,120,bfq"
@@ -1845,12 +1832,12 @@
             "value": 521.4407
           }
         ],
-        "margin": -123.275,
-        "upside": -55.2122,
-        "state": "expensive",
+        "margin": -109.6395,
+        "upside": -52.2991,
+        "state": "premium",
         "safetyPrice": 194.2,
-        "pe": 23.6166,
-        "impliedGrowth": 31.5183,
+        "pe": 22.1743,
+        "impliedGrowth": 29.8711,
         "qualityFlags": [
           "经营现金流/归母利润低于0.8，盈利兑现需复核"
         ],
@@ -1860,7 +1847,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "expiresAt": "2026-12-13T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -2009,23 +1996,19 @@
       "decimals": 2,
       "currency": "CNY",
       "ok": true,
-      "quoteDate": "2026-11-11",
-      "price": 92.06,
-      "changePct": 10.001194885888399,
-      "return5d": -2.4064454574366567,
-      "return20d": -29.94444867209497,
-      "ma20": 101.72899999999998,
-      "ma60": 157.7566666666666,
-      "atr": 9.02779253378169,
-      "high20": 140.14,
+      "quoteDate": "2026-11-12",
+      "price": 93.69,
+      "changePct": 1.770584401477282,
+      "return5d": 5.151515151515151,
+      "return20d": -24.56521739130435,
+      "ma20": 100.20350000000002,
+      "ma60": 155.98166666666663,
+      "atr": 9.011740247904395,
+      "high20": 128.5,
       "low10": 78,
-      "volumeRatio": 1.549404620437301,
+      "volumeRatio": 1.9621014807730117,
       "bars": 120,
       "sparkline": [
-        {
-          "date": "2026-09-23",
-          "close": 193
-        },
         {
           "date": "2026-09-24",
           "close": 185.99
@@ -2141,16 +2124,20 @@
         {
           "date": "2026-11-11",
           "close": 92.06
+        },
+        {
+          "date": "2026-11-12",
+          "close": 93.69
         }
       ],
       "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz002384,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.604Z",
+      "fetchedAt": "2026-11-12T16:19:55.362Z",
       "dependencies": [
         {
           "market": "CN",
-          "quoteDate": "2026-11-11",
+          "quoteDate": "2026-11-12",
           "ok": true
         }
       ],
@@ -2158,9 +2145,9 @@
       "plan": null,
       "score": 25,
       "reasons": [
-        "20日涨幅 -29.94%，相对基准 -26.59 个百分点",
-        "收盘 92.06 / MA20 101.73 / MA60 157.76",
-        "完整日成交量 / 前20日均量 1.55倍"
+        "20日涨幅 -24.57%，相对基准 -21.55 个百分点",
+        "收盘 93.69 / MA20 100.20 / MA60 155.98",
+        "完整日成交量 / 前20日均量 1.96倍"
       ],
       "blockers": [
         "标的尚未形成收盘价 > MA20 > MA60",
@@ -2168,12 +2155,12 @@
         "20日表现落后于基准",
         "尚未收盘突破前20日高点"
       ],
-      "relativeStrength": -26.59093213739541,
+      "relativeStrength": -21.547772789701327,
       "valuation": {
         "kind": "earnings",
         "status": "ok",
         "label": "高于乐观情景",
-        "checkedAt": "2026-11-12T03:33:18.192Z",
+        "checkedAt": "2026-11-12T16:19:56.664Z",
         "input": {
           "reportDate": "2026-09-30",
           "publishedAt": "2026-10-31",
@@ -2206,8 +2193,8 @@
             }
           ],
           "basis": "摊薄EPS：最新年报+本年累计-上年同期；基准盈利取TTM和最新年报较低值。经营现金流/每股收益为近似质量检查，不等于股东自由现金流。",
-          "referencePrice": 92.06,
-          "priceDate": "2026-11-11",
+          "referencePrice": 93.69,
+          "priceDate": "2026-11-12",
           "source": "东方财富财报汇总 / 腾讯未复权收盘",
           "sourceUrl": "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_F10_FINANCE_MAINFINADATA&columns=ALL&filter=%28SECUCODE%3D%22002384.SZ%22%29&pageSize=20&sortColumns=REPORT_DATE&sortTypes=-1",
           "priceSourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz002384,day,,,120,bfq"
@@ -2269,12 +2256,12 @@
             "value": 26.8508
           }
         ],
-        "margin": -568.2054,
-        "upside": -85.0345,
+        "margin": -580.0366,
+        "upside": -85.2949,
         "state": "expensive",
         "safetyPrice": 11.0218,
-        "pe": 30.8926,
-        "impliedGrowth": 57.9086,
+        "pe": 31.4396,
+        "impliedGrowth": 58.4639,
         "qualityFlags": [],
         "confidence": "假设敏感 / 盈利代理，非完整现金流估值",
         "reason": "客户订单、资本开支和营运资金会使会计盈利与可分配现金偏离。"
@@ -2282,7 +2269,7 @@
       "expectation": {
         "status": "ok",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "expiresAt": "2026-12-16T16:00:00.000Z",
         "fiscalYear": 2027,
         "currency": "CNY",
@@ -2335,11 +2322,11 @@
       "return20d": -1.2720893970894043,
       "ma20": 760.1990000000001,
       "ma60": 764.5036666666667,
-      "atr": 11.060381128312661,
+      "atr": 11.0604768215303,
       "high20": 776.35,
       "low10": 732.71,
       "volumeRatio": 0.7935360010566274,
-      "bars": 120,
+      "bars": 119,
       "sparkline": [
         {
           "date": "2026-10-01",
@@ -2462,10 +2449,10 @@
           "close": 759.81
         }
       ],
-      "referenceClose": 759.81,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usSPY.AM,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.617Z",
+      "fetchedAt": "2026-11-12T16:19:55.372Z",
       "dependencies": [
         {
           "market": "US",
@@ -2492,14 +2479,14 @@
         "kind": "fund",
         "status": "unavailable",
         "label": "底层长期估值未覆盖",
-        "checkedAt": "2026-11-12T03:33:15.816Z",
+        "checkedAt": "2026-11-12T16:19:55.409Z",
         "metrics": [],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -2523,11 +2510,11 @@
       "return20d": -5.291172234035257,
       "ma20": 698.9355,
       "ma60": 717.7884999999999,
-      "atr": 16.404631408808857,
+      "atr": 16.404705885289598,
       "high20": 740.53,
       "low10": 647.05,
       "volumeRatio": 0.8696781444421559,
-      "bars": 120,
+      "bars": 119,
       "sparkline": [
         {
           "date": "2026-10-01",
@@ -2650,10 +2637,10 @@
           "close": 690.38
         }
       ],
-      "referenceClose": 690.38,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usQQQ.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.610Z",
+      "fetchedAt": "2026-11-12T16:19:55.379Z",
       "dependencies": [
         {
           "market": "US",
@@ -2681,14 +2668,14 @@
         "kind": "fund",
         "status": "unavailable",
         "label": "底层长期估值未覆盖",
-        "checkedAt": "2026-11-12T03:33:15.816Z",
+        "checkedAt": "2026-11-12T16:19:55.409Z",
         "metrics": [],
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -2712,11 +2699,11 @@
       "return20d": -10.235674676524953,
       "ma20": 158.405,
       "ma60": 172.27183333333332,
-      "atr": 8.457269919101531,
+      "atr": 8.457266914352843,
       "high20": 178.12,
       "low10": 130.75,
       "volumeRatio": 2.6283927735318593,
-      "bars": 120,
+      "bars": 119,
       "sparkline": [
         {
           "date": "2026-10-01",
@@ -2839,10 +2826,10 @@
           "close": 155.4
         }
       ],
-      "referenceClose": 155.4,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usSOXX.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.617Z",
+      "fetchedAt": "2026-11-12T16:19:55.400Z",
       "dependencies": [
         {
           "market": "US",
@@ -2869,17 +2856,17 @@
         "kind": "fund",
         "status": "ok",
         "label": "底层估值倍数参考",
-        "checkedAt": "2026-11-12T03:33:15.816Z",
+        "checkedAt": "2026-11-12T16:19:55.409Z",
         "metrics": [
           {
             "name": "P/B Ratio",
-            "value": 8.46396,
-            "date": "2026-11-10"
+            "value": 8.43646,
+            "date": "2026-11-11"
           },
           {
             "name": "P/E Ratio",
-            "value": 36.7151,
-            "date": "2026-11-10"
+            "value": 36.5428,
+            "date": "2026-11-11"
           },
           {
             "name": "NAV as of",
@@ -2890,14 +2877,14 @@
         "reason": "ETF长期价值取决于底层盈利、增长与现金流；净值折价只描述交易价格偏离，不能证明底层资产便宜。 发行人P/E排除负盈利成份股，不能直接反推全组合可分配盈利。",
         "source": "iShares发行人",
         "sourceUrl": "https://www.ishares.com/us/products/239705/ishares-phlx-semiconductor-etf",
-        "navPremium": 0.019308746862334303,
-        "expiresAt": "2026-11-17T00:00:00.000Z",
+        "navPremium": null,
+        "expiresAt": "2026-11-18T00:00:00.000Z",
         "rateShock": null
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -2921,11 +2908,11 @@
       "return20d": -21.495707184817004,
       "ma20": 203.8045,
       "ma60": 216.94366666666653,
-      "atr": 8.695555234838846,
+      "atr": 8.69562429818456,
       "high20": 226,
       "low10": 165.89,
       "volumeRatio": 2.194682573863484,
-      "bars": 120,
+      "bars": 119,
       "sparkline": [
         {
           "date": "2026-10-01",
@@ -3048,10 +3035,10 @@
           "close": 173.73
         }
       ],
-      "referenceClose": 173.73,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usNVDA.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.622Z",
+      "fetchedAt": "2026-11-12T16:19:55.377Z",
       "dependencies": [
         {
           "market": "US",
@@ -3076,126 +3063,15 @@
       "relativeStrength": -20.223617787727598,
       "valuation": {
         "kind": "earnings",
-        "status": "ok",
-        "label": "高于基准情景",
-        "checkedAt": "2026-11-12T03:33:18.449Z",
-        "input": {
-          "reportDate": "2026-07-26",
-          "publishedAt": "2026-08-26",
-          "annualDate": "2026-01-25",
-          "currency": "USD",
-          "ttmEPS": 7.909999999999999,
-          "annualEPS": 4.9,
-          "cashConversion": null,
-          "roe": 28.1243373903,
-          "debtRatio": 28.5032722186,
-          "shareBasisRisk": false,
-          "periods": [
-            {
-              "start": "2025-07-28",
-              "end": "2025-10-26",
-              "eps": 1.3,
-              "publishedAt": "2025-11-19"
-            },
-            {
-              "start": "2025-10-27",
-              "end": "2026-01-25",
-              "eps": 1.76,
-              "publishedAt": "2026-02-25"
-            },
-            {
-              "start": "2026-01-26",
-              "end": "2026-04-26",
-              "eps": 2.39,
-              "publishedAt": "2026-05-20"
-            },
-            {
-              "start": "2026-04-27",
-              "end": "2026-07-26",
-              "eps": 2.46,
-              "publishedAt": "2026-08-26"
-            }
-          ],
-          "basis": "最近四个连续单季GAAP摊薄EPS相加；不用累计季报重复加总。基准盈利取TTM和最新年报较低值，拆股或大幅股本变化会暂停。",
-          "referencePrice": 173.73,
-          "priceDate": "2026-11-11",
-          "source": "东方财富财报汇总 / 腾讯未复权收盘",
-          "sourceUrl": "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_USF10_FN_GMAININDICATOR&columns=ALL&filter=%28SECUCODE%3D%22NVDA.O%22%29&pageSize=20&sortColumns=REPORT_DATE&sortTypes=-1",
-          "priceSourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usNVDA.OQ,day,,,120,qfq"
-        },
-        "profile": {
-          "name": "高增长半导体",
-          "growth": [
-            0,
-            15,
-            25
-          ],
-          "pe": [
-            20,
-            28,
-            36
-          ],
-          "discount": [
-            15,
-            12,
-            10
-          ],
-          "haircut": [
-            0.8,
-            1,
-            1
-          ],
-          "caution": "AI投资回报、出口限制和竞争影响增长；股权激励、一次性收益需复核。"
-        },
-        "method": "五年盈利退出价折现（不含期间分红）",
-        "reviewDate": "2026-09-09",
-        "expiresAt": "2026-12-08T00:00:00.000Z",
-        "normalizedEPS": 4.9,
-        "scenarios": [
-          {
-            "name": "保守",
-            "eps": 3.92,
-            "growth": 0,
-            "terminalPE": 20,
-            "discount": 15,
-            "years": 5,
-            "value": 38.9787
-          },
-          {
-            "name": "基准",
-            "eps": 4.9,
-            "growth": 15,
-            "terminalPE": 28,
-            "discount": 12,
-            "years": 5,
-            "value": 156.5861
-          },
-          {
-            "name": "乐观",
-            "eps": 4.9,
-            "growth": 25,
-            "terminalPE": 36,
-            "discount": 10,
-            "years": 5,
-            "value": 334.2606
-          }
-        ],
-        "margin": -10.9485,
-        "upside": -9.8681,
-        "state": "premium",
-        "safetyPrice": 125.2689,
-        "pe": 21.9633,
-        "impliedGrowth": 17.4146,
-        "qualityFlags": [
-          "未完成现金流交叉验证"
-        ],
-        "confidence": "假设敏感 / 盈利代理，非完整现金流估值",
-        "reason": "AI投资回报、出口限制和竞争影响增长；股权激励、一次性收益需复核。"
+        "status": "unavailable",
+        "label": "价值数据不足",
+        "reason": "未取得与技术日线同日的未复权收盘价",
+        "checkedAt": "2026-11-12T16:19:57.006Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入可核验日期、财年及GAAP口径的美股机构预测；仅保留模型反推的盈利要求，不伪造一致预期。"
       }
     },
@@ -3219,11 +3095,11 @@
       "return20d": -2.353426146264692,
       "ma20": 530.4665,
       "ma60": 514.3331666666666,
-      "atr": 15.8618705799912,
+      "atr": 15.86207621031146,
       "high20": 559.15,
       "low10": 504.96,
       "volumeRatio": 1.11359137612091,
-      "bars": 120,
+      "bars": 119,
       "sparkline": [
         {
           "date": "2026-10-01",
@@ -3346,10 +3222,10 @@
           "close": 521.13
         }
       ],
-      "referenceClose": 521.13,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usMSFT.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.615Z",
+      "fetchedAt": "2026-11-12T16:19:55.396Z",
       "dependencies": [
         {
           "market": "US",
@@ -3375,126 +3251,15 @@
       "relativeStrength": -1.0813367491752879,
       "valuation": {
         "kind": "earnings",
-        "status": "ok",
-        "label": "高于基准情景",
-        "checkedAt": "2026-11-12T03:33:18.448Z",
-        "input": {
-          "reportDate": "2026-09-30",
-          "publishedAt": "2026-10-28",
-          "annualDate": "2026-06-30",
-          "currency": "USD",
-          "ttmEPS": 19.16,
-          "annualEPS": 17.95,
-          "cashConversion": null,
-          "roe": 8.024791433,
-          "debtRatio": 39.6321286934,
-          "shareBasisRisk": false,
-          "periods": [
-            {
-              "start": "2025-10-01",
-              "end": "2025-12-31",
-              "eps": 5.16,
-              "publishedAt": "2026-01-28"
-            },
-            {
-              "start": "2026-01-01",
-              "end": "2026-03-31",
-              "eps": 4.27,
-              "publishedAt": "2026-04-29"
-            },
-            {
-              "start": "2026-04-01",
-              "end": "2026-06-30",
-              "eps": 4.81,
-              "publishedAt": "2026-07-29"
-            },
-            {
-              "start": "2026-07-01",
-              "end": "2026-09-30",
-              "eps": 4.92,
-              "publishedAt": "2026-10-28"
-            }
-          ],
-          "basis": "最近四个连续单季GAAP摊薄EPS相加；不用累计季报重复加总。基准盈利取TTM和最新年报较低值，拆股或大幅股本变化会暂停。",
-          "referencePrice": 521.13,
-          "priceDate": "2026-11-11",
-          "source": "东方财富财报汇总 / 腾讯未复权收盘",
-          "sourceUrl": "https://datacenter.eastmoney.com/securities/api/data/v1/get?reportName=RPT_USF10_FN_GMAININDICATOR&columns=ALL&filter=%28SECUCODE%3D%22MSFT.O%22%29&pageSize=20&sortColumns=REPORT_DATE&sortTypes=-1",
-          "priceSourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usMSFT.OQ,day,,,120,qfq"
-        },
-        "profile": {
-          "name": "成熟软件与云",
-          "growth": [
-            3,
-            10,
-            16
-          ],
-          "pe": [
-            22,
-            28,
-            34
-          ],
-          "discount": [
-            12,
-            10,
-            9
-          ],
-          "haircut": [
-            0.85,
-            0.95,
-            1
-          ],
-          "caution": "资本开支和投资收益可能提高会计利润却不改善可分配现金，EPS不等于自由现金流。"
-        },
-        "method": "五年盈利退出价折现（不含期间分红）",
-        "reviewDate": "2026-09-09",
-        "expiresAt": "2026-12-08T00:00:00.000Z",
-        "normalizedEPS": 17.95,
-        "scenarios": [
-          {
-            "name": "保守",
-            "eps": 15.2575,
-            "growth": 3,
-            "terminalPE": 22,
-            "discount": 12,
-            "years": 5,
-            "value": 220.8015
-          },
-          {
-            "name": "基准",
-            "eps": 17.0525,
-            "growth": 10,
-            "terminalPE": 28,
-            "discount": 10,
-            "years": 5,
-            "value": 477.47
-          },
-          {
-            "name": "乐观",
-            "eps": 17.95,
-            "growth": 16,
-            "terminalPE": 34,
-            "discount": 9,
-            "years": 5,
-            "value": 833.1071
-          }
-        ],
-        "margin": -9.144,
-        "upside": -8.3779,
-        "state": "premium",
-        "safetyPrice": 381.976,
-        "pe": 27.1989,
-        "impliedGrowth": 11.9419,
-        "qualityFlags": [
-          "未完成现金流交叉验证"
-        ],
-        "confidence": "假设敏感 / 盈利代理，非完整现金流估值",
-        "reason": "资本开支和投资收益可能提高会计利润却不改善可分配现金，EPS不等于自由现金流。"
+        "status": "unavailable",
+        "label": "价值数据不足",
+        "reason": "未取得与技术日线同日的未复权收盘价",
+        "checkedAt": "2026-11-12T16:19:57.006Z"
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入可核验日期、财年及GAAP口径的美股机构预测；仅保留模型反推的盈利要求，不伪造一致预期。"
       }
     },
@@ -3645,10 +3410,10 @@
           "close": 365.17
         }
       ],
-      "referenceClose": 365.17,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usGLD.AM,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.625Z",
+      "fetchedAt": "2026-11-12T16:19:55.387Z",
       "dependencies": [
         {
           "market": "US",
@@ -3681,7 +3446,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -3705,11 +3470,11 @@
       "return20d": 3.004073319755607,
       "ma20": 80.93499999999999,
       "ma60": 80.20700000000002,
-      "atr": 0.7788411866122988,
+      "atr": 0.7788379524934864,
       "high20": 82.42,
       "low10": 80.47,
       "volumeRatio": 0.6722779839853671,
-      "bars": 120,
+      "bars": 119,
       "sparkline": [
         {
           "date": "2026-10-01",
@@ -3832,10 +3597,10 @@
           "close": 80.92
         }
       ],
-      "referenceClose": 80.92,
+      "referenceClose": null,
       "source": "腾讯财经前复权日线",
       "sourceUrl": "https://web.ifzq.gtimg.cn/appstock/app/usfqkline/get?param=usTLT.OQ,day,,,120,qfq",
-      "fetchedAt": "2026-11-12T03:33:15.684Z",
+      "fetchedAt": "2026-11-12T16:19:55.403Z",
       "dependencies": [
         {
           "market": "US",
@@ -3862,12 +3627,12 @@
         "kind": "bond",
         "status": "ok",
         "label": "收益率 / 久期参考",
-        "checkedAt": "2026-11-12T03:33:15.818Z",
+        "checkedAt": "2026-11-12T16:19:55.411Z",
         "metrics": [
           {
             "name": "Effective Duration",
-            "value": 14.82961,
-            "date": "2026-11-10"
+            "value": 14.82693,
+            "date": "2026-11-11"
           },
           {
             "name": "30 Day SEC Yield",
@@ -3883,12 +3648,12 @@
         "reason": "债券价值来自票息和本金折现；久期仅估算收益率平行移动的价格敏感度，不含凸性、票息或总回报。滚动债券ETF没有到期兑付面值。",
         "source": "iShares发行人",
         "sourceUrl": "https://www.ishares.com/us/products/239454/ishares-20-year-treasury-bond-etf",
-        "navPremium": 0.06182762458266655,
+        "navPremium": null,
         "expiresAt": "2026-11-17T00:00:00.000Z",
         "rateShock": [
           {
             "rateChange": -1,
-            "priceChangePct": 14.82961
+            "priceChangePct": 14.82693
           },
           {
             "rateChange": 0,
@@ -3896,14 +3661,14 @@
           },
           {
             "rateChange": 1,
-            "priceChangePct": -14.82961
+            "priceChangePct": -14.82693
           }
         ]
       },
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     },
@@ -4056,7 +3821,7 @@
       ],
       "source": "Binance 公共现货日线",
       "sourceUrl": "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=120",
-      "fetchedAt": "2026-11-12T03:33:15.810Z",
+      "fetchedAt": "2026-11-12T16:19:55.227Z",
       "dependencies": [
         {
           "market": "CRYPTO",
@@ -4088,7 +3853,7 @@
       "expectation": {
         "status": "unavailable",
         "kind": "broker_sample",
-        "checkedAt": "2026-11-12T03:33:19.113Z",
+        "checkedAt": "2026-11-12T16:19:58.153Z",
         "reason": "未接入该资产可核验的底层盈利或衍生品预期；不从现货涨跌反推方向预测。"
       }
     }
@@ -4151,10 +3916,10 @@
       "meaning": "企业融资压力的价格信号。持续走阔时，需要复核风险资产的新增敞口。",
       "exposure": "SPY / QQQ / BTC",
       "ok": true,
-      "value": 3.34,
-      "change5obsBp": -9.00000000000003,
-      "quoteDate": "2026-11-09",
-      "expiresAt": "2026-11-16T00:00:00.000Z",
+      "value": 3.3,
+      "change5obsBp": -10.000000000000009,
+      "quoteDate": "2026-11-11",
+      "expiresAt": "2026-11-18T00:00:00.000Z",
       "source": "FRED BAMLH0A0HYM2",
       "sourceUrl": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2"
     },
@@ -4175,7 +3940,7 @@
     }
   ],
   "disclosures": {
-    "checkedAt": "2026-11-12T03:33:18.618Z",
+    "checkedAt": "2026-11-12T16:19:56.675Z",
     "failedQueries": 0,
     "items": []
   },
